@@ -1,0 +1,33 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicList",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Principal": {
+                "AWS": [
+                    "*"
+                ]
+            },
+            "Resource": "arn:aws:s3:::<BUCKET>"
+        },
+        {
+            "Sid": "PublicDownload",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Principal": {
+                "AWS": [
+                    "*"
+                ]
+            },
+            "Resource": [
+                "arn:aws:s3:::<BUCKET>/*"
+            ]
+        }
+    ]
+}
