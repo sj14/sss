@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -9,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/sj14/sss/progress"
 	"github.com/sj14/sss/util"
 )
@@ -20,6 +22,7 @@ type ObjectPutConfig struct {
 	LeavePartsOnError bool
 	MaxUploadParts    int32
 	PartSize          int64
+	ACL               string
 }
 
 func (c *Controller) ObjectPut(filePath string, target string, cfg ObjectPutConfig) error {
@@ -80,6 +83,7 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		Bucket: aws.String(cfg.Bucket),
 		Key:    aws.String(key),
 		Body:   pr,
+		ACL:    types.ObjectCannedACL(cfg.ACL),
 	}
 
 	if cfg.SSEC.KeyIsSet() {
@@ -88,10 +92,17 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		putObjectInput.SSECustomerAlgorithm = aws.String(cfg.SSEC.Algorithm())
 	}
 
-	_, err = uploader.Upload(c.ctx, putObjectInput)
+	resp, err := uploader.Upload(c.ctx, putObjectInput)
 	if err != nil {
 		return err
 	}
+
+	b, err := json.MarshalIndent(resp, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(b))
 
 	return nil
 }

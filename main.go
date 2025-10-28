@@ -277,6 +277,10 @@ var cmd = &cli.Command{
 					Name:  "target",
 					Usage: "target key for single file or prefix multiple files",
 				},
+				&cli.StringFlag{
+					Name:  "acl",
+					Usage: "e.g. 'public-read'",
+				},
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(cmd, func(ctrl *controller.Controller) error {
@@ -290,6 +294,7 @@ var cmd = &cli.Command{
 							LeavePartsOnError: cmd.Bool("leave-parts-on-error"),
 							MaxUploadParts:    cmd.Int32("max-parts"),
 							PartSize:          cmd.Int64("part-size"),
+							ACL:               cmd.String("acl"),
 						},
 					)
 				})
