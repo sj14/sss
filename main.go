@@ -81,6 +81,10 @@ var (
 	flagForce = &cli.BoolFlag{
 		Name: "force",
 	}
+	flagConcurrency = &cli.IntFlag{
+		Name:  "concurrency",
+		Value: 5,
+	}
 )
 
 func parseSSEC(cmd *cli.Command) util.SSEC {
@@ -262,9 +266,6 @@ var cmd = &cli.Command{
 				flagSSEcKey,
 				flagSSEcAlgo,
 				&cli.IntFlag{
-					Name: "concurrency",
-				},
-				&cli.IntFlag{
 					Name: "leave-parts-on-error",
 				},
 				&cli.IntFlag{
@@ -310,14 +311,18 @@ var cmd = &cli.Command{
 			Flags: []cli.Flag{
 				flagDelimiter,
 				flagForce,
+				flagConcurrency,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectDelete(
-						cmd.String(flagBucket.Name),
 						cmd.StringArg("key"),
-						cmd.String(flagDelimiter.Name),
-						cmd.Bool(flagForce.Name),
+						controller.ObjectDeleteConfig{
+							Bucket:      cmd.String(flagBucket.Name),
+							Delimiter:   cmd.String(flagDelimiter.Name),
+							Force:       cmd.Bool(flagForce.Name),
+							Concurrency: cmd.Int(flagConcurrency.Name),
+						},
 					)
 				})
 			},

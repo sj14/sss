@@ -7,34 +7,48 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/dustin/go-humanize"
+	"golang.org/x/sync/errgroup"
 )
 
-func (c *Controller) ObjectDelete(bucket, key, delimiter string, force bool) error {
-	if key == "" && !force {
+type ObjectDeleteConfig struct {
+	Bucket      string
+	Delimiter   string
+	Force       bool
+	Concurrency int
+}
+
+func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
+	if key == "" && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 
-	objects, prefixes, err := c.objectList(bucket, key, delimiter)
+	objects, prefixes, err := c.objectList(cfg.Bucket, key, cfg.Delimiter)
 	if err != nil {
 		return err
 	}
 
 	for _, prefix := range prefixes {
-		err := c.ObjectDelete(bucket, *prefix.Prefix, delimiter, force)
+		err := c.ObjectDelete(*prefix.Prefix, cfg)
 		if err != nil {
 			return err
 		}
 	}
+
+	eg, _ := errgroup.WithContext(c.ctx)
+	eg.SetLimit(cfg.Concurrency)
 
 	for _, object := range objects {
-		fmt.Printf("deleting %s (%s)\n", *object.Key, humanize.Bytes(uint64(*object.Size)))
-		err := c.objectDelete(bucket, *object.Key)
-		if err != nil {
-			return err
-		}
+		eg.Go(func() error {
+			fmt.Printf("deleting %s (%s)\n", *object.Key, humanize.Bytes(uint64(*object.Size)))
+			err := c.objectDelete(cfg.Bucket, *object.Key)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
 	}
 
-	return nil
+	return eg.Wait()
 }
 
 func (c *Controller) objectDelete(bucket, key string) error {
