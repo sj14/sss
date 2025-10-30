@@ -19,7 +19,10 @@ func main() {
 }
 
 func Exec(cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
-	ctrl, err := controller.New(context.Background(), controller.Config{
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	ctrl, err := controller.New(ctx, controller.Config{
 		Profile:   cmd.Root().String(flagProfile.Name),
 		Endpoint:  cmd.Root().String(flagEndpoint.Name),
 		Region:    cmd.Root().String(flagRegion.Name),
