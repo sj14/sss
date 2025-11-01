@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -86,9 +87,14 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	util.SetIfNotZero(&getObjectInput.IfUnmodifiedSince, cfg.IfUnmodifiedSince)
 	util.SetIfNotZero(&getObjectInput.PartNumber, cfg.PartNumber)
 
-	headResp, err := c.client.HeadObject(c.ctx, headObjectInput)
-	if err != nil {
-		return err
+	var total uint64 = 0
+	{
+		headResp, err := c.client.HeadObject(c.ctx, headObjectInput)
+		if err != nil {
+			log.Printf("head object: %v\n", err)
+		} else {
+			total = uint64(*headResp.ContentLength)
+		}
 	}
 
 	// create the output dir
@@ -110,7 +116,7 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	})
 
 	// TODO: represent download ranges
-	pw := progress.NewWriter(file, uint64(*headResp.ContentLength), c.verbosity)
+	pw := progress.NewWriter(file, total, c.verbosity)
 	defer pw.Finish()
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)
