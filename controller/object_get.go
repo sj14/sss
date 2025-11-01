@@ -87,7 +87,7 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	}
 
 	var total uint64 = 0
-	{
+	if cfg.Range == "" {
 		headResp, err := c.client.HeadObject(c.ctx, headObjectInput)
 		if err != nil {
 			log.Printf("head object: %v\n", err)
