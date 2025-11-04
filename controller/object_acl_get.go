@@ -13,7 +13,7 @@ func (c *Controller) ObjectACLGet(bucket, key, version string) error {
 	resp, err := c.client.GetObjectAcl(c.ctx, &s3.GetObjectAclInput{
 		Bucket:    aws.String(bucket),
 		Key:       aws.String(key),
-		VersionId: util.IfNotZero(version),
+		VersionId: util.NilIfZero(version),
 	})
 	if err != nil {
 		return err

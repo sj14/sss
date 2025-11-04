@@ -65,12 +65,12 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	getObjectInput := &s3.GetObjectInput{
 		Bucket:            aws.String(cfg.Bucket),
 		Key:               aws.String(cfg.ObjectKey),
-		VersionId:         util.IfNotZero(cfg.VersionID),
-		IfMatch:           util.IfNotZero(cfg.IfMatch),
-		IfModifiedSince:   util.IfNotZero(cfg.IfModifiedSince),
-		IfNoneMatch:       util.IfNotZero(cfg.IfNoneMatch),
-		IfUnmodifiedSince: util.IfNotZero(cfg.IfUnmodifiedSince),
-		PartNumber:        util.IfNotZero(cfg.PartNumber),
+		VersionId:         util.NilIfZero(cfg.VersionID),
+		IfMatch:           util.NilIfZero(cfg.IfMatch),
+		IfModifiedSince:   util.NilIfZero(cfg.IfModifiedSince),
+		IfNoneMatch:       util.NilIfZero(cfg.IfNoneMatch),
+		IfUnmodifiedSince: util.NilIfZero(cfg.IfUnmodifiedSince),
+		PartNumber:        util.NilIfZero(cfg.PartNumber),
 	}
 
 	if cfg.SSEC.KeyIsSet() {
