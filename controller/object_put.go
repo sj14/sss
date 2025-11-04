@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -43,7 +42,6 @@ func (c *Controller) ObjectPut(filePath string, target string, cfg ObjectPutConf
 			return nil
 		}
 
-		fmt.Printf("uploading %s\n", p)
 		err = c.objectPut(p, path.Join(target, path.Base(p)), cfg)
 		if err != nil {
 			return err
@@ -75,7 +73,7 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		return err
 	}
 
-	pr := progress.NewReader(f, uint64(stat.Size()), c.verbosity)
+	pr := progress.NewReader(f, uint64(stat.Size()), c.verbosity, key)
 	defer pr.Finish()
 
 	putObjectInput := &s3.PutObjectInput{

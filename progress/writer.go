@@ -7,10 +7,10 @@ type Writer struct {
 	tracker *tracker
 }
 
-func NewWriter(w io.WriterAt, total uint64, verbosity uint8) *Writer {
+func NewWriter(w io.WriterAt, total uint64, verbosity uint8, key string) *Writer {
 	return &Writer{
 		writer:  w,
-		tracker: newTracker(total, verbosity),
+		tracker: newTracker(total, verbosity, key),
 	}
 }
 
