@@ -16,7 +16,6 @@ import (
 )
 
 type ObjectGetConfig struct {
-	Recursive         bool
 	Bucket            string
 	ObjectKey         string
 	SSEC              util.SSEC
@@ -32,17 +31,18 @@ type ObjectGetConfig struct {
 }
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
-	if !cfg.Recursive {
-		return c.objectGet(targetDir, cfg)
-	}
-
 	objects, _, err := c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter)
 	if err != nil {
-		return err
+		log.Printf("failed to list objects, falling back to single get: %v", err)
+		return c.objectGet(targetDir, cfg)
+
 	}
 
-	if len(objects) == 0 {
+	switch len(objects) {
+	case 0:
 		return fmt.Errorf("no objects found")
+	case 1:
+		return c.objectGet(targetDir, cfg)
 	}
 
 	for _, object := range objects {

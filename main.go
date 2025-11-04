@@ -367,9 +367,6 @@ var cmd = &cli.Command{
 				flagConcurrency,
 				flagPartSize,
 				flagVersionID,
-				&cli.BoolFlag{
-					Name: "recursive",
-				},
 				&cli.StringFlag{
 					Name:  "range",
 					Usage: "bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes",
@@ -396,7 +393,6 @@ var cmd = &cli.Command{
 						cmd.StringArg("target"),
 						cmd.String(flagDelimiter.Name),
 						controller.ObjectGetConfig{
-							Recursive:         cmd.Bool("recursive"),
 							Bucket:            cmd.String(flagBucket.Name),
 							ObjectKey:         cmd.StringArg("key"),
 							SSEC:              parseSSEC(cmd),
