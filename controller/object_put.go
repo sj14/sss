@@ -44,7 +44,7 @@ func (c *Controller) ObjectPut(filePath string, target string, cfg ObjectPutConf
 		}
 
 		fmt.Printf("uploading %s\n", p)
-		err = c.objectPut(p, path.Join(target, filepath.Dir(p), path.Base(p)), cfg)
+		err = c.objectPut(p, path.Join(target, path.Base(p)), cfg)
 		if err != nil {
 			return err
 		}
