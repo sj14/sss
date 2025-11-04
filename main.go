@@ -372,7 +372,7 @@ var cmd = &cli.Command{
 				},
 				&cli.StringFlag{
 					Name:  "range",
-					Usage: "bytes=beginbyte-endbyte, e.g. 'bytes=0-500' to get the first 500 bytes",
+					Usage: "bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes",
 				},
 				&cli.Int32Flag{
 					Name: "part-number",
