@@ -524,6 +524,47 @@ var cmd = &cli.Command{
 			},
 		},
 		{
+			Name: "cors",
+			Commands: []*cli.Command{
+				{
+					Name: "get",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketCORSGet(
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+				{
+					Name: "put",
+					Arguments: []cli.Argument{
+						&cli.StringArg{
+							Name: "cors",
+						},
+					},
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketCORSPut(
+								cmd.StringArg("cors"),
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+				{
+					Name: "rm",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketCORSDelete(
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+			},
+		},
+		{
 			Name: "lifecycle",
 			Commands: []*cli.Command{
 				{
@@ -547,6 +588,16 @@ var cmd = &cli.Command{
 						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketLifecyclePut(
 								cmd.StringArg("lifecycle"),
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+				{
+					Name: "rm",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketLifecycleDelete(
 								cmd.String(flagBucket.Name),
 							)
 						})

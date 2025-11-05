@@ -49,3 +49,14 @@ func (c *Controller) BucketLifecyclePut(lifecyclePath, bucket string) error {
 
 	return nil
 }
+
+func (c *Controller) BucketLifecycleDelete(bucket string) error {
+	_, err := c.client.DeleteBucketLifecycle(c.ctx, &s3.DeleteBucketLifecycleInput{
+		Bucket: aws.String(bucket),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
