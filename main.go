@@ -565,6 +565,37 @@ var cmd = &cli.Command{
 			},
 		},
 		{
+			Name: "object-lock-config",
+			Commands: []*cli.Command{
+				{
+					Name: "get",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketObjectLockConfigurationGet(
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+				{
+					Name: "put",
+					Arguments: []cli.Argument{
+						&cli.StringArg{
+							Name: "config",
+						},
+					},
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketObjectLockConfigurationPut(
+								cmd.StringArg("config"),
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+			},
+		},
+		{
 			Name: "lifecycle",
 			Commands: []*cli.Command{
 				{
