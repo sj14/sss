@@ -345,6 +345,33 @@ Shows a list of commands or help for one command
 
 Shows a list of commands or help for one command
 
+## object-lock
+
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### put
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
 ## lifecycle
 
 
@@ -414,6 +441,17 @@ Shows a list of commands or help for one command
 #### help, h
 
 Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## versions
+
+
+**--delimiter**="":  (default: "/")
+
+**--help, -h**: show help
 
 ### help, h
 
