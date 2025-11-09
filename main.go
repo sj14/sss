@@ -565,13 +565,13 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "object-lock-config",
+			Name: "object-lock",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
 					Action: func(ctx context.Context, cmd *cli.Command) error {
 						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketObjectLockConfigurationGet(
+							return ctrl.BucketObjectLockGet(
 								cmd.String(flagBucket.Name),
 							)
 						})
@@ -586,7 +586,7 @@ var cmd = &cli.Command{
 					},
 					Action: func(ctx context.Context, cmd *cli.Command) error {
 						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketObjectLockConfigurationPut(
+							return ctrl.BucketObjectLockPut(
 								cmd.StringArg("config"),
 								cmd.String(flagBucket.Name),
 							)

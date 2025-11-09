@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func (c *Controller) BucketObjectLockConfigurationGet(bucket string) error {
+func (c *Controller) BucketObjectLockGet(bucket string) error {
 	resp, err := c.client.GetObjectLockConfiguration(c.ctx, &s3.GetObjectLockConfigurationInput{
 		Bucket: aws.String(bucket),
 	})
@@ -28,7 +28,7 @@ func (c *Controller) BucketObjectLockConfigurationGet(bucket string) error {
 	return nil
 }
 
-func (c *Controller) BucketObjectLockConfigurationPut(lockConfigPath, bucket string) error {
+func (c *Controller) BucketObjectLockPut(lockConfigPath, bucket string) error {
 	lBytes, err := os.ReadFile(lockConfigPath)
 	if err != nil {
 		return err
