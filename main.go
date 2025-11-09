@@ -170,7 +170,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "buckets",
+			Name:  "buckets",
+			Usage: "List Buckets",
 			Flags: []cli.Flag{
 				flagPrefix,
 			},
@@ -189,7 +190,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "bucket",
+			Name:  "bucket",
+			Usage: "Head Bucket",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketHead(cmd.String(flagBucket.Name))
@@ -197,7 +199,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "mb",
+			Name:  "mb",
+			Usage: "Make Bucket",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketCreate(cmd.String(flagBucket.Name))
@@ -205,7 +208,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "rb",
+			Name:  "rb",
+			Usage: "Remove Bucket",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketDelete(cmd.String(flagBucket.Name))
@@ -213,7 +217,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "multiparts",
+			Name:  "multiparts",
+			Usage: "Handle Multipart Uploads",
 			Commands: []*cli.Command{
 				{
 					Name: "ls",
@@ -242,7 +247,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "parts",
+			Name:  "parts",
+			Usage: "Parts from Multipart Uploads",
 			Flags: []cli.Flag{
 				flagObjectKey,
 				flagUploadID,
@@ -263,7 +269,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "ls",
+			Name:  "ls",
+			Usage: "List Objects",
 			Arguments: []cli.Argument{
 				argPrefix,
 			},
@@ -281,8 +288,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name:        "cp",
-			Description: "server side object copy",
+			Name:  "cp",
+			Usage: "Server Side Object Copy",
 			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 				flagBucket.Required = false
 				if flagBucket.IsSet() && flagVerbosity.Value > 0 {
@@ -325,7 +332,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "put",
+			Name:  "put",
+			Usage: "Upload Object",
 			Arguments: []cli.Argument{
 				&cli.StringArg{
 					Name: "path",
@@ -370,7 +378,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "rm",
+			Name:  "rm",
+			Usage: "Remove Object",
 			Arguments: []cli.Argument{
 				argKey,
 			},
@@ -394,7 +403,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "get",
+			Name:  "get",
+			Usage: "Download Object",
 			Arguments: []cli.Argument{
 				&cli.StringArg{
 					Name: "key",
@@ -440,7 +450,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "head",
+			Name:  "head",
+			Usage: "Head Object",
 			Arguments: []cli.Argument{
 				argKey,
 			},
@@ -454,7 +465,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "presign",
+			Name:  "presign",
+			Usage: "Create pre-signed URL",
 			Flags: []cli.Flag{
 				&cli.DurationFlag{
 					Name: "expires-in",
@@ -496,7 +508,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "policy",
+			Name:  "policy",
+			Usage: "Handle Bucket Policy",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
@@ -527,7 +540,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "cors",
+			Name:  "cors",
+			Usage: "Handle Bucket CORS",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
@@ -568,7 +582,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "object-lock",
+			Name:  "object-lock",
+			Usage: "Handle Bucket Object Locking",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
@@ -599,7 +614,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "lifecycle",
+			Name:  "lifecycle",
+			Usage: "Handle Bucket Lifecycle",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
@@ -640,7 +656,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "versioning",
+			Name:  "versioning",
+			Usage: "Handle Bucket Versioning",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
@@ -655,7 +672,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "acl",
+			Name:  "acl",
+			Usage: "Handle Object ACL",
 			Commands: []*cli.Command{
 				{
 					Name: "get",
@@ -678,7 +696,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "versions",
+			Name:  "versions",
+			Usage: "List Object Versions",
 			Arguments: []cli.Argument{
 				argPrefix,
 			},
