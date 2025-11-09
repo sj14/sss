@@ -49,8 +49,7 @@ var (
 		Value: 1,
 	}
 	flagProfile = &cli.StringFlag{
-		Name:  "profile",
-		Value: "default",
+		Name: "profile",
 	}
 	flagPathStyle = &cli.BoolFlag{
 		Name: "path-style",

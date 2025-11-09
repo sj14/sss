@@ -32,9 +32,7 @@ type Config struct {
 }
 
 func New(ctx context.Context, cfg Config) (*Controller, error) {
-	loadOptions := []func(*config.LoadOptions) error{
-		config.WithSharedConfigProfile(cfg.Profile),
-	}
+	loadOptions := []func(*config.LoadOptions) error{}
 
 	if cfg.Verbosity >= 9 {
 		loadOptions = append(loadOptions,
@@ -58,6 +56,16 @@ func New(ctx context.Context, cfg Config) (*Controller, error) {
 			))
 	}
 
+	if cfg.Profile != "" {
+		loadOptions = append(loadOptions, config.WithSharedConfigProfile(cfg.Profile))
+	}
+	if cfg.Region != "" {
+		loadOptions = append(loadOptions, config.WithRegion(cfg.Region))
+	}
+	if cfg.Endpoint != "" {
+		loadOptions = append(loadOptions, config.WithBaseEndpoint(cfg.Endpoint))
+	}
+
 	awsConfig, err := config.LoadDefaultConfig(ctx,
 		loadOptions...,
 	)
@@ -77,10 +85,6 @@ func New(ctx context.Context, cfg Config) (*Controller, error) {
 		})
 	}
 
-	if cfg.Endpoint != "" {
-		clientOptions = append(clientOptions, func(o *s3.Options) { o.BaseEndpoint = &cfg.Endpoint })
-	}
-
 	if cfg.Insecure {
 		clientOptions = append(clientOptions, func(o *s3.Options) {
 			customTransport := http.DefaultTransport.(*http.Transport).Clone()
@@ -90,10 +94,6 @@ func New(ctx context.Context, cfg Config) (*Controller, error) {
 				Transport: customTransport,
 			}
 		})
-	}
-
-	if cfg.Region != "" {
-		clientOptions = append(clientOptions, func(o *s3.Options) { o.Region = cfg.Region })
 	}
 
 	return &Controller{
