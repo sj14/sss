@@ -42,7 +42,7 @@ COMMANDS:
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --config string      (default: "~/.config/sss/config.yaml") [$SSS_CONFIG]
+   --config string      ~/.config/sss/config.yaml [$SSS_CONFIG]
    --endpoint string     [$SSS_ENDPOINT]
    --insecure            [$SSS_INSECURE]
    --read-only           [$SSS_READ_ONLY]
