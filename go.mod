@@ -10,6 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.90.0
 	github.com/aws/smithy-go v1.23.2
 	github.com/dustin/go-humanize v1.0.1
+	github.com/goccy/go-yaml v1.18.0
 	github.com/urfave/cli-docs/v3 v3.1.0
 	github.com/urfave/cli/v3 v3.6.0
 	golang.org/x/sync v0.18.0

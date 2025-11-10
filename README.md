@@ -42,34 +42,29 @@ COMMANDS:
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --endpoint string
-   --insecure
-   --region string
-   --path-style
-   --profile string
-   --bucket string
-   --secret-key string
-   --access-key string
-   --verbosity uint     (default: 1)
+   --config string      (default: "~/.config/sss/config.yaml") [$SSS_CONFIG]
+   --endpoint string     [$SSS_ENDPOINT]
+   --insecure            [$SSS_INSECURE]
+   --read-only           [$SSS_READ_ONLY]
+   --region string       [$SSS_REGION]
+   --path-style          [$SSS_PATH_STYLE]
+   --profile string     (default: "default") [$SSS_PROFILE]
+   --bucket string      
+   --secret-key string   [$SSS_SECRET_KEY]
+   --access-key string   [$SSS_ACCESS_KEY]
+   --verbosity uint     (default: 1) [$SSS_VERBOSITY]
    --help, -h           show help
 ```
 
 ## Configuraton
 
-`sss` uses the AWS package and the same configuration files and environment variables (e.g. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) as the AWS CLI.
+`~/.config/sss/config.yaml`:
 
-`~/.aws/config`:
-
-```ini
-[default]
-endpoint_url = https://example.com
-region = earth
-```
-
-`~/.aws/credentials`:
-
-```ini
-[default]
-aws_access_key_id = <CHANGE_ME>
-aws_secret_access_key = <CHANGE_ME>
+```yaml
+profiles:
+  default:
+    endpoint: https://example.com
+    region: earth
+    access_key: <CHANGE_ME>
+    secret_key: <CHANGE_ME>
 ```
