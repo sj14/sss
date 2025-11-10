@@ -29,6 +29,7 @@ func Exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 		SecretKey: cmd.Root().String(flagSecretKey.Name),
 		Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
 		Insecure:  cmd.Root().Bool(flagInsecure.Name),
+		ReadOnly:  cmd.Root().Bool(flagReadOnly.Name),
 	})
 	if err != nil {
 		return err
@@ -59,6 +60,9 @@ var (
 	}
 	flagInsecure = &cli.BoolFlag{
 		Name: "insecure",
+	}
+	flagReadOnly = &cli.BoolFlag{
+		Name: "read-only",
 	}
 	flagRegion = &cli.StringFlag{
 		Name: "region",
@@ -145,6 +149,7 @@ var cmd = &cli.Command{
 	Flags: []cli.Flag{
 		flagEndpoint,
 		flagInsecure,
+		flagReadOnly,
 		flagRegion,
 		flagPathStyle,
 		flagProfile,

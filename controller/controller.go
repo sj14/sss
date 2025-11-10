@@ -29,6 +29,7 @@ type Config struct {
 	SecretKey string
 	Verbosity uint8
 	Insecure  bool
+	ReadOnly  bool
 }
 
 func New(ctx context.Context, cfg Config) (*Controller, error) {
@@ -85,20 +86,54 @@ func New(ctx context.Context, cfg Config) (*Controller, error) {
 		})
 	}
 
-	if cfg.Insecure {
-		clientOptions = append(clientOptions, func(o *s3.Options) {
-			customTransport := http.DefaultTransport.(*http.Transport).Clone()
-			customTransport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	clientOptions = append(clientOptions, func(o *s3.Options) {
+		transport := &Transport{
+			Base:     http.DefaultTransport,
+			Insecure: cfg.Insecure,
+			ReadOnly: cfg.ReadOnly,
+		}
 
-			o.HTTPClient = &http.Client{
-				Transport: customTransport,
-			}
-		})
-	}
+		o.HTTPClient = &http.Client{
+			Transport: transport,
+		}
+	})
 
 	return &Controller{
 		ctx:       ctx,
 		verbosity: cfg.Verbosity,
 		client:    s3.NewFromConfig(awsConfig, clientOptions...),
 	}, nil
+}
+
+type Transport struct {
+	Base     http.RoundTripper
+	ReadOnly bool
+	Insecure bool
+}
+
+func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
+	if t.ReadOnly {
+		switch req.Method {
+		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost:
+			// TODO: disable retries
+			return nil, fmt.Errorf("read-only mode: blocked %s %s", req.Method, req.URL)
+		}
+	}
+
+	if t.Base == nil {
+		t.Base = http.DefaultTransport
+	}
+
+	if t.Insecure {
+		if tr, ok := t.Base.(*http.Transport); ok {
+			cloned := tr.Clone()
+			if cloned.TLSClientConfig == nil {
+				cloned.TLSClientConfig = &tls.Config{}
+			}
+			cloned.TLSClientConfig.InsecureSkipVerify = true
+			t.Base = cloned
+		}
+	}
+
+	return t.Base.RoundTrip(req)
 }
