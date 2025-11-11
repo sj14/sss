@@ -74,6 +74,10 @@ func New(ctx context.Context, verbosity uint8, cfg Profile) (*Controller, error)
 		}
 	})
 
+	if verbosity > 0 && cfg.ReadOnly {
+		fmt.Println("> read-only mode <")
+	}
+
 	return &Controller{
 		ctx:       ctx,
 		verbosity: verbosity,
