@@ -496,3 +496,13 @@ Shows a list of commands or help for one command
 ## help, h
 
 Shows a list of commands or help for one command
+
+## completion
+
+Output shell completion script for bash, zsh, fish, or Powershell
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command

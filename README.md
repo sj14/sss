@@ -8,8 +8,7 @@ Yet another S3 client.
 
 ## Usage
 
-For shell completion follow the instructions from `sss complete`. For example, add `source <(sss completion zsh)` to your `~/.zshrc`.
-
+For shell completion follow the instructions from `sss completion --help`.
 
 ```
 NAME:
@@ -41,6 +40,7 @@ COMMANDS:
    acl          Handle Object ACL
    versions     List Object Versions
    help, h      Shows a list of commands or help for one command
+   completion   Output shell completion script for bash, zsh, fish, or Powershell
 
 GLOBAL OPTIONS:
    --config string      ~/.config/sss/config.yaml [$SSS_CONFIG]
@@ -50,7 +50,7 @@ GLOBAL OPTIONS:
    --region string       [$SSS_REGION]
    --path-style          [$SSS_PATH_STYLE]
    --profile string     (default: "default") [$SSS_PROFILE]
-   --bucket string
+   --bucket string      
    --secret-key string   [$SSS_SECRET_KEY]
    --access-key string   [$SSS_ACCESS_KEY]
    --verbosity uint     (default: 1) [$SSS_VERBOSITY]

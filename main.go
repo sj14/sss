@@ -24,9 +24,10 @@ var (
 		Name: "key",
 	}
 	flagConfig = &cli.StringFlag{
-		Name:    "config",
-		Usage:   "~/.config/sss/config.yaml",
-		Sources: cli.EnvVars("SSS_CONFIG"),
+		Name:      "config",
+		Usage:     "~/.config/sss/config.yaml",
+		Sources:   cli.EnvVars("SSS_CONFIG"),
+		TakesFile: true,
 	}
 	flagVerbosity = &cli.Uint8Flag{
 		Name:    "verbosity",
@@ -192,7 +193,11 @@ var cmd = &cli.Command{
 	Usage:                 "S3 client",
 	EnableShellCompletion: true,
 	ConfigureShellCompletionCommand: func(c *cli.Command) {
-		flagBucket.Required = false
+		c.Hidden = false
+		c.Before = func(ctx context.Context, c *cli.Command) (context.Context, error) {
+			flagBucket.Required = false
+			return ctx, nil
+		}
 	},
 	Flags: []cli.Flag{
 		flagConfig,
