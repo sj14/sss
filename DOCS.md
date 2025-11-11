@@ -450,6 +450,16 @@ Shows a list of commands or help for one command
 
 Shows a list of commands or help for one command
 
+## size
+
+Calculate the bucket size
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command
+
 ## acl
 
 Handle Object ACL
