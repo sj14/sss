@@ -75,7 +75,7 @@ var (
 	}
 	flagHeaders = &cli.StringSliceFlag{
 		Name:  "header",
-		Usage: "format: 'key:val'",
+		Usage: "format: 'key1:val1,key2:val2'",
 	}
 	flagBucket = &cli.StringFlag{
 		Name:     "bucket",
