@@ -187,8 +187,17 @@ func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 
 	profileName := cmd.Root().String(flagProfile.Name)
 	profile, ok := config.Profiles[profileName]
-	if !ok {
-		log.Printf("profile %q not found\n", profileName)
+	if !ok && profileName != "default" {
+		fmt.Printf("profile %q not found, available profiles:\n", profileName)
+
+		keys := slices.Collect(maps.Keys(config.Profiles))
+		slices.Sort(keys)
+
+		for _, key := range keys {
+			fmt.Println(key)
+		}
+
+		os.Exit(1)
 	}
 
 	util.SetIfNotZero(&profile.Endpoint, cmd.Root().String(flagEndpoint.Name))
