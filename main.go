@@ -73,6 +73,10 @@ var (
 		Name:    "secret-key",
 		Sources: cli.EnvVars("SSS_SECRET_KEY"),
 	}
+	flagHeaders = &cli.StringSliceFlag{
+		Name:  "header",
+		Usage: "format: 'key:val'",
+	}
 	flagBucket = &cli.StringFlag{
 		Name:     "bucket",
 		Required: true,
@@ -196,9 +200,12 @@ func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 	util.SetIfNotZero(&profile.ReadOnly, cmd.Root().Bool(flagReadOnly.Name))
 	util.SetIfNotZero(&profile.SNI, cmd.Root().String(flagSNI.Name))
 
-	verbosity := cmd.Root().Uint8(flagVerbosity.Name)
+	var (
+		verbosity = cmd.Root().Uint8(flagVerbosity.Name)
+		headers   = cmd.Root().StringSlice(flagHeaders.Name)
+	)
 
-	ctrl, err := controller.New(ctx, verbosity, profile)
+	ctrl, err := controller.New(ctx, verbosity, headers, profile)
 	if err != nil {
 		return err
 	}
@@ -221,13 +228,14 @@ var cmd = &cli.Command{
 		flagEndpoint,
 		flagInsecure,
 		flagReadOnly,
-		flagSNI,
 		flagRegion,
 		flagPathStyle,
 		flagProfile,
 		flagBucket,
 		flagSecretKey,
 		flagAccessKey,
+		flagSNI,
+		flagHeaders,
 		flagVerbosity,
 	},
 	Commands: []*cli.Command{

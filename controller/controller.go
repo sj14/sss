@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
@@ -34,7 +35,7 @@ type Profile struct {
 	SNI       string `yaml:"sni"`
 }
 
-func New(ctx context.Context, verbosity uint8, cfg Profile) (*Controller, error) {
+func New(ctx context.Context, verbosity uint8, headers []string, cfg Profile) (*Controller, error) {
 	clientOptions := []func(o *s3.Options){
 		func(o *s3.Options) { o.UsePathStyle = cfg.PathStyle },
 	}
@@ -69,6 +70,7 @@ func New(ctx context.Context, verbosity uint8, cfg Profile) (*Controller, error)
 			Insecure: cfg.Insecure,
 			ReadOnly: cfg.ReadOnly,
 			SNI:      cfg.SNI,
+			Headers:  headers,
 		}
 
 		o.HTTPClient = &http.Client{
@@ -92,6 +94,7 @@ type Transport struct {
 	ReadOnly bool
 	Insecure bool
 	SNI      string
+	Headers  []string
 }
 
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -126,6 +129,15 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	t.Base = transport
+
+	for _, header := range t.Headers {
+		s := strings.Split(header, ":")
+		if len(s) != 2 {
+			return nil, fmt.Errorf("failed to parse header %q", header)
+		}
+
+		req.Header.Set(s[0], s[1])
+	}
 
 	return t.Base.RoundTrip(req)
 }
