@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"log/slog"
@@ -11,11 +11,18 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/goccy/go-yaml"
+	"github.com/BurntSushi/toml"
 	"github.com/sj14/sss/controller"
 	"github.com/sj14/sss/util"
 	docs "github.com/urfave/cli-docs/v3"
 	"github.com/urfave/cli/v3"
+)
+
+var (
+	// will be replaced during the build process
+	version = "undefined"
+	commit  = "undefined"
+	date    = "undefined"
 )
 
 var (
@@ -27,7 +34,7 @@ var (
 	}
 	flagConfig = &cli.StringFlag{
 		Name:      "config",
-		Usage:     "~/.config/sss/config.yaml",
+		Usage:     "~/.config/sss/config.toml",
 		Sources:   cli.EnvVars("SSS_CONFIG"),
 		TakesFile: true,
 	}
@@ -160,19 +167,16 @@ func loadConfig(cmd *cli.Command) (controller.Config, error) {
 	configPath := cmd.Root().String(flagConfig.Name)
 
 	if configPath == "" {
-		configPath = filepath.Join(homeDir, ".config", "sss", "config.yaml")
+		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
 	}
 
-	confBytes, err := os.ReadFile(configPath)
+	md, err := toml.DecodeFile(configPath, &config)
 	if err != nil {
 		return config, err
 	}
 
-	decoder := yaml.NewDecoder(bytes.NewReader(confBytes), yaml.DisallowUnknownField())
-
-	err = decoder.Decode(&config)
-	if err != nil {
-		return config, err
+	if undecoded := md.Undecoded(); len(undecoded) > 0 {
+		return config, fmt.Errorf("unknown fields in config: %v", undecoded)
 	}
 
 	return config, nil
@@ -224,6 +228,7 @@ func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 var cmd = &cli.Command{
 	Name:                  "sss",
 	Usage:                 "S3 client",
+	Version:               fmt.Sprintf("%s %s %s", version, commit, date),
 	EnableShellCompletion: true,
 	ConfigureShellCompletionCommand: func(c *cli.Command) {
 		c.Hidden = false
@@ -583,6 +588,12 @@ var cmd = &cli.Command{
 		{
 			Name:  "presign",
 			Usage: "Create pre-signed URL",
+			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+				if flagReadOnly.IsSet() {
+					return ctx, errors.New("deactivated due to read only mode")
+				}
+				return ctx, nil
+			},
 			Flags: []cli.Flag{
 				&cli.DurationFlag{
 					Name: "expires-in",

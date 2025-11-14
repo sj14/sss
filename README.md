@@ -21,7 +21,7 @@ OPTIONS:
    --help, -h  show help
 
 GLOBAL OPTIONS:
-   --config string                      ~/.config/sss/config.yaml [$SSS_CONFIG]
+   --config string                      ~/.config/sss/config.toml [$SSS_CONFIG]
    --endpoint string                     [$SSS_ENDPOINT]
    --insecure                            [$SSS_INSECURE]
    --read-only                           [$SSS_READ_ONLY]
@@ -38,15 +38,21 @@ GLOBAL OPTIONS:
 
 ## Configuraton
 
-`~/.config/sss/config.yaml`:
+`~/.config/sss/config.toml`:
 
-```yaml
-profiles:
-  default:
-    endpoint: https://example.com
-    region: earth
-    access_key: <CHANGE_ME>
-    secret_key: <CHANGE_ME>
-  # path_style: true
-  # read_only: true
+```toml
+[profiles.default]
+endpoint = https://earth.example.com
+region = earth
+access_key = <CHANGE_ME>
+secret_key = <CHANGE_ME>
+
+[profiles.mars]
+endpoint = https://mars.example.com
+region = mars
+access_key = <CHANGE_ME>
+secret_key = <CHANGE_ME>
+path_style = true
+insecure   = true
+read_only  = true
 ```
