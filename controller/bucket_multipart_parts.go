@@ -3,6 +3,7 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"iter"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -10,12 +11,11 @@ import (
 )
 
 func (c *Controller) BucketPartsList(bucket, key, uploadID string) error {
-	parts, err := c.bucketPartsList(bucket, key, uploadID)
-	if err != nil {
-		return err
-	}
+	for part, err := range c.bucketPartsList(bucket, key, uploadID) {
+		if err != nil {
+			return err
+		}
 
-	for _, part := range parts {
 		b, err := json.MarshalIndent(part, "", "  ")
 		if err != nil {
 			return err
@@ -25,24 +25,31 @@ func (c *Controller) BucketPartsList(bucket, key, uploadID string) error {
 	}
 
 	return nil
+
 }
 
-func (c *Controller) bucketPartsList(bucket, key, uploadID string) ([]types.Part, error) {
-	paginator := s3.NewListPartsPaginator(c.client, &s3.ListPartsInput{
-		Bucket:   aws.String(bucket),
-		Key:      aws.String(key),
-		UploadId: aws.String(uploadID),
-	})
+func (c *Controller) bucketPartsList(bucket, key, uploadID string) iter.Seq2[types.Part, error] {
+	return func(yield func(types.Part, error) bool) {
+		paginator := s3.NewListPartsPaginator(c.client, &s3.ListPartsInput{
+			Bucket:   aws.String(bucket),
+			Key:      aws.String(key),
+			UploadId: aws.String(uploadID),
+			MaxParts: aws.Int32(100),
+		})
 
-	var result []types.Part
-	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(c.ctx)
-		if err != nil {
-			return nil, err
+		for paginator.HasMorePages() {
+			page, err := paginator.NextPage(c.ctx)
+			if err != nil {
+				if !yield(types.Part{}, err) {
+					return
+				}
+			}
+
+			for _, p := range page.Parts {
+				if !yield(p, nil) {
+					return
+				}
+			}
 		}
-
-		result = append(result, page.Parts...)
 	}
-
-	return result, nil
 }

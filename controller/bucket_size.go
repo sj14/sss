@@ -45,13 +45,12 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 			return err
 		}
 
-		parts, err := c.bucketPartsList(bucket, *upload.Key, *upload.UploadId)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+		for part, err := range c.bucketPartsList(bucket, *upload.Key, *upload.UploadId) {
+			if err != nil {
+				log.Println(err)
+				continue
+			}
 
-		for _, part := range parts {
 			sizeMultiparts += uint64(*part.Size)
 			countMultiparts++
 		}
