@@ -40,9 +40,8 @@ func (c *Controller) bucketPartsList(bucket, key, uploadID string) iter.Seq2[typ
 		for paginator.HasMorePages() {
 			page, err := paginator.NextPage(c.ctx)
 			if err != nil {
-				if !yield(types.Part{}, err) {
-					return
-				}
+				yield(types.Part{}, err)
+				return
 			}
 
 			for _, p := range page.Parts {

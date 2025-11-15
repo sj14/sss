@@ -39,9 +39,8 @@ func (c *Controller) bucketMultipartUploadsList(bucket, prefix, delimiter string
 		for paginator.HasMorePages() {
 			page, err := paginator.NextPage(c.ctx)
 			if err != nil {
-				if !yield(types.MultipartUpload{}, err) {
-					return
-				}
+				yield(types.MultipartUpload{}, err)
+				return
 			}
 
 			for _, p := range page.Uploads {
