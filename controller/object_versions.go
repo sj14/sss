@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"iter"
 	"strings"
 	"time"
 
@@ -12,49 +13,61 @@ import (
 )
 
 func (c *Controller) ObjectVersions(bucket, prefix, delimiter string) error {
-	versions, prefixes, err := c.objectVersions(bucket, prefix, delimiter)
-	if err != nil {
-		return err
-	}
+	for v, err := range c.objectVersions(bucket, prefix, delimiter) {
+		if err != nil {
+			return err
+		}
 
-	for _, cp := range prefixes {
-		fmt.Printf("%28s  %s\n", "PREFIX", *cp.Prefix)
-	}
+		if v.Prefix != nil {
+			fmt.Printf("%28s  %s\n", "PREFIX", *v.Prefix.Prefix)
+		}
 
-	for _, ver := range versions {
-		fmt.Printf("%s %8s  %s  %s\n",
-			ver.LastModified.Local().Format(time.DateTime),
-			*ver.VersionId,
-			humanize.Bytes(uint64(*ver.Size)),
-			strings.TrimPrefix(*ver.Key, prefix),
-		)
+		if v.Versions != nil {
+			fmt.Printf("%s %8s  %s  %s\n",
+				v.Versions.LastModified.Local().Format(time.DateTime),
+				*v.Versions.VersionId,
+				humanize.Bytes(uint64(*v.Versions.Size)),
+				strings.TrimPrefix(*v.Versions.Key, prefix),
+			)
+		}
 	}
 
 	return nil
 }
 
-func (c *Controller) objectVersions(bucket, prefix, delimiter string) ([]types.ObjectVersion, []types.CommonPrefix, error) {
-	if bucket == "" {
-		return nil, nil, fmt.Errorf("missing bucket")
-	}
+type VersionsItem struct {
+	Versions *types.ObjectVersion
+	Prefix   *types.CommonPrefix
+}
 
-	paginator := s3.NewListObjectVersionsPaginator(c.client, &s3.ListObjectVersionsInput{
-		Bucket:    aws.String(bucket),
-		Delimiter: aws.String(delimiter),
-		Prefix:    aws.String(prefix),
-	})
+func (c *Controller) objectVersions(bucket, prefix, delimiter string) iter.Seq2[VersionsItem, error] {
+	return func(yield func(VersionsItem, error) bool) {
+		paginator := s3.NewListObjectVersionsPaginator(c.client, &s3.ListObjectVersionsInput{
+			Bucket:    aws.String(bucket),
+			Delimiter: aws.String(delimiter),
+			Prefix:    aws.String(prefix),
+			MaxKeys:   aws.Int32(100),
+		})
 
-	var versions []types.ObjectVersion
-	var prefixes []types.CommonPrefix
-	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(c.ctx)
-		if err != nil {
-			return nil, nil, err
+		for paginator.HasMorePages() {
+			page, err := paginator.NextPage(c.ctx)
+			if err != nil {
+				if !yield(VersionsItem{}, err) {
+					return
+				}
+			}
+
+			for _, p := range page.CommonPrefixes {
+				if !yield(VersionsItem{Prefix: &p}, nil) {
+					return
+				}
+			}
+
+			for _, v := range page.Versions {
+				if !yield(VersionsItem{Versions: &v}, nil) {
+					return
+				}
+			}
 		}
-
-		prefixes = append(prefixes, page.CommonPrefixes...)
-		versions = append(versions, page.Versions...)
 	}
-
-	return versions, prefixes, nil
 }

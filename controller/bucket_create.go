@@ -7,12 +7,13 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func (c *Controller) BucketCreate(bucket string) error {
+func (c *Controller) BucketCreate(bucket string, objectLock bool) error {
 	if bucket == "" {
 		return fmt.Errorf("no bucket name specified")
 	}
 	_, err := c.client.CreateBucket(c.ctx, &s3.CreateBucketInput{
-		Bucket: aws.String(bucket),
+		Bucket:                     aws.String(bucket),
+		ObjectLockEnabledForBucket: &objectLock,
 	})
 	return err
 }
