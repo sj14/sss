@@ -31,22 +31,13 @@ type ObjectGetConfig struct {
 }
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
-	objects, _, err := c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter)
-	if err != nil {
-		log.Printf("failed to list objects, falling back to single get: %v", err)
-		return c.objectGet(targetDir, cfg)
+	for l, err := range c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter) {
+		if err != nil {
+			log.Printf("failed to list objects, falling back to single get: %v", err)
+			return c.objectGet(targetDir, cfg)
+		}
 
-	}
-
-	switch len(objects) {
-	case 0:
-		return fmt.Errorf("no objects found")
-	case 1:
-		return c.objectGet(targetDir, cfg)
-	}
-
-	for _, object := range objects {
-		cfg.ObjectKey = *object.Key
+		cfg.ObjectKey = *l.Object.Key
 		err = c.objectGet(targetDir, cfg)
 		if err != nil {
 			return err
