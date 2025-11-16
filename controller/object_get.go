@@ -32,22 +32,35 @@ type ObjectGetConfig struct {
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
 	for l, err := range c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter) {
+		fp := filepath.Join(targetDir, filepath.Base(*l.Object.Key))
+
 		if err != nil {
 			log.Printf("failed to list objects, falling back to single get: %v", err)
-			return c.objectGet(targetDir, cfg)
+			return c.objectGet(fp, cfg)
 		}
 
+		exactMatch := cfg.ObjectKey == *l.Object.Key
 		cfg.ObjectKey = *l.Object.Key
-		err = c.objectGet(targetDir, cfg)
+
+		err = c.objectGet(fp, cfg)
 		if err != nil {
 			return err
+		}
+
+		if exactMatch {
+			// Single file download, mimicing "normal" behaviour.
+			// e.g. ls => "file", "file1"
+			// Without this check, "file1" would also be downloaded
+			// when only "file" is requested.
+			// As an alternative, add a -recursive flag or similar.
+			return nil
 		}
 	}
 
 	return nil
 }
 
-func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
+func (c *Controller) objectGet(targetPath string, cfg ObjectGetConfig) error {
 	headObjectInput := &s3.HeadObjectInput{
 		Bucket: aws.String(cfg.Bucket),
 		Key:    aws.String(cfg.ObjectKey),
@@ -92,13 +105,12 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	}
 
 	// create the output dir
-	filePath := filepath.Join(targetDir, cfg.ObjectKey)
-	if err := os.MkdirAll(filepath.Dir(filePath), 0775); err != nil {
+	if err := os.MkdirAll(filepath.Dir(targetPath), 0775); err != nil {
 		return err
 	}
 
 	// create the output file
-	file, err := os.Create(filePath)
+	file, err := os.Create(targetPath)
 	if err != nil {
 		return err
 	}
