@@ -80,13 +80,14 @@ var (
 		Name:    "secret-key",
 		Sources: cli.EnvVars("SSS_SECRET_KEY"),
 	}
-	flagHeaders = &cli.StringSliceFlag{
-		Name:  "header",
-		Usage: "format: 'key1:val1,key2:val2'",
-	}
 	flagBucket = &cli.StringFlag{
 		Name:     "bucket",
 		Required: true,
+		Sources:  cli.EnvVars("SSS_BUCKET"),
+	}
+	flagHeaders = &cli.StringSliceFlag{
+		Name:  "header",
+		Usage: "format: 'key1:val1,key2:val2'",
 	}
 	flagObjectLock = &cli.BoolFlag{
 		Name: "object-lock",
@@ -272,7 +273,8 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name: "profiles",
+			Name:  "profiles",
+			Usage: "List config profiles",
 			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 				flagBucket.Required = false
 				return ctx, nil
