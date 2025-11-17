@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"log"
 	"log/slog"
 	"maps"
@@ -188,9 +189,10 @@ func loadConfig(cmd *cli.Command) (controller.Config, error) {
 
 func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
 	config, err := loadConfig(cmd)
-	if err != nil {
-		// do not return an error as the tool can be used wihout a config
-		log.Printf("failed loading config: %v\n", err)
+	// Do not return an error when the config file does not exist,
+	// as the tool should be usable wihout a config file.
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return fmt.Errorf("failed loading config: %w", err)
 	}
 
 	profileName := cmd.Root().String(flagProfile.Name)
