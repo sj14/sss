@@ -4,11 +4,13 @@ Yet another S3 client.
 
 ## Documentation
 
-[DOCS.md](DOCS.md) contains the generate documentation.
+[DOCS.md](DOCS.md) contains the generated documentation.
+
+## Shell completion
+
+Follow the instructions from `sss completion --help`.
 
 ## Usage
-
-For shell completion follow the instructions from `sss completion --help`.
 
 ```
 NAME:
@@ -67,16 +69,16 @@ GLOBAL OPTIONS:
 
 ```toml
 [profiles.default]
-endpoint = https://earth.example.com
-region = earth
-access_key = <CHANGE_ME>
-secret_key = <CHANGE_ME>
+endpoint = "https://earth.example.com"
+region = "earth"
+access_key = "<CHANGE_ME>"
+secret_key = "<CHANGE_ME>"
 
 [profiles.mars]
-endpoint = https://mars.example.com
-region = mars
-access_key = <CHANGE_ME>
-secret_key = <CHANGE_ME>
+endpoint = "https://mars.example.com"
+region = "mars"
+access_key = "<CHANGE_ME>"
+secret_key = "<CHANGE_ME>"
 path_style = true
 insecure   = true
 read_only  = true
