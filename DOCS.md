@@ -87,7 +87,7 @@ List Buckets
 
 Shows a list of commands or help for one command
 
-## bucket
+## head-bucket
 
 Head Bucket
 
@@ -286,7 +286,7 @@ Download Object
 
 Shows a list of commands or help for one command
 
-## head
+## head-object
 
 Head Object
 
@@ -487,7 +487,7 @@ Calculate the bucket size
 
 Shows a list of commands or help for one command
 
-## acl
+## object-acl
 
 Handle Object ACL
 
