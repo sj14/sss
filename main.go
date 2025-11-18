@@ -327,6 +327,20 @@ var cmd = &cli.Command{
 			},
 		},
 		{
+			Name:  "tag-bucket",
+			Usage: "Bucket Tagging",
+			Commands: []*cli.Command{
+				{
+					Name: "get",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketTagging(cmd.String(flagBucket.Name))
+						})
+					},
+				},
+			},
+		},
+		{
 			Name:  "mb",
 			Usage: "Make Bucket",
 			Flags: []cli.Flag{
