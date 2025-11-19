@@ -13,6 +13,7 @@ import (
 	"slices"
 
 	"github.com/BurntSushi/toml"
+	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/controller"
 	"github.com/sj14/sss/util"
 	docs "github.com/urfave/cli-docs/v3"
@@ -51,6 +52,7 @@ func main() {
 			flagInsecure,
 			flagBucket,
 			flagReadOnly,
+			flagBandwidth,
 			flagSNI,
 			flagHeaders,
 			flagVerbosity,
@@ -147,12 +149,23 @@ func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 	util.SetIfNotZero(&profile.ReadOnly, cmd.Root().Bool(flagReadOnly.Name))
 	util.SetIfNotZero(&profile.SNI, cmd.Root().String(flagSNI.Name))
 
-	var (
-		verbosity = cmd.Root().Uint8(flagVerbosity.Name)
-		headers   = cmd.Root().StringSlice(flagHeaders.Name)
-	)
+	var bandwidth uint64 = 0
+	{
+		bwStr := cmd.Root().String(flagBandwidth.Name)
+		if bwStr != "" {
+			bandwidth, err = humanize.ParseBytes(bwStr)
+			if err != nil {
+				return err
+			}
+		}
+	}
 
-	ctrl, err := controller.New(ctx, verbosity, headers, profile)
+	ctrl, err := controller.New(ctx, controller.ControllerConfig{
+		Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
+		Headers:   cmd.Root().StringSlice(flagHeaders.Name),
+		Profile:   profile,
+		Bandwidth: bandwidth,
+	})
 	if err != nil {
 		return err
 	}
@@ -172,6 +185,12 @@ var (
 	}
 	argKey = &cli.StringArg{
 		Name: "key",
+	}
+
+	flagBandwidth = &cli.StringFlag{
+		Name:    "bandwidth",
+		Usage:   "Limit the bandwith per second (e.g. '1 MiB')",
+		Sources: cli.EnvVars("SSS_BANDWIDTH"),
 	}
 	flagConfig = &cli.StringFlag{
 		Name:      "config",
@@ -655,7 +674,7 @@ var (
 	}
 	cmdObjectPresign = &cli.Command{
 		Name:  "presign",
-		Usage: "Create pre-signed URL",
+		Usage: "Object pre-signed URL",
 		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			if flagReadOnly.IsSet() {
 				return ctx, errors.New("deactivated due to read only mode")
@@ -669,7 +688,8 @@ var (
 		},
 		Commands: []*cli.Command{
 			{
-				Name: "get",
+				Name:  "get",
+				Usage: "Presigned URL for a GET request",
 				Arguments: []cli.Argument{
 					argKey,
 				},
@@ -685,7 +705,8 @@ var (
 					})
 				}},
 			{
-				Name: "put",
+				Name:  "put",
+				Usage: "Presigned URL for a PUT request",
 				Arguments: []cli.Argument{
 					argKey,
 				},

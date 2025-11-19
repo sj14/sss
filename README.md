@@ -19,43 +19,48 @@ NAME:
 USAGE:
    sss [global options] [command [command options]]
 
+VERSION:
+   undefined undefined undefined
+
 COMMANDS:
-   profiles     List config profiles
-   buckets      List Buckets
-   bucket       Head Bucket
-   mb           Make Bucket
-   rb           Remove Bucket
-   multiparts   Handle Multipart Uploads
-   parts        Parts from Multipart Uploads
-   ls           List Objects
-   cp           Server Side Object Copy
-   put          Upload Object
-   rm           Remove Object
-   get          Download Object
-   head         Head Object
-   presign      Create pre-signed URL
-   policy       Handle Bucket Policy
-   cors         Handle Bucket CORS
-   object-lock  Handle Bucket Object Locking
-   lifecycle    Handle Bucket Lifecycle
-   versioning   Handle Bucket Versioning
-   size         Calculate the bucket size
-   acl          Handle Object ACL
-   versions     List Object Versions
+   profiles     Config Profiles
+   buckets      Bucket List
+   bucket       Bucket Head
+   mb           Bucket Create
+   rb           Bucket Remove
+   size         Bucket Size
+   policy       Bucket Policy
+   versioning   Bucket Versioning
+   object-lock  Bucket Object Locking
+   lifecycle    Bucket Lifecycle
+   cors         Bucket CORS
+   tag-bucket   Bucket Tagging
+   multiparts   Multipart Uploads
+   parts        Multipart Parts
+   ls           Object List
+   head         Object Head
+   get          Object Download
+   put          Object Upload
+   rm           Object Remove
+   versions     Object Versions
+   cp           Object Server Side Copy
+   acl-object   Object ACL
+   presign      Object pre-signed URL
    help, h      Shows a list of commands or help for one command
    completion   Output shell completion script for bash, zsh, fish, or Powershell
 
 GLOBAL OPTIONS:
    --config string                      ~/.config/sss/config.toml [$SSS_CONFIG]
+   --profile string                     (default: "default") [$SSS_PROFILE]
+   --access-key string                   [$SSS_ACCESS_KEY]
+   --secret-key string                   [$SSS_SECRET_KEY]
    --endpoint string                     [$SSS_ENDPOINT]
-   --insecure                            [$SSS_INSECURE]
-   --read-only                           [$SSS_READ_ONLY]
    --region string                       [$SSS_REGION]
    --path-style                          [$SSS_PATH_STYLE]
-   --profile string                     (default: "default") [$SSS_PROFILE]
+   --insecure                            [$SSS_INSECURE]
    --bucket string                       [$SSS_BUCKET]
-   --secret-key string                   [$SSS_SECRET_KEY]
-   --access-key string                   [$SSS_ACCESS_KEY]
+   --read-only                           [$SSS_READ_ONLY]
+   --bandwidth string                   Limit the bandwith per second (e.g. '1 MiB') [$SSS_BANDWIDTH]
    --sni string                          [$SSS_SNI]
    --header string [ --header string ]  format: 'key1:val1,key2:val2'
    --verbosity uint                     (default: 1) [$SSS_VERBOSITY]

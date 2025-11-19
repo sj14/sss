@@ -8,6 +8,7 @@ sss
 
 ```
 [--access-key]=[value]
+[--bandwidth]=[value]
 [--bucket]=[value]
 [--config]=[value]
 [--endpoint]=[value]
@@ -33,6 +34,8 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 # GLOBAL OPTIONS
 
 **--access-key**="": 
+
+**--bandwidth**="": Limit the bandwith per second (e.g. '1 MiB')
 
 **--bucket**="": 
 
@@ -511,7 +514,7 @@ Shows a list of commands or help for one command
 
 ## presign
 
-Create pre-signed URL
+Object pre-signed URL
 
 **--expires-in**="":  (default: 0s)
 
@@ -519,6 +522,7 @@ Create pre-signed URL
 
 ### get
 
+Presigned URL for a GET request
 
 **--help, -h**: show help
 
@@ -528,6 +532,7 @@ Shows a list of commands or help for one command
 
 ### put
 
+Presigned URL for a PUT request
 
 **--help, -h**: show help
 
