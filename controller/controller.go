@@ -80,11 +80,9 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 		if baseTransport.TLSClientConfig == nil {
 			baseTransport.TLSClientConfig = &tls.Config{}
 		}
-
 		if cfg.Profile.Insecure {
 			baseTransport.TLSClientConfig.InsecureSkipVerify = true
 		}
-
 		if cfg.Profile.SNI != "" {
 			baseTransport.TLSClientConfig.ServerName = cfg.Profile.SNI
 		}
@@ -144,7 +142,7 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 	}
 
 	if req.Body != nil && t.Limiter != nil {
-		req.Body = io.NopCloser(ratelimiter.NewReader(req.Body, t.Limiter))
+		req.Body = io.NopCloser(ratelimiter.NewReader(req.Context(), req.Body, t.Limiter))
 	}
 
 	resp, err := t.Base.RoundTrip(req)
@@ -153,7 +151,7 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 	}
 
 	if resp.Body != nil && t.Limiter != nil {
-		resp.Body = io.NopCloser(ratelimiter.NewReader(resp.Body, t.Limiter))
+		resp.Body = io.NopCloser(ratelimiter.NewReader(req.Context(), resp.Body, t.Limiter))
 	}
 
 	return resp, nil

@@ -26,7 +26,7 @@ func (c *Controller) ObjectVersions(bucket, prefix, delimiter string) error {
 			fmt.Printf("%s %8s  %s  %s\n",
 				v.Versions.LastModified.Local().Format(time.DateTime),
 				*v.Versions.VersionId,
-				humanize.Bytes(uint64(*v.Versions.Size)),
+				humanize.IBytes(uint64(*v.Versions.Size)),
 				strings.TrimPrefix(*v.Versions.Key, prefix),
 			)
 		}

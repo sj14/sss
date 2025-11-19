@@ -39,7 +39,7 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
 
 		if l.Object != nil {
 			eg.Go(func() error {
-				fmt.Printf("deleting %s (%s)\n", *l.Object.Key, humanize.Bytes(uint64(*l.Object.Size)))
+				fmt.Printf("deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
 				err := c.objectDelete(cfg.Bucket, *l.Object.Key)
 				if err != nil {
 					return err
