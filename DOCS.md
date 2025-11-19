@@ -67,7 +67,7 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 ## profiles
 
-List config profiles
+Config Profiles
 
 **--help, -h**: show help
 
@@ -77,7 +77,7 @@ Shows a list of commands or help for one command
 
 ## buckets
 
-List Buckets
+Bucket List
 
 **--help, -h**: show help
 
@@ -87,9 +87,9 @@ List Buckets
 
 Shows a list of commands or help for one command
 
-## head-bucket
+## bucket
 
-Head Bucket
+Bucket Head
 
 **--help, -h**: show help
 
@@ -99,7 +99,7 @@ Shows a list of commands or help for one command
 
 ## mb
 
-Make Bucket
+Bucket Create
 
 **--help, -h**: show help
 
@@ -111,7 +111,7 @@ Shows a list of commands or help for one command
 
 ## rb
 
-Remove Bucket
+Bucket Remove
 
 **--help, -h**: show help
 
@@ -119,9 +119,189 @@ Remove Bucket
 
 Shows a list of commands or help for one command
 
+## size
+
+Bucket Size
+
+**--delimiter**="":  (default: "/")
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## policy
+
+Bucket Policy
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### put
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## versioning
+
+Bucket Versioning
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## object-lock
+
+Bucket Object Locking
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### put
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## lifecycle
+
+Bucket Lifecycle
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### put
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### rm
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## cors
+
+Bucket CORS
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### put
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### rm
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## tag-bucket
+
+Bucket Tagging
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
+### help, h
+
+Shows a list of commands or help for one command
+
 ## multiparts
 
-Handle Multipart Uploads
+Multipart Uploads
 
 **--help, -h**: show help
 
@@ -157,7 +337,7 @@ Shows a list of commands or help for one command
 
 ## parts
 
-Parts from Multipart Uploads
+Multipart Parts
 
 **--help, -h**: show help
 
@@ -180,7 +360,7 @@ Shows a list of commands or help for one command
 
 ## ls
 
-List Objects
+Object List
 
 **--delimiter**="":  (default: "/")
 
@@ -190,63 +370,9 @@ List Objects
 
 Shows a list of commands or help for one command
 
-## cp
+## head
 
-Server Side Object Copy
-
-**--dst-bucket**="": Destinaton bucket
-
-**--dst-key**="": Destination key. When empty, the src-key will be used
-
-**--help, -h**: show help
-
-**--src-bucket**="": Source bucket
-
-**--src-key**="": Source key
-
-**--sse-c-algorithm**="":  (default: "AES256")
-
-**--sse-c-key**="": 32 bytes key
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## put
-
-Upload Object
-
-**--acl**="": e.g. 'public-read'
-
-**--concurrency**="":  (default: 5)
-
-**--help, -h**: show help
-
-**--leave-parts-on-error**="":  (default: 0)
-
-**--max-parts**="":  (default: 0)
-
-**--part-size**="":  (default: 0)
-
-**--sse-c-algorithm**="":  (default: "AES256")
-
-**--sse-c-key**="": 32 bytes key
-
-**--target**="": target key for single file or prefix multiple files
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## rm
-
-Remove Object
-
-**--concurrency**="":  (default: 5)
-
-**--delimiter**="":  (default: "/")
-
-**--force**: 
+Object Head
 
 **--help, -h**: show help
 
@@ -256,7 +382,7 @@ Shows a list of commands or help for one command
 
 ## get
 
-Download Object
+Object Download
 
 **--concurrency**="":  (default: 5)
 
@@ -286,11 +412,98 @@ Download Object
 
 Shows a list of commands or help for one command
 
-## head-object
+## put
 
-Head Object
+Object Upload
+
+**--acl**="": e.g. 'public-read'
+
+**--concurrency**="":  (default: 5)
 
 **--help, -h**: show help
+
+**--leave-parts-on-error**="":  (default: 0)
+
+**--max-parts**="":  (default: 0)
+
+**--part-size**="":  (default: 0)
+
+**--sse-c-algorithm**="":  (default: "AES256")
+
+**--sse-c-key**="": 32 bytes key
+
+**--target**="": target key for single file or prefix multiple files
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## rm
+
+Object Remove
+
+**--concurrency**="":  (default: 5)
+
+**--delimiter**="":  (default: "/")
+
+**--force**: 
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## versions
+
+Object Versions
+
+**--delimiter**="":  (default: "/")
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## cp
+
+Object Server Side Copy
+
+**--dst-bucket**="": Destinaton bucket
+
+**--dst-key**="": Destination key. When empty, the src-key will be used
+
+**--help, -h**: show help
+
+**--src-bucket**="": Source bucket
+
+**--src-key**="": Source key
+
+**--sse-c-algorithm**="":  (default: "AES256")
+
+**--sse-c-key**="": 32 bytes key
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## acl-object
+
+Object ACL
+
+**--help, -h**: show help
+
+### get
+
+
+**--help, -h**: show help
+
+**--version-id**="": 
+
+#### help, h
+
+Shows a list of commands or help for one command
 
 ### help, h
 
@@ -321,200 +534,6 @@ Shows a list of commands or help for one command
 #### help, h
 
 Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## policy
-
-Handle Bucket Policy
-
-**--help, -h**: show help
-
-### get
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### put
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## cors
-
-Handle Bucket CORS
-
-**--help, -h**: show help
-
-### get
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### put
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### rm
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## object-lock
-
-Handle Bucket Object Locking
-
-**--help, -h**: show help
-
-### get
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### put
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## lifecycle
-
-Handle Bucket Lifecycle
-
-**--help, -h**: show help
-
-### get
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### put
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### rm
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## versioning
-
-Handle Bucket Versioning
-
-**--help, -h**: show help
-
-### get
-
-
-**--help, -h**: show help
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## size
-
-Calculate the bucket size
-
-**--delimiter**="":  (default: "/")
-
-**--help, -h**: show help
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## object-acl
-
-Handle Object ACL
-
-**--help, -h**: show help
-
-### get
-
-
-**--help, -h**: show help
-
-**--version-id**="": 
-
-#### help, h
-
-Shows a list of commands or help for one command
-
-### help, h
-
-Shows a list of commands or help for one command
-
-## versions
-
-List Object Versions
-
-**--delimiter**="":  (default: "/")
-
-**--help, -h**: show help
 
 ### help, h
 

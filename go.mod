@@ -5,13 +5,13 @@ go 1.25.3
 require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/aws/aws-sdk-go-v2 v1.39.6
-	github.com/aws/aws-sdk-go-v2/credentials v1.18.21
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.20.4
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.90.0
+	github.com/aws/aws-sdk-go-v2/credentials v1.18.24
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.20.7
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.90.2
 	github.com/aws/smithy-go v1.23.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/urfave/cli-docs/v3 v3.1.0
-	github.com/urfave/cli/v3 v3.6.0
+	github.com/urfave/cli/v3 v3.6.1
 	golang.org/x/sync v0.18.0
 )
 
