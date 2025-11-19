@@ -32,15 +32,15 @@ type ObjectGetConfig struct {
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
 	for l, err := range c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter) {
-		fp := filepath.Join(targetDir, filepath.Base(*l.Object.Key))
-
 		if err != nil {
 			log.Printf("failed to list objects, falling back to single get: %v", err)
+			fp := filepath.Join(targetDir, filepath.Base(cfg.ObjectKey))
 			return c.objectGet(fp, cfg)
 		}
 
 		exactMatch := cfg.ObjectKey == *l.Object.Key
 		cfg.ObjectKey = *l.Object.Key
+		fp := filepath.Join(targetDir, filepath.Base(*l.Object.Key))
 
 		err = c.objectGet(fp, cfg)
 		if err != nil {
