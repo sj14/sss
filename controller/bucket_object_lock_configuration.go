@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -34,9 +35,12 @@ func (c *Controller) BucketObjectLockPut(lockConfigPath, bucket string) error {
 		return err
 	}
 
+	dec := json.NewDecoder(bytes.NewBuffer(lBytes))
+	dec.DisallowUnknownFields()
+
 	var lockConfiguration *types.ObjectLockConfiguration
-	if err := json.Unmarshal(lBytes, &lockConfiguration); err != nil {
-		return fmt.Errorf("failed to unmarshal lifecycle policy: %w", err)
+	if err := dec.Decode(&lockConfiguration); err != nil {
+		return fmt.Errorf("failed to unmarshal configuration file: %w", err)
 	}
 
 	_, err = c.client.PutObjectLockConfiguration(c.ctx, &s3.PutObjectLockConfigurationInput{
