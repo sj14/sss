@@ -1,28 +1,26 @@
 {
-  "Rules": [
-    {
-      "ID": "AbortIncompleteMultipartUpload",
-      "Status": "Enabled",
-      "Prefix": "",
-      "AbortIncompleteMultipartUpload": {
-        "DaysAfterInitiation": 10
-      }
+ "Rules": [{
+    "ID": "expiry",
+    "Status": "Enabled",
+    "Prefix": "",
+
+    "Expiration": {
+      "Days": 90
     },
-    {
-      "ID": "DeleteExpiredObjectDeleteMarkers",
-      "Status": "Enabled",
-      "Prefix": "",
-      "Expiration": {
-        "ExpiredObjectDeleteMarker": true
-      }
+    "NoncurrentVersionExpiration": {
+      "NoncurrentDays": 30
     },
-    {
-      "ID": "other-conservation-prefix",
-      "Status": "Enabled",
-      "Prefix": "",
-      "Expiration": {
-        "Days": 3
-      }
+    "AbortIncompleteMultipartUpload": {
+      "DaysAfterInitiation": 10
     }
-  ]
+  },
+  {
+    "ID": "deletemarker",
+    "Status": "Enabled",
+    "Prefix": "",
+
+    "Expiration": {
+      "ExpiredObjectDeleteMarker": true
+    }
+  }]
 }
