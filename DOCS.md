@@ -378,6 +378,8 @@ Object List
 
 **--help, -h**: show help
 
+**--json**: 
+
 ### help, h
 
 Shows a list of commands or help for one command
@@ -497,6 +499,8 @@ Object Versions
 **--delimiter**="":  (default: "/")
 
 **--help, -h**: show help
+
+**--json**: 
 
 ### help, h
 

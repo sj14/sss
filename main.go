@@ -270,6 +270,9 @@ var (
 		Name:  "delimiter",
 		Value: "/",
 	}
+	flagJson = &cli.BoolFlag{
+		Name: "json",
+	}
 	flagForce = &cli.BoolFlag{
 		Name: "force",
 	}
@@ -494,6 +497,7 @@ var (
 		},
 		Flags: []cli.Flag{
 			flagDelimiter,
+			flagJson,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
@@ -501,6 +505,7 @@ var (
 					cmd.String(flagBucket.Name),
 					cmd.StringArg(argPrefix.Name),
 					cmd.String(flagDelimiter.Name),
+					cmd.Bool(flagJson.Name),
 				)
 			})
 		},
@@ -978,6 +983,7 @@ var (
 		},
 		Flags: []cli.Flag{
 			flagDelimiter,
+			flagJson,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
@@ -985,6 +991,7 @@ var (
 					cmd.String(flagBucket.Name),
 					cmd.StringArg(argPrefix.Name),
 					cmd.String(flagDelimiter.Name),
+					cmd.Bool(flagJson.Name),
 				)
 			})
 		},

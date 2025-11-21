@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"iter"
 	"strings"
@@ -12,7 +13,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectVersions(bucket, prefix, delimiter string) error {
+func (c *Controller) ObjectVersions(bucket, prefix, delimiter string, asJson bool) error {
 	for v, err := range c.objectVersions(bucket, prefix, delimiter) {
 		if err != nil {
 			return err
@@ -23,6 +24,14 @@ func (c *Controller) ObjectVersions(bucket, prefix, delimiter string) error {
 		}
 
 		if v.Versions != nil {
+			if asJson {
+				b, err := json.MarshalIndent(v.Versions, "", "  ")
+				if err != nil {
+					return err
+				}
+				fmt.Println(string(b))
+				continue
+			}
 			fmt.Printf("%s %8s  %s  %s\n",
 				v.Versions.LastModified.Local().Format(time.DateTime),
 				*v.Versions.VersionId,
