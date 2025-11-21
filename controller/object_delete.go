@@ -42,7 +42,8 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error
 
 	for l, err := range c.objectList(cfg.Bucket, key, cfg.Delimiter) {
 		if err != nil {
-			return err
+			log.Printf("failed to list objects, falling back to single delete: %v", err)
+			return c.objectDelete(cfg.DryRun, cfg.Bucket, key)
 		}
 
 		if l.Prefix != nil {
