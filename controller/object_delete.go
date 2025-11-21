@@ -16,9 +16,13 @@ type ObjectDeleteConfig struct {
 	Delimiter   string
 	Force       bool
 	Concurrency int
+	DryRun      bool
 }
 
 func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error) {
+	if cfg.DryRun {
+		fmt.Println("> dry-run mode <")
+	}
 	if key == "" && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
@@ -51,7 +55,7 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error
 		if l.Object != nil {
 			eg.Go(func() error {
 				fmt.Printf("deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
-				err := c.objectDelete(cfg.Bucket, *l.Object.Key)
+				err := c.objectDelete(cfg.DryRun, cfg.Bucket, *l.Object.Key)
 				if err != nil {
 					return err
 				}
@@ -73,7 +77,10 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error
 	return eg.Wait()
 }
 
-func (c *Controller) objectDelete(bucket, key string) error {
+func (c *Controller) objectDelete(dryRun bool, bucket, key string) error {
+	if dryRun {
+		return nil
+	}
 	_, err := c.client.DeleteObject(c.ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),

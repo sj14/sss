@@ -278,6 +278,9 @@ var (
 		Name:  "concurrency",
 		Value: 5,
 	}
+	flagDryRun = &cli.BoolFlag{
+		Name: "dry-run",
+	}
 	flagPartSize = &cli.Int64Flag{
 		Name: "part-size",
 	}
@@ -610,6 +613,7 @@ var (
 			flagDelimiter,
 			flagForce,
 			flagConcurrency,
+			flagDryRun,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
@@ -620,6 +624,7 @@ var (
 						Delimiter:   cmd.String(flagDelimiter.Name),
 						Force:       cmd.Bool(flagForce.Name),
 						Concurrency: cmd.Int(flagConcurrency.Name),
+						DryRun:      cmd.Bool(flagDryRun.Name),
 					},
 				)
 			})
