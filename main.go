@@ -277,6 +277,10 @@ var (
 		Name:  "delimiter",
 		Value: "/",
 	}
+	flagRecursive = &cli.BoolFlag{
+		Name:    "recursive",
+		Aliases: []string{"r"},
+	}
 	flagJson = &cli.BoolFlag{
 		Name: "json",
 	}
@@ -504,6 +508,7 @@ var (
 		},
 		Flags: []cli.Flag{
 			flagDelimiter,
+			flagRecursive,
 			flagJson,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
@@ -511,7 +516,9 @@ var (
 				return ctrl.ObjectList(
 					cmd.String(flagBucket.Name),
 					cmd.StringArg(argPrefix.Name),
+					cmd.StringArg(argPrefix.Name),
 					cmd.String(flagDelimiter.Name),
+					cmd.Bool(flagRecursive.Name),
 					cmd.Bool(flagJson.Name),
 				)
 			})
