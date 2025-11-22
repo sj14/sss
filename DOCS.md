@@ -10,24 +10,24 @@ $ docs [GLOBAL FLAGS] [COMMAND] [COMMAND FLAGS] [ARGUMENTS...]
 
 Global flags:
 
-| Name               | Description                                                         | Type   | Default value | Environment variables |
-|--------------------|---------------------------------------------------------------------|--------|:-------------:|:---------------------:|
-| `--config="…"`     | ~/.config/sss/config.toml                                           | string |               |     `SSS_CONFIG`      |
-| `--profile="…"`    |                                                                     | string |  `"default"`  |     `SSS_PROFILE`     |
-| `--access-key="…"` |                                                                     | string |               |   `SSS_ACCESS_KEY`    |
-| `--secret-key="…"` |                                                                     | string |               |   `SSS_SECRET_KEY`    |
-| `--endpoint="…"`   |                                                                     | string |               |    `SSS_ENDPOINT`     |
-| `--region="…"`     |                                                                     | string |               |     `SSS_REGION`      |
-| `--path-style`     |                                                                     | bool   |    `false`    |   `SSS_PATH_STYLE`    |
-| `--insecure`       |                                                                     | bool   |    `false`    |    `SSS_INSECURE`     |
-| `--bucket="…"`     |                                                                     | string |               |     `SSS_BUCKET`      |
-| `--read-only`      |                                                                     | bool   |    `false`    |    `SSS_READ_ONLY`    |
-| `--bandwidth="…"`  | Limit bandwith per second, e.g. '1 MiB' (always adds 128 KiB burst) | string |               |    `SSS_BANDWIDTH`    |
-| `--sni="…"`        |                                                                     | string |               |       `SSS_SNI`       |
-| `--header="…"`     | format: 'key1:val1,key2:val2'                                       | string |               |        *none*         |
-| `--verbosity="…"`  |                                                                     | uint   |      `1`      |    `SSS_VERBOSITY`    |
-| `--help` (`-h`)    | show help                                                           | bool   |    `false`    |        *none*         |
-| `--version` (`-v`) | print the version                                                   | bool   |    `false`    |        *none*         |
+| Name               | Description                                                    | Type   | Default value | Environment variables |
+|--------------------|----------------------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--config="…"`     | ~/.config/sss/config.toml                                      | string |               |     `SSS_CONFIG`      |
+| `--profile="…"`    |                                                                | string |  `"default"`  |     `SSS_PROFILE`     |
+| `--access-key="…"` |                                                                | string |               |   `SSS_ACCESS_KEY`    |
+| `--secret-key="…"` |                                                                | string |               |   `SSS_SECRET_KEY`    |
+| `--endpoint="…"`   |                                                                | string |               |    `SSS_ENDPOINT`     |
+| `--region="…"`     |                                                                | string |               |     `SSS_REGION`      |
+| `--path-style`     |                                                                | bool   |    `false`    |   `SSS_PATH_STYLE`    |
+| `--insecure`       |                                                                | bool   |    `false`    |    `SSS_INSECURE`     |
+| `--bucket="…"`     |                                                                | string |               |     `SSS_BUCKET`      |
+| `--read-only`      |                                                                | bool   |    `false`    |    `SSS_READ_ONLY`    |
+| `--bandwidth="…"`  | Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst) | string |               |    `SSS_BANDWIDTH`    |
+| `--sni="…"`        |                                                                | string |               |       `SSS_SNI`       |
+| `--header="…"`     | format: 'key1:val1,key2:val2'                                  | string |               |        *none*         |
+| `--verbosity="…"`  |                                                                | uint   |      `1`      |    `SSS_VERBOSITY`    |
+| `--help` (`-h`)    | show help                                                      | bool   |    `false`    |        *none*         |
+| `--version` (`-v`) | print the version                                              | bool   |    `false`    |        *none*         |
 
 ### `profiles` command
 

@@ -27,10 +27,6 @@ insecure   = true
 read_only  = true
 ```
 
-## Shell completion
-
-Follow the instructions from `sss completion --help`.
-
 ## Usage
 
 ```
@@ -39,9 +35,6 @@ NAME:
 
 USAGE:
    sss [global options] [command [command options]]
-
-VERSION:
-   undefined undefined undefined
 
 COMMANDS:
    profiles    Config Profiles
@@ -93,4 +86,93 @@ GLOBAL OPTIONS:
    --verbosity uint                     (default: 1) [$SSS_VERBOSITY]
    --help, -h                           show help
    --version, -v                        print the version
+```
+
+### Shell completion
+
+Follow the instructions from `sss completion --help`.
+
+### Examples
+
+#### List objects
+
+##### List bucket root
+
+```
+➜ sss --bucket <BUCKET> ls
+                      PREFIX  test/
+2025-11-22 11:11:05  100 MiB  100MB.bin
+```
+
+##### List directory/prefix
+
+```
+➜ sss --bucket <BUCKET> ls test/
+2025-11-22 14:19:58  1.0 MiB  1MB.bin
+2025-11-22 14:20:00  2.0 MiB  2MB.bin
+```
+
+#### Download
+
+##### Download a single object
+
+```
+➜ test sss --bucket <BUCKET> get 100MB.bin
+100 MiB in 11s | 9.0 MiB/s | 100MB.bin
+```
+
+##### Download directory/prefix
+
+Only works when the end of the prefix matches the delimiter (by default: `/`).
+
+```
+➜ test sss --bucket <BUCKET> get test/
+1.0 MiB in 0s | 2.5 MiB/s | test/1MB.bin
+2.0 MiB in 0s | 5.0 MiB/s | test/2MB.bin
+```
+
+#### Upload
+
+##### Upload a single object:
+
+```
+➜ sss --bucket <BUCKET> put 1MB.bin
+1.0 MiB in 1s | 808 KiB/s | 1MB.bin                                             
+```
+
+##### Upload a directory:
+
+```
+➜ sss --bucket <BUCKET> put test/
+1.0 MiB in 1s | 904 KiB/s | 1MB.bin                                             
+2.0 MiB in 2s | 1.2 MiB/s | 2MB.bin                                             
+```
+
+Notice that the uploaded objects resist in the root of the bucket.
+
+##### Upload to a specific path/prefix
+
+```
+➜ sss --bucket <BUCKET> put test/ --target test/
+1.0 MiB in 1s | 883 KiB/s | test/1MB.bin
+2.0 MiB in 2s | 1.0 MiB/s | test/2MB.bin
+```
+
+#### Delete
+
+##### Delete a single object
+
+```
+➜ sss --bucket <BUCKET> rm 100MB.bin
+deleting 100MB.bin (100 MiB)
+```
+
+##### Delete a directory/prefix
+
+Only works when the end of the prefix matches the delimiter (by default: `/`).
+
+```
+➜ sss --bucket <BUCKET> rm test/
+deleting test/2MB.bin (2.0 MiB)
+deleting test/1MB.bin (1.0 MiB)
 ```
