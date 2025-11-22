@@ -72,6 +72,10 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 		),
 	}
 
+	if cfg.Profile.ReadOnly {
+		awsCfg.RetryMaxAttempts = 1
+	}
+
 	if cfg.Verbosity >= 9 {
 		awsCfg.Logger = logging.NewStandardLogger(os.Stdout)
 		awsCfg.ClientLogMode = aws.LogRequestWithBody |
@@ -137,7 +141,6 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 	if t.ReadOnly {
 		switch req.Method {
 		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost, http.MethodConnect:
-			// TODO: disable retries
 			return nil, fmt.Errorf("read-only mode: blocked %s %s", req.Method, req.URL)
 		}
 	}
