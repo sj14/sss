@@ -10,24 +10,24 @@ $ docs [GLOBAL FLAGS] [COMMAND] [COMMAND FLAGS] [ARGUMENTS...]
 
 Global flags:
 
-| Name               | Description                                                    | Type   | Default value | Environment variables |
-|--------------------|----------------------------------------------------------------|--------|:-------------:|:---------------------:|
-| `--config="…"`     | ~/.config/sss/config.toml                                      | string |               |     `SSS_CONFIG`      |
-| `--profile="…"`    |                                                                | string |  `"default"`  |     `SSS_PROFILE`     |
-| `--access-key="…"` |                                                                | string |               |   `SSS_ACCESS_KEY`    |
-| `--secret-key="…"` |                                                                | string |               |   `SSS_SECRET_KEY`    |
-| `--endpoint="…"`   |                                                                | string |               |    `SSS_ENDPOINT`     |
-| `--region="…"`     |                                                                | string |               |     `SSS_REGION`      |
-| `--path-style`     |                                                                | bool   |    `false`    |   `SSS_PATH_STYLE`    |
-| `--insecure`       |                                                                | bool   |    `false`    |    `SSS_INSECURE`     |
-| `--bucket="…"`     |                                                                | string |               |     `SSS_BUCKET`      |
-| `--read-only`      |                                                                | bool   |    `false`    |    `SSS_READ_ONLY`    |
-| `--bandwidth="…"`  | Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst) | string |               |    `SSS_BANDWIDTH`    |
-| `--sni="…"`        |                                                                | string |               |       `SSS_SNI`       |
-| `--header="…"`     | format: 'key1:val1,key2:val2'                                  | string |               |        *none*         |
-| `--verbosity="…"`  |                                                                | uint   |      `1`      |    `SSS_VERBOSITY`    |
-| `--help` (`-h`)    | show help                                                      | bool   |    `false`    |        *none*         |
-| `--version` (`-v`) | print the version                                              | bool   |    `false`    |        *none*         |
+| Name                       | Description                                                    | Type   | Default value | Environment variables |
+|----------------------------|----------------------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--config="…"`             | ~/.config/sss/config.toml                                      | string |               |     `SSS_CONFIG`      |
+| `--profile="…"`            |                                                                | string |  `"default"`  |     `SSS_PROFILE`     |
+| `--access-key="…"`         |                                                                | string |               |   `SSS_ACCESS_KEY`    |
+| `--secret-key="…"`         |                                                                | string |               |   `SSS_SECRET_KEY`    |
+| `--endpoint="…"`           |                                                                | string |               |    `SSS_ENDPOINT`     |
+| `--region="…"`             |                                                                | string |               |     `SSS_REGION`      |
+| `--path-style`             |                                                                | bool   |    `false`    |   `SSS_PATH_STYLE`    |
+| `--insecure`               |                                                                | bool   |    `false`    |    `SSS_INSECURE`     |
+| `--bucket="…"`             |                                                                | string |               |     `SSS_BUCKET`      |
+| `--read-only`              |                                                                | bool   |    `false`    |    `SSS_READ_ONLY`    |
+| `--bandwidth="…"` (`--bw`) | Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst) | string |               |    `SSS_BANDWIDTH`    |
+| `--sni="…"`                |                                                                | string |               |       `SSS_SNI`       |
+| `--header="…"`             | format: 'key1:val1,key2:val2'                                  | string |               |        *none*         |
+| `--verbosity="…"` (`-v`)   |                                                                | uint   |      `1`      |    `SSS_VERBOSITY`    |
+| `--help` (`-h`)            | show help                                                      | bool   |    `false`    |        *none*         |
+| `--version` (`-v`)         | print the version                                              | bool   |    `false`    |        *none*         |
 
 ### `profiles` command
 
@@ -798,11 +798,12 @@ $ docs [GLOBAL FLAGS] ls [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name              | Description | Type   | Default value | Environment variables |
-|-------------------|-------------|--------|:-------------:|:---------------------:|
-| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
-| `--json`          |             | bool   |    `false`    |        *none*         |
-| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+| Name                 | Description | Type   | Default value | Environment variables |
+|----------------------|-------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"`    |             | string |     `"/"`     |        *none*         |
+| `--recursive` (`-r`) |             | bool   |    `false`    |        *none*         |
+| `--json`             |             | bool   |    `false`    |        *none*         |
+| `--help` (`-h`)      | show help   | bool   |    `false`    |        *none*         |
 
 ### `ls help` subcommand (aliases: `h`)
 
@@ -854,21 +855,21 @@ $ docs [GLOBAL FLAGS] get [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name                        | Description                                                            | Type   | Default value | Environment variables |
-|-----------------------------|------------------------------------------------------------------------|--------|:-------------:|:---------------------:|
-| `--delimiter="…"`           |                                                                        | string |     `"/"`     |        *none*         |
-| `--sse-c-key="…"`           | 32 bytes key                                                           | string |               |        *none*         |
-| `--sse-c-algorithm="…"`     |                                                                        | string |  `"AES256"`   |        *none*         |
-| `--concurrency="…"`         |                                                                        | int    |      `5`      |        *none*         |
-| `--part-size="…"`           |                                                                        | int    |      `0`      |        *none*         |
-| `--version-id="…"`          |                                                                        | string |               |        *none*         |
-| `--range="…"`               | bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes | string |               |        *none*         |
-| `--part-number="…"`         |                                                                        | int    |      `0`      |        *none*         |
-| `--if-match="…"`            |                                                                        | string |               |        *none*         |
-| `--if-none-match="…"`       |                                                                        | string |               |        *none*         |
-| `--if-modified-since="…"`   |                                                                        | time   |               |        *none*         |
-| `--if-unmodified-since="…"` |                                                                        | time   |               |        *none*         |
-| `--help` (`-h`)             | show help                                                              | bool   |    `false`    |        *none*         |
+| Name                        | Description                              | Type   | Default value | Environment variables |
+|-----------------------------|------------------------------------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"`           |                                          | string |     `"/"`     |        *none*         |
+| `--sse-c-key="…"`           | 32 bytes key                             | string |               |        *none*         |
+| `--sse-c-algorithm="…"`     |                                          | string |  `"AES256"`   |        *none*         |
+| `--concurrency="…"`         |                                          | int    |      `5`      |        *none*         |
+| `--part-size="…"`           |                                          | int    |      `0`      |        *none*         |
+| `--version-id="…"`          |                                          | string |               |        *none*         |
+| `--range="…"`               | 'bytes=0-500' to get the first 501 bytes | string |               |        *none*         |
+| `--part-number="…"`         |                                          | int    |      `0`      |        *none*         |
+| `--if-match="…"`            |                                          | string |               |        *none*         |
+| `--if-none-match="…"`       |                                          | string |               |        *none*         |
+| `--if-modified-since="…"`   |                                          | time   |               |        *none*         |
+| `--if-unmodified-since="…"` |                                          | time   |               |        *none*         |
+| `--help` (`-h`)             | show help                                | bool   |    `false`    |        *none*         |
 
 ### `get help` subcommand (aliases: `h`)
 
@@ -892,17 +893,16 @@ $ docs [GLOBAL FLAGS] put [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name                         | Description                                         | Type   | Default value | Environment variables |
-|------------------------------|-----------------------------------------------------|--------|:-------------:|:---------------------:|
-| `--sse-c-key="…"`            | 32 bytes key                                        | string |               |        *none*         |
-| `--sse-c-algorithm="…"`      |                                                     | string |  `"AES256"`   |        *none*         |
-| `--part-size="…"`            |                                                     | int    |      `0`      |        *none*         |
-| `--concurrency="…"`          |                                                     | int    |      `5`      |        *none*         |
-| `--leave-parts-on-error="…"` |                                                     | int    |      `0`      |        *none*         |
-| `--max-parts="…"`            |                                                     | int    |      `0`      |        *none*         |
-| `--target="…"`               | target key for single file or prefix multiple files | string |               |        *none*         |
-| `--acl="…"`                  | e.g. 'public-read'                                  | string |               |        *none*         |
-| `--help` (`-h`)              | show help                                           | bool   |    `false`    |        *none*         |
+| Name                         | Description        | Type   | Default value | Environment variables |
+|------------------------------|--------------------|--------|:-------------:|:---------------------:|
+| `--sse-c-key="…"`            | 32 bytes key       | string |               |        *none*         |
+| `--sse-c-algorithm="…"`      |                    | string |  `"AES256"`   |        *none*         |
+| `--part-size="…"`            |                    | int    |      `0`      |        *none*         |
+| `--concurrency="…"`          |                    | int    |      `5`      |        *none*         |
+| `--leave-parts-on-error="…"` |                    | int    |      `0`      |        *none*         |
+| `--max-parts="…"`            |                    | int    |      `0`      |        *none*         |
+| `--acl="…"`                  | e.g. 'public-read' | string |               |        *none*         |
+| `--help` (`-h`)              | show help          | bool   |    `false`    |        *none*         |
 
 ### `put help` subcommand (aliases: `h`)
 
@@ -931,7 +931,7 @@ The following flags are supported:
 | Name                | Description | Type   | Default value | Environment variables |
 |---------------------|-------------|--------|:-------------:|:---------------------:|
 | `--delimiter="…"`   |             | string |     `"/"`     |        *none*         |
-| `--force`           |             | bool   |    `false`    |        *none*         |
+| `--force` (`-f`)    |             | bool   |    `false`    |        *none*         |
 | `--concurrency="…"` |             | int    |      `5`      |        *none*         |
 | `--dry-run`         |             | bool   |    `false`    |        *none*         |
 | `--help` (`-h`)     | show help   | bool   |    `false`    |        *none*         |

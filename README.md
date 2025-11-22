@@ -80,7 +80,7 @@ GLOBAL OPTIONS:
    --insecure                            [$SSS_INSECURE]
    --bucket string                       [$SSS_BUCKET]
    --read-only                           [$SSS_READ_ONLY]
-   --bandwidth string                   Limit bandwith per second, e.g. '1 MiB' (always adds 128 KiB burst) [$SSS_BANDWIDTH]
+   --bandwidth string, --bw string      Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst) [$SSS_BANDWIDTH]
    --sni string                          [$SSS_SNI]
    --header string [ --header string ]  format: 'key1:val1,key2:val2'
    --verbosity uint                     (default: 1) [$SSS_VERBOSITY]
