@@ -37,6 +37,12 @@ func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix, delimiter stri
 		return c.objectGet(fp, prefix, cfg)
 	}
 
+	// allow downloading the whole bucket
+	if prefix == delimiter {
+		prefix = ""
+		originalPrefix = ""
+	}
+
 	// recursive get
 	for l, err := range c.objectList(cfg.Bucket, prefix, delimiter) {
 		if err != nil {
@@ -127,7 +133,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	})
 
 	// TODO: represent download ranges
-	pw := progress.NewWriter(file, total, c.verbosity, objectKey)
+	pw := progress.NewWriter(file, total, c.verbosity, targetPath)
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)
 	if err != nil {
