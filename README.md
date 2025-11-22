@@ -40,6 +40,9 @@ NAME:
 USAGE:
    sss [global options] [command [command options]]
 
+VERSION:
+   undefined undefined undefined
+
 COMMANDS:
    profiles    Config Profiles
    help, h     Shows a list of commands or help for one command
@@ -84,7 +87,7 @@ GLOBAL OPTIONS:
    --insecure                            [$SSS_INSECURE]
    --bucket string                       [$SSS_BUCKET]
    --read-only                           [$SSS_READ_ONLY]
-   --bandwidth string                   Limit the bandwith per second (e.g. '1 MiB'). If set, an initial burst of 128 KiB is added. [$SSS_BANDWIDTH]
+   --bandwidth string                   Limit bandwith per second, e.g. '1 MiB' (always adds 128 KiB burst) [$SSS_BANDWIDTH]
    --sni string                          [$SSS_SNI]
    --header string [ --header string ]  format: 'key1:val1,key2:val2'
    --verbosity uint                     (default: 1) [$SSS_VERBOSITY]

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 	"unicode"
 
@@ -31,29 +32,25 @@ type ObjectGetConfig struct {
 }
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
+	fmt.Printf("key: %q delimiter: %q\n", cfg.ObjectKey, delimiter)
+	// only get single object
+	if !strings.HasSuffix(cfg.ObjectKey, delimiter) {
+		fp := filepath.Join(targetDir, filepath.Base(cfg.ObjectKey))
+		return c.objectGet(fp, cfg)
+	}
+
+	// recursive get
 	for l, err := range c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter) {
 		if err != nil {
-			log.Printf("failed to list objects, falling back to single get: %v", err)
-			fp := filepath.Join(targetDir, filepath.Base(cfg.ObjectKey))
-			return c.objectGet(fp, cfg)
+			return err
 		}
 
-		exactMatch := cfg.ObjectKey == *l.Object.Key
 		cfg.ObjectKey = *l.Object.Key
 		fp := filepath.Join(targetDir, filepath.Base(*l.Object.Key))
 
 		err = c.objectGet(fp, cfg)
 		if err != nil {
 			return err
-		}
-
-		if exactMatch {
-			// Single file download, mimicing "normal" behaviour.
-			// e.g. ls => "file", "file1"
-			// Without this check, "file1" would also be downloaded
-			// when only "file" is requested.
-			// As an alternative, add a -recursive flag or similar.
-			return nil
 		}
 	}
 

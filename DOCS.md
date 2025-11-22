@@ -1,574 +1,1165 @@
-# NAME
+## CLI interface - sss
 
-sss - S3 client
+S3 client.
 
-# SYNOPSIS
+Usage:
 
-sss
-
-```
-[--access-key]=[value]
-[--bandwidth]=[value]
-[--bucket]=[value]
-[--config]=[value]
-[--endpoint]=[value]
-[--header]=[value]
-[--help|-h]
-[--insecure]
-[--path-style]
-[--profile]=[value]
-[--read-only]
-[--region]=[value]
-[--secret-key]=[value]
-[--sni]=[value]
-[--verbosity]=[value]
-[--version|-v]
+```bash
+$ docs [GLOBAL FLAGS] [COMMAND] [COMMAND FLAGS] [ARGUMENTS...]
 ```
 
-**Usage**:
+Global flags:
 
+| Name               | Description                                                         | Type   | Default value | Environment variables |
+|--------------------|---------------------------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--config="…"`     | ~/.config/sss/config.toml                                           | string |               |     `SSS_CONFIG`      |
+| `--profile="…"`    |                                                                     | string |  `"default"`  |     `SSS_PROFILE`     |
+| `--access-key="…"` |                                                                     | string |               |   `SSS_ACCESS_KEY`    |
+| `--secret-key="…"` |                                                                     | string |               |   `SSS_SECRET_KEY`    |
+| `--endpoint="…"`   |                                                                     | string |               |    `SSS_ENDPOINT`     |
+| `--region="…"`     |                                                                     | string |               |     `SSS_REGION`      |
+| `--path-style`     |                                                                     | bool   |    `false`    |   `SSS_PATH_STYLE`    |
+| `--insecure`       |                                                                     | bool   |    `false`    |    `SSS_INSECURE`     |
+| `--bucket="…"`     |                                                                     | string |               |     `SSS_BUCKET`      |
+| `--read-only`      |                                                                     | bool   |    `false`    |    `SSS_READ_ONLY`    |
+| `--bandwidth="…"`  | Limit bandwith per second, e.g. '1 MiB' (always adds 128 KiB burst) | string |               |    `SSS_BANDWIDTH`    |
+| `--sni="…"`        |                                                                     | string |               |       `SSS_SNI`       |
+| `--header="…"`     | format: 'key1:val1,key2:val2'                                       | string |               |        *none*         |
+| `--verbosity="…"`  |                                                                     | uint   |      `1`      |    `SSS_VERBOSITY`    |
+| `--help` (`-h`)    | show help                                                           | bool   |    `false`    |        *none*         |
+| `--version` (`-v`) | print the version                                                   | bool   |    `false`    |        *none*         |
+
+### `profiles` command
+
+Config Profiles.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] profiles [COMMAND FLAGS] [ARGUMENTS...]
 ```
-sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
+
+The following flags are supported:
+
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
+
+### `profiles help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] profiles help [command]
 ```
 
-# GLOBAL OPTIONS
+### `buckets` command
 
-**--access-key**="": 
+Bucket List.
 
-**--bandwidth**="": Limit the bandwith per second (e.g. '1 MiB'). If set, an initial burst of 128 KiB is added.
+Usage:
 
-**--bucket**="": 
+```bash
+$ docs [GLOBAL FLAGS] buckets [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--config**="": ~/.config/sss/config.toml
+The following flags are supported:
 
-**--endpoint**="": 
+| Name            | Description | Type   | Default value | Environment variables |
+|-----------------|-------------|--------|:-------------:|:---------------------:|
+| `--prefix="…"`  |             | string |               |        *none*         |
+| `--help` (`-h`) | show help   | bool   |    `false`    |        *none*         |
 
-**--header**="": format: 'key1:val1,key2:val2'
+### `buckets help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-**--insecure**: 
+Usage:
 
-**--path-style**: 
+```bash
+$ docs [GLOBAL FLAGS] buckets help [command]
+```
 
-**--profile**="":  (default: "default")
+### `bucket` command
 
-**--read-only**: 
+Bucket Head.
 
-**--region**="": 
+Usage:
 
-**--secret-key**="": 
+```bash
+$ docs [GLOBAL FLAGS] bucket [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--sni**="": 
+The following flags are supported:
 
-**--verbosity**="":  (default: 1)
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--version, -v**: print the version
+### `bucket help` subcommand (aliases: `h`)
 
+Shows a list of commands or help for one command.
 
-# COMMANDS
+Usage:
 
-## profiles
+```bash
+$ docs [GLOBAL FLAGS] bucket help [command]
+```
 
-Config Profiles
+### `mb` command
 
-**--help, -h**: show help
+Bucket Create.
 
-### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] mb [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-## buckets
+The following flags are supported:
 
-Bucket List
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--object-lock` |             | bool |    `false`    |        *none*         |
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--help, -h**: show help
+### `mb help` subcommand (aliases: `h`)
 
-**--prefix**="": 
+Shows a list of commands or help for one command.
 
-### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] mb help [command]
+```
 
-## bucket
+### `rb` command
 
-Bucket Head
+Bucket Remove.
 
-**--help, -h**: show help
+Usage:
 
-### help, h
+```bash
+$ docs [GLOBAL FLAGS] rb [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-## mb
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-Bucket Create
+### `rb help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-**--object-lock**: 
+Usage:
 
-### help, h
+```bash
+$ docs [GLOBAL FLAGS] rb help [command]
+```
 
-Shows a list of commands or help for one command
+### `size` command
 
-## rb
+Bucket Size.
 
-Bucket Remove
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] size [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-### help, h
+The following flags are supported:
 
-Shows a list of commands or help for one command
+| Name              | Description | Type   | Default value | Environment variables |
+|-------------------|-------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
+| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
 
-## size
+### `size help` subcommand (aliases: `h`)
 
-Bucket Size
+Shows a list of commands or help for one command.
 
-**--delimiter**="":  (default: "/")
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] size help [command]
+```
 
-### help, h
+### `policy` command
 
-Shows a list of commands or help for one command
+Bucket Policy.
 
-## policy
+Usage:
 
-Bucket Policy
+```bash
+$ docs [GLOBAL FLAGS] policy [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--help, -h**: show help
+The following flags are supported:
 
-### get
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
+### `policy get` subcommand
 
-**--help, -h**: show help
+Usage:
 
-#### help, h
+```bash
+$ docs [GLOBAL FLAGS] policy get [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-### put
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
+### `policy get help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-#### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] policy get help [command]
+```
 
-### help, h
+### `policy put` subcommand
 
-Shows a list of commands or help for one command
+Usage:
 
-## versioning
+```bash
+$ docs [GLOBAL FLAGS] policy put [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Bucket Versioning
+The following flags are supported:
 
-**--help, -h**: show help
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-### get
+### `policy put help` subcommand (aliases: `h`)
 
+Shows a list of commands or help for one command.
 
-**--help, -h**: show help
+Usage:
 
-#### help, h
+```bash
+$ docs [GLOBAL FLAGS] policy put help [command]
+```
 
-Shows a list of commands or help for one command
+### `policy help` subcommand (aliases: `h`)
 
-### put
+Shows a list of commands or help for one command.
 
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] policy help [command]
+```
 
-#### help, h
+### `versioning` command
 
-Shows a list of commands or help for one command
+Bucket Versioning.
 
-### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] versioning [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-## object-lock
+The following flags are supported:
 
-Bucket Object Locking
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--help, -h**: show help
+### `versioning get` subcommand
 
-### get
+Usage:
 
+```bash
+$ docs [GLOBAL FLAGS] versioning get [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--help, -h**: show help
+The following flags are supported:
 
-#### help, h
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-Shows a list of commands or help for one command
+### `versioning get help` subcommand (aliases: `h`)
 
-### put
+Shows a list of commands or help for one command.
 
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] versioning get help [command]
+```
 
-#### help, h
+### `versioning put` subcommand
 
-Shows a list of commands or help for one command
+Usage:
 
-### help, h
+```bash
+$ docs [GLOBAL FLAGS] versioning put [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-## lifecycle
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-Bucket Lifecycle
+### `versioning put help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-### get
+Usage:
 
+```bash
+$ docs [GLOBAL FLAGS] versioning put help [command]
+```
 
-**--help, -h**: show help
+### `versioning help` subcommand (aliases: `h`)
 
-#### help, h
+Shows a list of commands or help for one command.
 
-Shows a list of commands or help for one command
+Usage:
 
-### put
+```bash
+$ docs [GLOBAL FLAGS] versioning help [command]
+```
 
+### `object-lock` command
 
-**--help, -h**: show help
+Bucket Object Locking.
 
-#### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] object-lock [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-### rm
+The following flags are supported:
 
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--help, -h**: show help
+### `object-lock get` subcommand
 
-#### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] object-lock get [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-### help, h
+The following flags are supported:
 
-Shows a list of commands or help for one command
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-## cors
+### `object-lock get help` subcommand (aliases: `h`)
 
-Bucket CORS
+Shows a list of commands or help for one command.
 
-**--help, -h**: show help
+Usage:
 
-### get
+```bash
+$ docs [GLOBAL FLAGS] object-lock get help [command]
+```
 
+### `object-lock put` subcommand
 
-**--help, -h**: show help
+Usage:
 
-#### help, h
+```bash
+$ docs [GLOBAL FLAGS] object-lock put [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-### put
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
+### `object-lock put help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-#### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] object-lock put help [command]
+```
 
-### rm
+### `object-lock help` subcommand (aliases: `h`)
 
+Shows a list of commands or help for one command.
 
-**--help, -h**: show help
+Usage:
 
-#### help, h
+```bash
+$ docs [GLOBAL FLAGS] object-lock help [command]
+```
 
-Shows a list of commands or help for one command
+### `lifecycle` command
 
-### help, h
+Bucket Lifecycle.
 
-Shows a list of commands or help for one command
+Usage:
 
-## tag
+```bash
+$ docs [GLOBAL FLAGS] lifecycle [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Bucket Tagging
+The following flags are supported:
 
-**--help, -h**: show help
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-### get
+### `lifecycle get` subcommand
 
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] lifecycle get [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-#### help, h
+The following flags are supported:
 
-Shows a list of commands or help for one command
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-### help, h
+### `lifecycle get help` subcommand (aliases: `h`)
 
-Shows a list of commands or help for one command
+Shows a list of commands or help for one command.
 
-## multiparts
+Usage:
 
-Multipart Uploads
+```bash
+$ docs [GLOBAL FLAGS] lifecycle get help [command]
+```
 
-**--help, -h**: show help
+### `lifecycle put` subcommand
 
-### ls
+Usage:
 
+```bash
+$ docs [GLOBAL FLAGS] lifecycle put [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--delimiter**="":  (default: "/")
+The following flags are supported:
 
-**--help, -h**: show help
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--prefix**="": 
+### `lifecycle put help` subcommand (aliases: `h`)
 
-#### help, h
+Shows a list of commands or help for one command.
 
-Shows a list of commands or help for one command
+Usage:
 
-### rm
+```bash
+$ docs [GLOBAL FLAGS] lifecycle put help [command]
+```
 
+### `lifecycle rm` subcommand
 
-**--help, -h**: show help
+Usage:
 
-**--key**="": 
+```bash
+$ docs [GLOBAL FLAGS] lifecycle rm [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--upload-id**="": 
+The following flags are supported:
 
-#### help, h
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-Shows a list of commands or help for one command
+### `lifecycle rm help` subcommand (aliases: `h`)
 
-### help, h
+Shows a list of commands or help for one command.
 
-Shows a list of commands or help for one command
+Usage:
 
-## parts
+```bash
+$ docs [GLOBAL FLAGS] lifecycle rm help [command]
+```
 
-Multipart Parts
+### `lifecycle help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-**--key**="": 
+Usage:
 
-**--upload-id**="": 
+```bash
+$ docs [GLOBAL FLAGS] lifecycle help [command]
+```
 
-### ls
+### `cors` command
 
+Bucket CORS.
 
-**--help, -h**: show help
+Usage:
 
-#### help, h
+```bash
+$ docs [GLOBAL FLAGS] cors [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-### help, h
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-Shows a list of commands or help for one command
+### `cors get` subcommand
 
-## ls
+Usage:
 
-Object List
+```bash
+$ docs [GLOBAL FLAGS] cors get [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--delimiter**="":  (default: "/")
+The following flags are supported:
 
-**--help, -h**: show help
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--json**: 
+### `cors get help` subcommand (aliases: `h`)
 
-### help, h
+Shows a list of commands or help for one command.
 
-Shows a list of commands or help for one command
+Usage:
 
-## head
+```bash
+$ docs [GLOBAL FLAGS] cors get help [command]
+```
 
-Object Head
+### `cors put` subcommand
 
-**--help, -h**: show help
+Usage:
 
-### help, h
+```bash
+$ docs [GLOBAL FLAGS] cors put [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-## get
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-Object Download
+### `cors put help` subcommand (aliases: `h`)
 
-**--concurrency**="":  (default: 5)
+Shows a list of commands or help for one command.
 
-**--help, -h**: show help
+Usage:
 
-**--if-match**="": 
+```bash
+$ docs [GLOBAL FLAGS] cors put help [command]
+```
 
-**--if-modified-since**="": 
+### `cors rm` subcommand
 
-**--if-none-match**="": 
+Usage:
 
-**--if-unmodified-since**="": 
+```bash
+$ docs [GLOBAL FLAGS] cors rm [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--part-number**="":  (default: 0)
+The following flags are supported:
 
-**--part-size**="":  (default: 0)
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--range**="": bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes
+### `cors rm help` subcommand (aliases: `h`)
 
-**--sse-c-algorithm**="":  (default: "AES256")
+Shows a list of commands or help for one command.
 
-**--sse-c-key**="": 32 bytes key
+Usage:
 
-**--version-id**="": 
+```bash
+$ docs [GLOBAL FLAGS] cors rm help [command]
+```
 
-### help, h
+### `cors help` subcommand (aliases: `h`)
 
-Shows a list of commands or help for one command
+Shows a list of commands or help for one command.
 
-## put
+Usage:
 
-Object Upload
+```bash
+$ docs [GLOBAL FLAGS] cors help [command]
+```
 
-**--acl**="": e.g. 'public-read'
+### `tag` command
 
-**--concurrency**="":  (default: 5)
+Bucket Tagging.
 
-**--help, -h**: show help
+Usage:
 
-**--leave-parts-on-error**="":  (default: 0)
+```bash
+$ docs [GLOBAL FLAGS] tag [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--max-parts**="":  (default: 0)
+The following flags are supported:
 
-**--part-size**="":  (default: 0)
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--sse-c-algorithm**="":  (default: "AES256")
+### `tag get` subcommand
 
-**--sse-c-key**="": 32 bytes key
+Usage:
 
-**--target**="": target key for single file or prefix multiple files
+```bash
+$ docs [GLOBAL FLAGS] tag get [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-### help, h
+The following flags are supported:
 
-Shows a list of commands or help for one command
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-## rm
+### `tag get help` subcommand (aliases: `h`)
 
-Object Remove
+Shows a list of commands or help for one command.
 
-**--concurrency**="":  (default: 5)
+Usage:
 
-**--delimiter**="":  (default: "/")
+```bash
+$ docs [GLOBAL FLAGS] tag get help [command]
+```
 
-**--dry-run**: 
+### `tag help` subcommand (aliases: `h`)
 
-**--force**: 
+Shows a list of commands or help for one command.
 
-**--help, -h**: show help
+Usage:
 
-### help, h
+```bash
+$ docs [GLOBAL FLAGS] tag help [command]
+```
 
-Shows a list of commands or help for one command
+### `multiparts` command
 
-## cp
+Multipart Uploads.
 
-Object Server Side Copy
+Usage:
 
-**--dst-bucket**="": Destinaton bucket
+```bash
+$ docs [GLOBAL FLAGS] multiparts [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--dst-key**="": Destination key. When empty, the src-key will be used
+The following flags are supported:
 
-**--help, -h**: show help
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-**--src-bucket**="": Source bucket
+### `multiparts ls` subcommand
 
-**--src-key**="": Source key
+Usage:
 
-**--sse-c-algorithm**="":  (default: "AES256")
+```bash
+$ docs [GLOBAL FLAGS] multiparts ls [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--sse-c-key**="": 32 bytes key
+The following flags are supported:
 
-### help, h
+| Name              | Description | Type   | Default value | Environment variables |
+|-------------------|-------------|--------|:-------------:|:---------------------:|
+| `--prefix="…"`    |             | string |               |        *none*         |
+| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
+| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
 
-Shows a list of commands or help for one command
+### `multiparts ls help` subcommand (aliases: `h`)
 
-## versions
+Shows a list of commands or help for one command.
 
-Object Versions
+Usage:
 
-**--delimiter**="":  (default: "/")
+```bash
+$ docs [GLOBAL FLAGS] multiparts ls help [command]
+```
 
-**--help, -h**: show help
+### `multiparts rm` subcommand
 
-**--json**: 
+Usage:
 
-### help, h
+```bash
+$ docs [GLOBAL FLAGS] multiparts rm [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-Shows a list of commands or help for one command
+The following flags are supported:
 
-## acl
+| Name              | Description | Type   | Default value | Environment variables |
+|-------------------|-------------|--------|:-------------:|:---------------------:|
+| `--key="…"`       |             | string |               |        *none*         |
+| `--upload-id="…"` |             | string |               |        *none*         |
+| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
 
-Object ACL
+### `multiparts rm help` subcommand (aliases: `h`)
 
-**--help, -h**: show help
+Shows a list of commands or help for one command.
 
-### get
+Usage:
 
+```bash
+$ docs [GLOBAL FLAGS] multiparts rm help [command]
+```
 
-**--help, -h**: show help
+### `multiparts help` subcommand (aliases: `h`)
 
-**--version-id**="": 
+Shows a list of commands or help for one command.
 
-#### help, h
+Usage:
 
-Shows a list of commands or help for one command
+```bash
+$ docs [GLOBAL FLAGS] multiparts help [command]
+```
 
-### help, h
+### `parts` command
 
-Shows a list of commands or help for one command
+Multipart Parts.
 
-## presign
+Usage:
 
-Object pre-signed URL
+```bash
+$ docs [GLOBAL FLAGS] parts [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-**--expires-in**="":  (default: 0s)
+The following flags are supported:
 
-**--help, -h**: show help
+| Name              | Description | Type   | Default value | Environment variables |
+|-------------------|-------------|--------|:-------------:|:---------------------:|
+| `--key="…"`       |             | string |               |        *none*         |
+| `--upload-id="…"` |             | string |               |        *none*         |
+| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
 
-### get
+### `parts ls` subcommand
 
-Presigned URL for a GET request
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] parts ls [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-#### help, h
+The following flags are supported:
 
-Shows a list of commands or help for one command
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
-### put
+### `parts ls help` subcommand (aliases: `h`)
 
-Presigned URL for a PUT request
+Shows a list of commands or help for one command.
 
-**--help, -h**: show help
+Usage:
 
-#### help, h
+```bash
+$ docs [GLOBAL FLAGS] parts ls help [command]
+```
 
-Shows a list of commands or help for one command
+### `parts help` subcommand (aliases: `h`)
 
-### help, h
+Shows a list of commands or help for one command.
 
-Shows a list of commands or help for one command
+Usage:
 
-## help, h
+```bash
+$ docs [GLOBAL FLAGS] parts help [command]
+```
 
-Shows a list of commands or help for one command
+### `ls` command
 
-## completion
+Object List.
 
-Output shell completion script for bash, zsh, fish, or Powershell
+Usage:
 
-**--help, -h**: show help
+```bash
+$ docs [GLOBAL FLAGS] ls [COMMAND FLAGS] [ARGUMENTS...]
+```
 
-### help, h
+The following flags are supported:
 
-Shows a list of commands or help for one command
+| Name              | Description | Type   | Default value | Environment variables |
+|-------------------|-------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
+| `--json`          |             | bool   |    `false`    |        *none*         |
+| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+
+### `ls help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] ls help [command]
+```
+
+### `head` command
+
+Object Head.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] head [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
+
+### `head help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] head help [command]
+```
+
+### `get` command
+
+Object Download.
+
+Get a single object or add the delimiter (e.g. '/') as path suffix to download recursively.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] get [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name                        | Description                                                            | Type   | Default value | Environment variables |
+|-----------------------------|------------------------------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"`           |                                                                        | string |     `"/"`     |        *none*         |
+| `--sse-c-key="…"`           | 32 bytes key                                                           | string |               |        *none*         |
+| `--sse-c-algorithm="…"`     |                                                                        | string |  `"AES256"`   |        *none*         |
+| `--concurrency="…"`         |                                                                        | int    |      `5`      |        *none*         |
+| `--part-size="…"`           |                                                                        | int    |      `0`      |        *none*         |
+| `--version-id="…"`          |                                                                        | string |               |        *none*         |
+| `--range="…"`               | bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes | string |               |        *none*         |
+| `--part-number="…"`         |                                                                        | int    |      `0`      |        *none*         |
+| `--if-match="…"`            |                                                                        | string |               |        *none*         |
+| `--if-none-match="…"`       |                                                                        | string |               |        *none*         |
+| `--if-modified-since="…"`   |                                                                        | time   |               |        *none*         |
+| `--if-unmodified-since="…"` |                                                                        | time   |               |        *none*         |
+| `--help` (`-h`)             | show help                                                              | bool   |    `false`    |        *none*         |
+
+### `get help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] get help [command]
+```
+
+### `put` command
+
+Object Upload.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] put [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name                         | Description                                         | Type   | Default value | Environment variables |
+|------------------------------|-----------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--sse-c-key="…"`            | 32 bytes key                                        | string |               |        *none*         |
+| `--sse-c-algorithm="…"`      |                                                     | string |  `"AES256"`   |        *none*         |
+| `--part-size="…"`            |                                                     | int    |      `0`      |        *none*         |
+| `--concurrency="…"`          |                                                     | int    |      `5`      |        *none*         |
+| `--leave-parts-on-error="…"` |                                                     | int    |      `0`      |        *none*         |
+| `--max-parts="…"`            |                                                     | int    |      `0`      |        *none*         |
+| `--target="…"`               | target key for single file or prefix multiple files | string |               |        *none*         |
+| `--acl="…"`                  | e.g. 'public-read'                                  | string |               |        *none*         |
+| `--help` (`-h`)              | show help                                           | bool   |    `false`    |        *none*         |
+
+### `put help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] put help [command]
+```
+
+### `rm` command
+
+Object Remove.
+
+Remove a single object or add the delimiter (e.g. '/') as path suffix to remove recursively.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] rm [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name                | Description | Type   | Default value | Environment variables |
+|---------------------|-------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"`   |             | string |     `"/"`     |        *none*         |
+| `--force`           |             | bool   |    `false`    |        *none*         |
+| `--concurrency="…"` |             | int    |      `5`      |        *none*         |
+| `--dry-run`         |             | bool   |    `false`    |        *none*         |
+| `--help` (`-h`)     | show help   | bool   |    `false`    |        *none*         |
+
+### `rm help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] rm help [command]
+```
+
+### `cp` command
+
+Object Server Side Copy.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] cp [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name                    | Description                                           | Type   | Default value | Environment variables |
+|-------------------------|-------------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--src-bucket="…"`      | Source bucket                                         | string |               |        *none*         |
+| `--src-key="…"`         | Source key                                            | string |               |        *none*         |
+| `--dst-bucket="…"`      | Destinaton bucket                                     | string |               |        *none*         |
+| `--dst-key="…"`         | Destination key. When empty, the src-key will be used | string |               |        *none*         |
+| `--sse-c-key="…"`       | 32 bytes key                                          | string |               |        *none*         |
+| `--sse-c-algorithm="…"` |                                                       | string |  `"AES256"`   |        *none*         |
+| `--help` (`-h`)         | show help                                             | bool   |    `false`    |        *none*         |
+
+### `cp help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] cp help [command]
+```
+
+### `versions` command
+
+Object Versions.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] versions [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name              | Description | Type   | Default value | Environment variables |
+|-------------------|-------------|--------|:-------------:|:---------------------:|
+| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
+| `--json`          |             | bool   |    `false`    |        *none*         |
+| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+
+### `versions help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] versions help [command]
+```
+
+### `acl` command
+
+Object ACL.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] acl [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
+
+### `acl get` subcommand
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] acl get [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name               | Description | Type   | Default value | Environment variables |
+|--------------------|-------------|--------|:-------------:|:---------------------:|
+| `--version-id="…"` |             | string |               |        *none*         |
+| `--help` (`-h`)    | show help   | bool   |    `false`    |        *none*         |
+
+### `acl get help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] acl get help [command]
+```
+
+### `acl help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] acl help [command]
+```
+
+### `presign` command
+
+Object pre-signed URL.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] presign [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name               | Description | Type     | Default value | Environment variables |
+|--------------------|-------------|----------|:-------------:|:---------------------:|
+| `--expires-in="…"` |             | duration |     `0s`      |        *none*         |
+| `--help` (`-h`)    | show help   | bool     |    `false`    |        *none*         |
+
+### `presign get` subcommand
+
+Presigned URL for a GET request.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] presign get [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
+
+### `presign get help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] presign get help [command]
+```
+
+### `presign put` subcommand
+
+Presigned URL for a PUT request.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] presign put [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
+
+### `presign put help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] presign put help [command]
+```
+
+### `presign help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] presign help [command]
+```
+
+### `completion` command
+
+Output shell completion script for bash, zsh, fish, or Powershell.
+
+Output shell completion script for bash, zsh, fish, or Powershell. Source the output to enable completion.  # .bashrc source <(sss completion bash)  # .zshrc source <(sss completion zsh)  # fish sss completion fish > ~/.config/fish/completions/sss.fish  # Powershell Output the script to path/to/autocomplete/sss.ps1 an run it.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] completion [COMMAND FLAGS] [ARGUMENTS...]
+```
+
+The following flags are supported:
+
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
+
+### `completion help` subcommand (aliases: `h`)
+
+Shows a list of commands or help for one command.
+
+Usage:
+
+```bash
+$ docs [GLOBAL FLAGS] completion help [command]
+```
