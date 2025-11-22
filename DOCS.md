@@ -958,15 +958,12 @@ $ docs [GLOBAL FLAGS] cp [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name                    | Description                                           | Type   | Default value | Environment variables |
-|-------------------------|-------------------------------------------------------|--------|:-------------:|:---------------------:|
-| `--src-bucket="…"`      | Source bucket                                         | string |               |        *none*         |
-| `--src-key="…"`         | Source key                                            | string |               |        *none*         |
-| `--dst-bucket="…"`      | Destinaton bucket                                     | string |               |        *none*         |
-| `--dst-key="…"`         | Destination key. When empty, the src-key will be used | string |               |        *none*         |
-| `--sse-c-key="…"`       | 32 bytes key                                          | string |               |        *none*         |
-| `--sse-c-algorithm="…"` |                                                       | string |  `"AES256"`   |        *none*         |
-| `--help` (`-h`)         | show help                                             | bool   |    `false`    |        *none*         |
+| Name                    | Description                                                 | Type   | Default value | Environment variables |
+|-------------------------|-------------------------------------------------------------|--------|:-------------:|:---------------------:|
+| `--dst-bucket="…"`      | Destination bucket. When empty, the src-bucket will be used | string |               |        *none*         |
+| `--sse-c-key="…"`       | 32 bytes key                                                | string |               |        *none*         |
+| `--sse-c-algorithm="…"` |                                                             | string |  `"AES256"`   |        *none*         |
+| `--help` (`-h`)         | show help                                                   | bool   |    `false`    |        *none*         |
 
 ### `cp help` subcommand (aliases: `h`)
 

@@ -17,6 +17,9 @@ type ObjectCopyConfig struct {
 }
 
 func (c *Controller) ObjectCopy(cfg ObjectCopyConfig) error {
+	if cfg.DstBucket == "" {
+		cfg.DstBucket = cfg.SrcBucket
+	}
 	if cfg.DstKey == "" {
 		cfg.DstKey = cfg.SrcKey
 	}
