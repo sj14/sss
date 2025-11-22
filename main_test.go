@@ -42,7 +42,7 @@ func TestE2E(t *testing.T) {
 		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "-read-only")
 		out, err := cmd.CombinedOutput()
 		must.Error(t, err)
-		must.StrContains(t, string(out), "read-only mode: blocked PUT")
+		must.StrContains(t, string(out), "blocked by read-only mode")
 	})
 
 	t.Run("list after read-only upload attempt", func(t *testing.T) {
