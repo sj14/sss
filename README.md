@@ -104,6 +104,15 @@ Follow the instructions from `sss completion --help`.
 2025-11-22 11:11:05  100 MiB  100MB.bin
 ```
 
+##### List recursively
+
+```
+➜ sss --bucket <BUCKET> ls -r
+2025-11-22 14:19:58  1.0 MiB  test/1MB.bin
+2025-11-22 14:20:00  2.0 MiB  test/2MB.bin
+2025-11-22 11:11:05  100 MiB  100MB.bin
+```
+
 ##### List directory/prefix
 
 ```
@@ -144,18 +153,8 @@ Only works when the end of the prefix matches the delimiter (by default: `/`).
 
 ```
 ➜ sss --bucket <BUCKET> put test/
-1.0 MiB in 1s | 904 KiB/s | 1MB.bin                                             
-2.0 MiB in 2s | 1.2 MiB/s | 2MB.bin                                             
-```
-
-Notice that the uploaded objects resist in the root of the bucket.
-
-##### Upload to a specific path/prefix
-
-```
-➜ sss --bucket <BUCKET> put test/ test2/
-1.0 MiB in 1s | 883 KiB/s | test2/1MB.bin
-2.0 MiB in 2s | 1.0 MiB/s | test2/2MB.bin
+1.0 MiB in 1s | 904 KiB/s | test/1MB.bin                                             
+2.0 MiB in 2s | 1.2 MiB/s | test/2MB.bin                                             
 ```
 
 #### Delete
