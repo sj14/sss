@@ -60,14 +60,14 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("upload 2", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "-target=test/2")
+		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "test/2")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "test/2")
 	})
 
 	t.Run("upload 3", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "-target=test/3")
+		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "test/3")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "test/3")

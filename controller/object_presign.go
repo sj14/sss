@@ -7,12 +7,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func (c *Controller) ObjectPresignGet(expiration time.Duration, cfg ObjectGetConfig) error {
+func (c *Controller) ObjectPresignGet(objectKey string, cfg ObjectGetConfig, expiration time.Duration) error {
 	presigner := s3.NewPresignClient(c.client)
 
 	req, err := presigner.PresignGetObject(c.ctx, &s3.GetObjectInput{
 		Bucket: &cfg.Bucket,
-		Key:    &cfg.ObjectKey,
+		Key:    &objectKey,
 		// IfMatch: ,
 		// SSECustomerAlgorithm: ,
 	}, s3.WithPresignExpires(expiration),
