@@ -32,27 +32,27 @@ type ObjectGetConfig struct {
 	DryRun            bool
 }
 
-func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix, delimiter string, cfg ObjectGetConfig) error {
+func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg ObjectGetConfig) error {
 	// only get single object
-	if !strings.HasSuffix(prefix, delimiter) {
+	if !strings.HasSuffix(prefix, "/") {
 		fp := path.Join(targetDir, path.Base(prefix))
 		return c.objectGet(fp, prefix, cfg)
 	}
 
 	// allow downloading the whole bucket
-	if prefix == delimiter {
+	if prefix == "/" {
 		prefix = ""
 		originalPrefix = ""
 	}
 
 	// recursive get
-	for l, err := range c.objectList(cfg.Bucket, prefix, delimiter) {
+	for l, err := range c.objectList(cfg.Bucket, prefix) {
 		if err != nil {
 			return err
 		}
 
 		if l.Prefix != nil {
-			err := c.ObjectGet(targetDir, *l.Prefix.Prefix, originalPrefix, delimiter, cfg)
+			err := c.ObjectGet(targetDir, *l.Prefix.Prefix, originalPrefix, cfg)
 			if err != nil {
 				return err
 			}

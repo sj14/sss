@@ -13,15 +13,15 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectList(bucket, prefix, originalPrefix, delimiter string, recursive, asJson bool) error {
-	for l, err := range c.objectList(bucket, prefix, delimiter) {
+func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
+	for l, err := range c.objectList(bucket, prefix) {
 		if err != nil {
 			return err
 		}
 
 		if l.Prefix != nil {
 			if recursive {
-				err := c.ObjectList(bucket, *l.Prefix.Prefix, originalPrefix, delimiter, recursive, asJson)
+				err := c.ObjectList(bucket, *l.Prefix.Prefix, originalPrefix, recursive, asJson)
 				if err != nil {
 					return err
 				}
@@ -55,11 +55,11 @@ type ListItem struct {
 	Prefix *types.CommonPrefix
 }
 
-func (c *Controller) objectList(bucket, prefix, delimiter string) iter.Seq2[ListItem, error] {
+func (c *Controller) objectList(bucket, prefix string) iter.Seq2[ListItem, error] {
 	return func(yield func(ListItem, error) bool) {
 		paginator := s3.NewListObjectsV2Paginator(c.client, &s3.ListObjectsV2Input{
 			Bucket:    aws.String(bucket),
-			Delimiter: aws.String(delimiter),
+			Delimiter: aws.String("/"),
 			Prefix:    aws.String(prefix),
 			MaxKeys:   aws.Int32(100),
 		})

@@ -10,8 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func (c *Controller) BucketMultipartUploadsList(bucket, prefix, delimiter string) error {
-	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, delimiter) {
+func (c *Controller) BucketMultipartUploadsList(bucket, prefix string) error {
+	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix) {
 		if err != nil {
 			return err
 		}
@@ -27,12 +27,12 @@ func (c *Controller) BucketMultipartUploadsList(bucket, prefix, delimiter string
 	return nil
 }
 
-func (c *Controller) bucketMultipartUploadsList(bucket, prefix, delimiter string) iter.Seq2[types.MultipartUpload, error] {
+func (c *Controller) bucketMultipartUploadsList(bucket, prefix string) iter.Seq2[types.MultipartUpload, error] {
 	return func(yield func(types.MultipartUpload, error) bool) {
 		paginator := s3.NewListMultipartUploadsPaginator(c.client, &s3.ListMultipartUploadsInput{
 			Bucket:     aws.String(bucket),
 			Prefix:     &prefix,
-			Delimiter:  &delimiter,
+			Delimiter:  aws.String("/"),
 			MaxUploads: aws.Int32(100),
 		})
 

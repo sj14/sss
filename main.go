@@ -276,10 +276,6 @@ var (
 		Name:  "sse-c-algorithm",
 		Value: "AES256",
 	}
-	flagDelimiter = &cli.StringFlag{
-		Name:  "delimiter",
-		Value: "/",
-	}
 	flagRecursive = &cli.BoolFlag{
 		Name:    "recursive",
 		Aliases: []string{"r"},
@@ -450,14 +446,12 @@ var (
 				Name: "ls",
 				Flags: []cli.Flag{
 					flagPrefix,
-					flagDelimiter,
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.BucketMultipartUploadsList(
 							cmd.String(flagBucket.Name),
 							cmd.String(flagPrefix.Name),
-							cmd.String(flagDelimiter.Name),
 						)
 					})
 				},
@@ -511,7 +505,6 @@ var (
 			argPrefix,
 		},
 		Flags: []cli.Flag{
-			flagDelimiter,
 			flagRecursive,
 			flagJson,
 		},
@@ -521,7 +514,6 @@ var (
 					cmd.String(flagBucket.Name),
 					cmd.StringArg(argPrefix.Name),
 					cmd.StringArg(argPrefix.Name),
-					cmd.String(flagDelimiter.Name),
 					cmd.Bool(flagRecursive.Name),
 					cmd.Bool(flagJson.Name),
 				)
@@ -611,12 +603,11 @@ var (
 		Category:    "object management",
 		Name:        "rm",
 		Usage:       "Object Remove",
-		Description: "Remove a single object or add the delimiter (e.g. '/') as path suffix to remove recursively.",
+		Description: "Remove a single object or add '/' as path suffix to remove recursively.",
 		Arguments: []cli.Argument{
 			argKey,
 		},
 		Flags: []cli.Flag{
-			flagDelimiter,
 			flagForce,
 			flagConcurrency,
 			flagDryRun,
@@ -627,7 +618,6 @@ var (
 					cmd.StringArg("key"),
 					controller.ObjectDeleteConfig{
 						Bucket:      cmd.String(flagBucket.Name),
-						Delimiter:   cmd.String(flagDelimiter.Name),
 						Force:       cmd.Bool(flagForce.Name),
 						Concurrency: cmd.Int(flagConcurrency.Name),
 						DryRun:      cmd.Bool(flagDryRun.Name),
@@ -640,14 +630,13 @@ var (
 		Category:    "object management",
 		Name:        "get",
 		Usage:       "Object Download",
-		Description: "Get a single object or add the delimiter (e.g. '/') as path suffix to download recursively.",
+		Description: "Get a single object or add '/' as path suffix to download recursively.",
 		Arguments: []cli.Argument{
 			argKey,
 			argDest,
 		},
 		Flags: []cli.Flag{
 			flagDryRun,
-			flagDelimiter,
 			flagSSEcKey,
 			flagSSEcAlgo,
 			flagConcurrency,
@@ -666,7 +655,6 @@ var (
 					cmd.StringArg(argDest.Name),
 					cmd.StringArg(argKey.Name),
 					cmd.StringArg(argKey.Name),
-					cmd.String(flagDelimiter.Name),
 					controller.ObjectGetConfig{
 						Bucket:            cmd.String(flagBucket.Name),
 						SSEC:              parseSSEC(cmd),
@@ -941,15 +929,11 @@ var (
 		Arguments: []cli.Argument{
 			argPrefix,
 		},
-		Flags: []cli.Flag{
-			flagDelimiter,
-		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 				return ctrl.BucketSize(
 					cmd.String(flagBucket.Name),
 					cmd.StringArg(argPrefix.Name),
-					cmd.String(flagDelimiter.Name),
 				)
 			})
 		},
@@ -987,7 +971,6 @@ var (
 			argPrefix,
 		},
 		Flags: []cli.Flag{
-			flagDelimiter,
 			flagJson,
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
@@ -995,7 +978,6 @@ var (
 				return ctrl.ObjectVersions(
 					cmd.String(flagBucket.Name),
 					cmd.StringArg(argPrefix.Name),
-					cmd.String(flagDelimiter.Name),
 					cmd.Bool(flagJson.Name),
 				)
 			})

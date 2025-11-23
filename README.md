@@ -92,6 +92,10 @@ GLOBAL OPTIONS:
 
 Follow the instructions from `sss completion --help`.
 
+### Delimiter
+
+The forward slash (`/`) is the only supported delimiter.
+
 ### Examples
 
 #### List objects
@@ -132,7 +136,7 @@ Follow the instructions from `sss completion --help`.
 
 ##### Download directory/prefix
 
-Only works when the end of the prefix matches the delimiter (by default: `/`).
+Only works when the end of the prefix is `/`.
 
 ```
 ➜ test sss --bucket <BUCKET> get test/
@@ -168,7 +172,7 @@ deleting 100MB.bin (100 MiB)
 
 ##### Delete a directory/prefix
 
-Only works when the end of the prefix matches the delimiter (by default: `/`).
+Only works when the end of the prefix is `/`.
 
 ```
 ➜ sss --bucket <BUCKET> rm test/
