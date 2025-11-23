@@ -553,7 +553,7 @@ var (
 				return ctrl.ObjectCopy(
 					controller.ObjectCopyConfig{
 						SrcBucket: cmd.String(flagBucket.Name),
-						SrcKey:    cmd.StringArg(argKey.Name),
+						SrcKey:    cmd.StringArg("src-key"),
 						DstBucket: cmd.String("dst-bucket"),
 						DstKey:    cmd.StringArg("dst-key"),
 						SSEC:      parseSSEC(cmd),
@@ -572,6 +572,7 @@ var (
 			argDest,
 		},
 		Flags: []cli.Flag{
+			flagDryRun,
 			flagSSEcKey,
 			flagSSEcAlgo,
 			flagPartSize,
@@ -600,6 +601,7 @@ var (
 						MaxUploadParts:    cmd.Int32("max-parts"),
 						PartSize:          cmd.Int64("part-size"),
 						ACL:               cmd.String("acl"),
+						DryRun:            cmd.Bool(flagDryRun.Name),
 					},
 				)
 			})
@@ -644,6 +646,7 @@ var (
 			argDest,
 		},
 		Flags: []cli.Flag{
+			flagDryRun,
 			flagDelimiter,
 			flagSSEcKey,
 			flagSSEcAlgo,
@@ -676,6 +679,7 @@ var (
 						IfNoneMatch:       cmd.String(flagIfNoneMatch.Name),
 						IfModifiedSince:   cmd.Timestamp(flagIfModifiedSince.Name),
 						IfUnmodifiedSince: cmd.Timestamp(flagIfUnmodifiedSince.Name),
+						DryRun:            cmd.Bool(flagDryRun.Name),
 					},
 				)
 			})

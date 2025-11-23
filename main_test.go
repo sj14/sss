@@ -18,63 +18,75 @@ func randomString(n int) string {
 	return string(s)
 }
 
-func TestE2E(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping e2e tests")
-	}
-
+func createBucket(t *testing.T) string {
 	bucketName := randomString(16)
 	t.Attr("bucket", bucketName)
 
-	t.Cleanup(func() {
-		cmd := exec.Command("go", "run", "main.go", "rb", "-bucket", bucketName)
-		err := cmd.Run()
-		must.NoError(t, err)
-	})
-
 	t.Run("create bucket", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "mb", "-bucket", bucketName)
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "mb")
 		_, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 	})
 
+	t.Cleanup(func() {
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "rm", "/", "-force")
+		err := cmd.Run()
+		must.NoError(t, err)
+
+		cmd = exec.Command("go", "run", "main.go", "-bucket", bucketName, "rb")
+		err = cmd.Run()
+		must.NoError(t, err)
+	})
+
+	return bucketName
+}
+
+func TestBasic(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping e2e tests")
+	}
+
+	bucketName := createBucket(t)
+
 	t.Run("upload read-only", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "-read-only")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "put", "README.md", "-read-only")
 		out, err := cmd.CombinedOutput()
 		must.Error(t, err)
 		must.StrContains(t, string(out), "blocked by read-only mode")
 	})
 
 	t.Run("list after read-only upload attempt", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "ls", "-bucket", bucketName)
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "ls")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrNotContains(t, string(out), "README.md")
 	})
 
 	t.Run("upload 1", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "put", "README.md")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "README.md")
 	})
 
 	t.Run("upload 2", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "test/2")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "put", "README.md", "test/2")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "test/2")
 	})
 
 	t.Run("upload 3", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "put", "-bucket", bucketName, "README.md", "test/3")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "put", "README.md", "test/3")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "test/3")
 	})
 
 	t.Run("list after upload", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "ls", "-bucket", bucketName)
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "ls")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "README.md")
@@ -82,7 +94,7 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("delete dry-run single", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "rm", "-bucket", bucketName, "README.md", "-dry-run")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "rm", "README.md", "-dry-run")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "> dry-run mode <")
@@ -90,7 +102,7 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("delete dry-run dir no suffix", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "rm", "-bucket", bucketName, "test", "-dry-run")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "rm", "test", "-dry-run")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "> dry-run mode <")
@@ -98,7 +110,7 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("delete dry-run dir", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "rm", "-bucket", bucketName, "test/", "-dry-run")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "rm", "test/", "-dry-run")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "> dry-run mode <")
@@ -107,7 +119,7 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("list after dry-run delete single", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "ls", "-bucket", bucketName)
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "ls")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "test/")
@@ -115,7 +127,7 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("list after dry-run delete dir", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "ls", "-bucket", bucketName, "test/")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "ls", "test/")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "2")
@@ -123,14 +135,14 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("delete", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "rm", "-bucket", bucketName, "README.md")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "rm", "README.md")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "README.md")
 	})
 
 	t.Run("list after delete", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "ls", "-bucket", bucketName)
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "ls")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "test/")
@@ -138,7 +150,7 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("delete dir", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "rm", "-bucket", bucketName, "test/")
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "rm", "test/")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrContains(t, string(out), "2")
@@ -146,10 +158,44 @@ func TestE2E(t *testing.T) {
 	})
 
 	t.Run("list after delete dir", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "ls", "-bucket", bucketName)
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "ls")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
 		must.StrNotContains(t, string(out), "test/")
 		must.StrNotContains(t, string(out), "README.md")
+	})
+}
+
+func TestSubdir(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping e2e tests")
+	}
+
+	bucketName := createBucket(t)
+
+	t.Run("upload subdir", func(t *testing.T) {
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "put", "util", "test")
+		out, err := cmd.CombinedOutput()
+		must.NoError(t, err)
+		must.StrContains(t, string(out), "test/util/progress/reader.go")
+		must.StrContains(t, string(out), "test/util/zero.go")
+	})
+
+	t.Run("download subdir 1 (dry-run)", func(t *testing.T) {
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "get", "test/", "yolo", "-dry-run")
+		out, err := cmd.CombinedOutput()
+		must.NoError(t, err)
+		must.StrContains(t, string(out), "yolo/test/util/progress/reader.go")
+		must.StrContains(t, string(out), "yolo/test/util/zero.go")
+	})
+
+	t.Run("download subdir 2 (dry-run)", func(t *testing.T) {
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "get", "test/util/", "yolo", "-dry-run")
+		out, err := cmd.CombinedOutput()
+		must.NoError(t, err)
+		must.StrContains(t, string(out), "yolo/util/progress/reader.go")
+		must.StrContains(t, string(out), "yolo/util/zero.go")
 	})
 }
