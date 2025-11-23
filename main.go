@@ -188,6 +188,9 @@ var (
 	argKey = &cli.StringArg{
 		Name: "key",
 	}
+	argUploadID = &cli.StringArg{
+		Name: "upload-id",
+	}
 	argDest = &cli.StringArg{
 		Name:      "destination",
 		UsageText: "target key for single file or prefix multiple files",
@@ -265,9 +268,6 @@ var (
 	flagObjectLock = &cli.BoolFlag{
 		Name: "object-lock",
 	}
-	flagPrefix = &cli.StringFlag{
-		Name: "prefix",
-	}
 	flagSSEcKey = &cli.StringFlag{
 		Name:  "sse-c-key",
 		Usage: "32 bytes key",
@@ -297,12 +297,12 @@ var (
 	flagPartSize = &cli.Int64Flag{
 		Name: "part-size",
 	}
-	flagObjectKey = &cli.StringFlag{
-		Name: "key",
-	}
-	flagUploadID = &cli.StringFlag{
-		Name: "upload-id",
-	}
+	// flagObjectKey = &cli.StringFlag{
+	// 	Name: "key",
+	// }
+	// flagUploadID = &cli.StringFlag{
+	// 	Name: "upload-id",
+	// }
 	flagVersionID = &cli.StringFlag{
 		Name: "version-id",
 	}
@@ -370,8 +370,8 @@ var (
 		Category: "bucket management",
 		Name:     "buckets",
 		Usage:    "Bucket List",
-		Flags: []cli.Flag{
-			flagPrefix,
+		Arguments: []cli.Argument{
+			argPrefix,
 		},
 		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			flagBucket.Required = false
@@ -382,7 +382,7 @@ var (
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return execute(ctx, cmd, func(ctrl *controller.Controller) error {
-				return ctrl.BucketList(cmd.String(flagPrefix.Name))
+				return ctrl.BucketList(cmd.StringArg(argPrefix.Name))
 			})
 		},
 	}
@@ -444,30 +444,34 @@ var (
 		Commands: []*cli.Command{
 			{
 				Name: "ls",
+				Arguments: []cli.Argument{
+					argPrefix,
+				},
 				Flags: []cli.Flag{
-					flagPrefix,
+					flagJson,
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.BucketMultipartUploadsList(
 							cmd.String(flagBucket.Name),
-							cmd.String(flagPrefix.Name),
+							cmd.StringArg(argPrefix.Name),
+							cmd.Bool(flagJson.Name),
 						)
 					})
 				},
 			},
 			{
 				Name: "rm",
-				Flags: []cli.Flag{
-					flagObjectKey,
-					flagUploadID,
+				Arguments: []cli.Argument{
+					argKey,
+					argUploadID,
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.BucketMultipartUploadAbort(
 							cmd.String(flagBucket.Name),
-							cmd.String(flagObjectKey.Name),
-							cmd.String(flagUploadID.Name),
+							cmd.StringArg(argKey.Name),
+							cmd.StringArg(argUploadID.Name),
 						)
 					})
 				},
@@ -478,19 +482,23 @@ var (
 		Category: "multipart management",
 		Name:     "parts",
 		Usage:    "Multipart Parts",
-		Flags: []cli.Flag{
-			flagObjectKey,
-			flagUploadID,
-		},
 		Commands: []*cli.Command{
 			{
 				Name: "ls",
+				Arguments: []cli.Argument{
+					argKey,
+					argUploadID,
+				},
+				Flags: []cli.Flag{
+					flagJson,
+				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.BucketPartsList(
 							cmd.String(flagBucket.Name),
-							cmd.String(flagObjectKey.Name),
-							cmd.String(flagUploadID.Name),
+							cmd.StringArg(argKey.Name),
+							cmd.StringArg(argUploadID.Name),
+							cmd.Bool(flagJson.Name),
 						)
 					})
 				},

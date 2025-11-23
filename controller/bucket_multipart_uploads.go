@@ -4,24 +4,34 @@ import (
 	"encoding/json"
 	"fmt"
 	"iter"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func (c *Controller) BucketMultipartUploadsList(bucket, prefix string) error {
+func (c *Controller) BucketMultipartUploadsList(bucket, prefix string, asJson bool) error {
 	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix) {
 		if err != nil {
 			return err
 		}
 
-		b, err := json.MarshalIndent(upload, "", "  ")
-		if err != nil {
-			return err
+		if asJson {
+			b, err := json.MarshalIndent(upload, "", "  ")
+			if err != nil {
+				return err
+			}
+
+			fmt.Println(string(b))
+			continue
 		}
 
-		fmt.Println(string(b))
+		fmt.Printf("%s  %s  %s\n",
+			upload.Initiated.Local().Format(time.DateTime),
+			*upload.UploadId,
+			*upload.Key,
+		)
 	}
 
 	return nil
@@ -53,6 +63,13 @@ func (c *Controller) bucketMultipartUploadsList(bucket, prefix string) iter.Seq2
 }
 
 func (c *Controller) BucketMultipartUploadAbort(bucket, key, uploadID string) error {
+	if key == "" {
+		return fmt.Errorf("empty key")
+	}
+	if uploadID == "" {
+		return fmt.Errorf("empty upload ID")
+	}
+
 	_, err := c.client.AbortMultipartUpload(c.ctx, &s3.AbortMultipartUploadInput{
 		Bucket:   &bucket,
 		Key:      &key,

@@ -67,10 +67,9 @@ $ docs [GLOBAL FLAGS] buckets [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name            | Description | Type   | Default value | Environment variables |
-|-----------------|-------------|--------|:-------------:|:---------------------:|
-| `--prefix="…"`  |             | string |               |        *none*         |
-| `--help` (`-h`) | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `buckets help` subcommand (aliases: `h`)
 
@@ -681,10 +680,10 @@ $ docs [GLOBAL FLAGS] multiparts ls [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name            | Description | Type   | Default value | Environment variables |
-|-----------------|-------------|--------|:-------------:|:---------------------:|
-| `--prefix="…"`  |             | string |               |        *none*         |
-| `--help` (`-h`) | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--json`        |             | bool |    `false`    |        *none*         |
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `multiparts ls help` subcommand (aliases: `h`)
 
@@ -706,11 +705,9 @@ $ docs [GLOBAL FLAGS] multiparts rm [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name              | Description | Type   | Default value | Environment variables |
-|-------------------|-------------|--------|:-------------:|:---------------------:|
-| `--key="…"`       |             | string |               |        *none*         |
-| `--upload-id="…"` |             | string |               |        *none*         |
-| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `multiparts rm help` subcommand (aliases: `h`)
 
@@ -744,11 +741,9 @@ $ docs [GLOBAL FLAGS] parts [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name              | Description | Type   | Default value | Environment variables |
-|-------------------|-------------|--------|:-------------:|:---------------------:|
-| `--key="…"`       |             | string |               |        *none*         |
-| `--upload-id="…"` |             | string |               |        *none*         |
-| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `parts ls` subcommand
 
@@ -762,6 +757,7 @@ The following flags are supported:
 
 | Name            | Description | Type | Default value | Environment variables |
 |-----------------|-------------|------|:-------------:|:---------------------:|
+| `--json`        |             | bool |    `false`    |        *none*         |
 | `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `parts ls help` subcommand (aliases: `h`)

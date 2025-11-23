@@ -20,7 +20,7 @@ func (c *Controller) ObjectVersions(bucket, prefix string, asJson bool) error {
 		}
 
 		if v.Prefix != nil {
-			fmt.Printf("%28s  %s\n", "PREFIX", *v.Prefix.Prefix)
+			fmt.Printf("%61s  %s\n", "PREFIX", *v.Prefix.Prefix)
 		}
 
 		if v.Versions != nil {
@@ -32,7 +32,7 @@ func (c *Controller) ObjectVersions(bucket, prefix string, asJson bool) error {
 				fmt.Println(string(b))
 				continue
 			}
-			fmt.Printf("%s %8s  %s  %s\n",
+			fmt.Printf("%s  %s %8s  %s\n",
 				v.Versions.LastModified.Local().Format(time.DateTime),
 				*v.Versions.VersionId,
 				humanize.IBytes(uint64(*v.Versions.Size)),
