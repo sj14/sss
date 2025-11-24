@@ -26,7 +26,7 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 					return err
 				}
 			} else {
-				fmt.Printf("%28s  %s\n", "PREFIX", *l.Prefix.Prefix)
+				fmt.Fprintf(c.stdoutWriter, "%28s  %s\n", "PREFIX", *l.Prefix.Prefix)
 			}
 		}
 
@@ -39,7 +39,7 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 				fmt.Println(string(b))
 				continue
 			}
-			fmt.Printf("%s %8s  %s\n",
+			fmt.Fprintf(c.stdoutWriter, "%s %8s  %s\n",
 				l.Object.LastModified.Local().Format(time.DateTime),
 				humanize.IBytes(uint64(*l.Object.Size)),
 				strings.TrimPrefix(*l.Object.Key, originalPrefix),

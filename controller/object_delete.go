@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -34,9 +33,9 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 			Key:    aws.String(prefix),
 		})
 		if err != nil {
-			log.Printf("failed to head object, continuing: %v\n", err)
+			fmt.Fprintf(c.stdoutWriter, "failed to head object, continuing: %v\n", err)
 		} else {
-			fmt.Printf("deleting %s (%s)\n", prefix, humanize.IBytes(uint64(*resp.ContentLength)))
+			fmt.Fprintf(c.stdoutWriter, "deleting %s (%s)\n", prefix, humanize.IBytes(uint64(*resp.ContentLength)))
 		}
 		return c.objectDelete(cfg.DryRun, cfg.Bucket, prefix)
 	}
@@ -64,7 +63,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 
 		if l.Object != nil {
 			eg.Go(func() error {
-				fmt.Printf("deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
+				fmt.Fprintf(c.stdoutWriter, "deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
 				err := c.objectDelete(cfg.DryRun, cfg.Bucket, *l.Object.Key)
 				if err != nil {
 					return err

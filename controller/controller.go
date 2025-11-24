@@ -50,7 +50,7 @@ type Profile struct {
 
 func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg ControllerConfig) (*Controller, error) {
 	if cfg.Verbosity > 0 && cfg.Profile.ReadOnly {
-		fmt.Println("> read-only mode <")
+		fmt.Fprintln(stdoutWriter, "> read-only mode <")
 	}
 
 	if cfg.DryRun {
@@ -58,7 +58,7 @@ func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg Controll
 		cfg.Profile.ReadOnly = true
 
 		if cfg.Verbosity > 0 {
-			fmt.Println("> dry-run mode <")
+			fmt.Fprintln(stdoutWriter, "> dry-run mode <")
 		}
 	}
 
