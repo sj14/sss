@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -33,6 +34,10 @@ type ObjectGetConfig struct {
 }
 
 func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg ObjectGetConfig) error {
+	if prefix == "" {
+		return errors.New("missing key")
+	}
+
 	// only get single object
 	if !strings.HasSuffix(prefix, "/") {
 		fp := path.Join(targetDir, path.Base(prefix))
@@ -120,7 +125,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	// TODO: represent download ranges
 	if cfg.DryRun {
 		var file = &os.File{}
-		pw := progress.NewWriter(file, total, c.verbosity, targetPath)
+		pw := progress.NewWriter(c.stdoutWriter, file, total, c.verbosity, targetPath)
 		pw.Finish()
 		return nil
 	}
@@ -142,7 +147,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 		d.PartSize = cfg.PartSize
 	})
 
-	pw := progress.NewWriter(file, total, c.verbosity, targetPath)
+	pw := progress.NewWriter(c.stdoutWriter, file, total, c.verbosity, targetPath)
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)
 	if err != nil {

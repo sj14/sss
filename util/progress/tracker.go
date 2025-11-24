@@ -2,6 +2,7 @@ package progress
 
 import (
 	"fmt"
+	"io"
 	"sync"
 	"time"
 
@@ -9,26 +10,28 @@ import (
 )
 
 type tracker struct {
-	key         string
-	verbosity   uint8
-	total       uint64
-	done        uint64
-	lastLineLen int
-	lastTime    time.Time
-	startTime   time.Time
-	updateEvery time.Duration
-	mu          sync.Mutex
+	outputWriter io.Writer
+	key          string
+	verbosity    uint8
+	total        uint64
+	done         uint64
+	lastLineLen  int
+	lastTime     time.Time
+	startTime    time.Time
+	updateEvery  time.Duration
+	mu           sync.Mutex
 }
 
-func newTracker(total uint64, verbosity uint8, key string) *tracker {
+func newTracker(outputWriter io.Writer, total uint64, verbosity uint8, key string) *tracker {
 	now := time.Now()
 	return &tracker{
-		key:         key,
-		verbosity:   verbosity,
-		total:       total,
-		startTime:   now,
-		lastTime:    now,
-		updateEvery: 1 * time.Second,
+		outputWriter: outputWriter,
+		key:          key,
+		verbosity:    verbosity,
+		total:        total,
+		startTime:    now,
+		lastTime:     now,
+		updateEvery:  1 * time.Second,
 	}
 }
 
@@ -72,9 +75,9 @@ func (p *tracker) progress(now time.Time) {
 		}
 	}
 
-	fmt.Printf("\r%-*s\r", p.lastLineLen, "") // clear terminal line
+	fmt.Fprintf(p.outputWriter, "\r%-*s\r", p.lastLineLen, "") // clear terminal line
 	out := fmt.Sprintf("%s/%s%s | %s/s %s | %s", humanize.IBytes(p.done), total, percent, humanize.IBytes(uint64(speed)), eta, p.key)
-	fmt.Print(out)
+	fmt.Fprint(p.outputWriter, out)
 	p.lastLineLen = len([]rune(out))
 }
 
@@ -89,8 +92,8 @@ func (p *tracker) finish() {
 	totalTime := time.Since(p.startTime)
 	avgSpeed := float64(p.done) / totalTime.Seconds()
 
-	fmt.Printf("\r%-*s\r", p.lastLineLen, "") // clear terminal line
+	fmt.Fprintf(p.outputWriter, "\r%-*s\r", p.lastLineLen, "") // clear terminal line
 	out := fmt.Sprintf("%s in %v | %s/s | %s\n", humanize.IBytes(p.done), totalTime.Round(time.Second), humanize.IBytes(uint64(avgSpeed)), p.key)
-	fmt.Print(out)
+	fmt.Fprint(p.outputWriter, out)
 	p.lastLineLen = len([]rune(out))
 }
