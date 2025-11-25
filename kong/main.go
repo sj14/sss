@@ -58,7 +58,21 @@ type CLI struct {
 
 type Profiles struct{}
 
+func (s Profiles) Run(cli CLI, ctrl *controller.Controller, config controller.Config) error {
+	keys := slices.Collect(maps.Keys(config.Profiles))
+	slices.Sort(keys)
+	for _, key := range keys {
+		fmt.Println(key)
+	}
+
+	return nil
+}
+
 type Buckets struct{}
+
+func (s Buckets) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketList("")
+}
 
 type Bucket struct {
 	BucketArg BucketArg `arg:"" name:"bucket"`
@@ -70,9 +84,9 @@ type BucketArg struct {
 	BucketCreate BucketCreate `cmd:"" name:"mb"`
 	BucketHead   BucketHead   `cmd:"" name:"hb"`
 	BucketRemove BucketRemove `cmd:"" name:"rb"`
-	BucketList   BucketList   `cmd:"" name:"ls" aliases:"list"`
 	BucketTag    BucketTag    `cmd:"" name:"tag"`
 	Multiparts   Multiparts   `cmd:"" name:"multiparts"`
+	ObjectList   ObjectList   `cmd:"" name:"ls" aliases:"list"`
 	ObjectCopy   ObjectCopy   `cmd:"" name:"cp"`
 	ObjectPut    ObjectPut    `cmd:"" name:"put"`
 	ObjectDelete ObjectDelete `cmd:"" name:"rm"`
@@ -86,11 +100,35 @@ type ObjectGet struct {
 	FlagConcurrency
 }
 
+func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectGet(
+		cli.Bucket.BucketArg.ObjectGet.DestinationPath,
+		cli.Bucket.BucketArg.ObjectGet.ObjectPath,
+		cli.Bucket.BucketArg.ObjectGet.ObjectPath,
+		controller.ObjectGetConfig{
+			Bucket:      cli.Bucket.BucketArg.BucketName,
+			Concurrency: cli.Bucket.BucketArg.ObjectGet.Concurrency,
+			DryRun:      cli.Bucket.BucketArg.ObjectGet.DryRun,
+		})
+}
+
 type ObjectDelete struct {
 	ObjectPath string `arg:"" name:"path"`
 	FlagConcurrency
 	FlagDryRun
 	FlagForce
+}
+
+func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectDelete(
+		cli.Bucket.BucketArg.ObjectDelete.ObjectPath,
+		controller.ObjectDeleteConfig{
+			Bucket:      cli.Bucket.BucketArg.BucketName,
+			Force:       cli.Bucket.BucketArg.ObjectDelete.Force,
+			Concurrency: cli.Bucket.BucketArg.ObjectDelete.Concurrency,
+			DryRun:      cli.Bucket.BucketArg.ObjectDelete.DryRun,
+		})
+
 }
 
 type ObjectPut struct {
@@ -101,46 +139,137 @@ type ObjectPut struct {
 	FlagDryRun
 }
 
+func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectPut(
+		cli.Bucket.BucketArg.ObjectPut.Filepath,
+		cli.Bucket.BucketArg.ObjectPut.Destinaton,
+		controller.ObjectPutConfig{
+			Bucket:      cli.Bucket.BucketArg.BucketName,
+			Concurrency: cli.Bucket.BucketArg.ObjectPut.Concurrency,
+			DryRun:      cli.Bucket.BucketArg.ObjectPut.DryRun,
+			// SSEC: ,
+			// LeavePartsOnError: ,
+			// MaxUploadParts: ,
+			// PartSize: ,
+			// ACL: ,
+		},
+	)
+}
+
 type ObjectCopy struct {
 	SrcObject string `arg:"" name:"src-object"`
 	DstBucket string `arg:"" name:"dst-bucket"`
 	DstObject string `arg:"" name:"dst-object"`
 }
 
+func (s ObjectCopy) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectCopy(controller.ObjectCopyConfig{
+		SrcBucket: cli.Bucket.BucketArg.BucketName,
+		SrcKey:    cli.Bucket.BucketArg.ObjectCopy.SrcObject,
+		DstBucket: cli.Bucket.BucketArg.ObjectCopy.DstBucket,
+		DstKey:    cli.Bucket.BucketArg.ObjectCopy.DstObject,
+	})
+}
+
 type BucketCreate struct {
 	ObjectLock bool `name:"object-lock"`
 }
 
+func (s BucketCreate) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketCreate(
+		cli.Bucket.BucketArg.BucketName,
+		cli.Bucket.BucketArg.BucketCreate.ObjectLock,
+	)
+}
+
 type BucketHead struct{}
+
+func (s BucketHead) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketHead(cli.Bucket.BucketArg.BucketName)
+}
 
 type BucketRemove struct{}
 
-type BucketList struct {
+func (s BucketRemove) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketDelete(cli.Bucket.BucketArg.BucketName)
+}
+
+type ObjectList struct {
 	FlagPrefix
 	FlagRecursive
 	FlagJson
 }
 
+func (s ObjectList) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectList(
+		cli.Bucket.BucketArg.BucketName,
+		cli.Bucket.BucketArg.ObjectList.Prefix,
+		cli.Bucket.BucketArg.ObjectList.Prefix,
+		cli.Bucket.BucketArg.ObjectList.Recursive,
+		cli.Bucket.BucketArg.ObjectList.AsJson,
+	)
+}
+
 type BucketTag struct {
-	Get struct{} `cmd:"" name:"get"`
+	BucketTagGet `cmd:"" name:"get"`
+}
+
+type BucketTagGet struct{}
+
+func (s BucketTagGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketTagging(cli.Bucket.BucketArg.BucketName)
 }
 
 type Multiparts struct {
-	List struct {
-		FlagPrefix
-		FlagJson
-	} `cmd:"" name:"ls"`
-	Remove struct {
-		ArgObject
-		ArgUploadID
-	} `cmd:"" name:"rm"`
-	Parts struct {
-		List struct {
-			ArgObject
-			ArgUploadID
-			FlagJson
-		} `cmd:"" name:"ls"`
-	} `cmd:"" name:"parts"`
+	MultipartRemove `cmd:"" name:"rm"`
+	MultipartParts  `cmd:"" name:"parts"`
+	MultipartList   `cmd:"" name:"ls"`
+}
+
+type MultipartList struct {
+	FlagPrefix
+	FlagJson
+}
+
+func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketMultipartUploadsList(
+		cli.Bucket.BucketArg.BucketName,
+		s.Prefix,
+		s.AsJson,
+	)
+}
+
+type MultipartRemove struct {
+	ArgObject
+	ArgUploadID
+}
+
+func (s MultipartRemove) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketMultipartUploadAbort(
+		cli.Bucket.BucketArg.BucketName,
+		cli.Bucket.BucketArg.Multiparts.MultipartRemove.Object,
+		cli.Bucket.BucketArg.Multiparts.MultipartRemove.UploadID,
+	)
+
+}
+
+type MultipartParts struct {
+	PartsList `cmd:"" name:"ls"`
+}
+
+type PartsList struct {
+	ArgObject
+	ArgUploadID
+	// FlagJson
+}
+
+func (s PartsList) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPartsList(
+		cli.Bucket.BucketArg.BucketName,
+		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.Object,
+		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.UploadID,
+		false, //cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.AsJson,
+	)
 }
 
 func main() {
@@ -187,97 +316,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	switch kctx.Command() {
-	case "profiles":
-		keys := slices.Collect(maps.Keys(config.Profiles))
-		slices.Sort(keys)
-		for _, key := range keys {
-			fmt.Println(key)
-		}
-	case "buckets":
-		err = ctrl.BucketList("")
-	case "bucket <bucket> mb":
-		err = ctrl.BucketCreate(
-			cli.Bucket.BucketArg.BucketName,
-			cli.Bucket.BucketArg.BucketCreate.ObjectLock,
-		)
-	case "bucket <bucket> hb":
-		err = ctrl.BucketHead(cli.Bucket.BucketArg.BucketName)
-	case "bucket <bucket> rb":
-		err = ctrl.BucketDelete(cli.Bucket.BucketArg.BucketName)
-	case "bucket <bucket> ls":
-		err = ctrl.ObjectList(
-			cli.Bucket.BucketArg.BucketName,
-			cli.Bucket.BucketArg.BucketList.Prefix,
-			cli.Bucket.BucketArg.BucketList.Prefix,
-			cli.Bucket.BucketArg.BucketList.Recursive,
-			cli.Bucket.BucketArg.BucketList.AsJson,
-		)
-
-	case "bucket <bucket> tag get":
-		err = ctrl.BucketTagging(cli.Bucket.BucketArg.BucketName)
-	case "bucket <bucket> multiparts ls":
-		err = ctrl.BucketMultipartUploadsList(
-			cli.Bucket.BucketArg.BucketName,
-			cli.Bucket.BucketArg.Multiparts.List.Prefix,
-			cli.Bucket.BucketArg.Multiparts.List.AsJson,
-		)
-	case "bucket <bucket> multiparts rm <object> <upload-id>":
-		err = ctrl.BucketMultipartUploadAbort(
-			cli.Bucket.BucketArg.BucketName,
-			cli.Bucket.BucketArg.Multiparts.Remove.Object,
-			cli.Bucket.BucketArg.Multiparts.Remove.UploadID,
-		)
-	case "bucket <bucket> multiparts parts ls <object> <upload-id>":
-		err = ctrl.BucketPartsList(
-			cli.Bucket.BucketArg.BucketName,
-			cli.Bucket.BucketArg.Multiparts.Parts.List.Object,
-			cli.Bucket.BucketArg.Multiparts.Parts.List.UploadID,
-			cli.Bucket.BucketArg.Multiparts.Parts.List.AsJson,
-		)
-	case "bucket <bucket> cp <src-object> <dst-bucket> <dst-object>":
-		err = ctrl.ObjectCopy(controller.ObjectCopyConfig{
-			SrcBucket: cli.Bucket.BucketArg.BucketName,
-			SrcKey:    cli.Bucket.BucketArg.ObjectCopy.SrcObject,
-			DstBucket: cli.Bucket.BucketArg.ObjectCopy.DstBucket,
-			DstKey:    cli.Bucket.BucketArg.ObjectCopy.DstObject,
-		})
-	case "bucket <bucket> put <path>", "bucket <bucket> put <path> <destination>":
-		err = ctrl.ObjectPut(
-			cli.Bucket.BucketArg.ObjectPut.Filepath,
-			cli.Bucket.BucketArg.ObjectPut.Destinaton,
-			controller.ObjectPutConfig{
-				Bucket:      cli.Bucket.BucketArg.BucketName,
-				Concurrency: cli.Bucket.BucketArg.ObjectPut.Concurrency,
-				DryRun:      cli.Bucket.BucketArg.ObjectPut.DryRun,
-				// SSEC: ,
-				// LeavePartsOnError: ,
-				// MaxUploadParts: ,
-				// PartSize: ,
-				// ACL: ,
-			},
-		)
-	case "bucket <bucket> rm <path>":
-		err = ctrl.ObjectDelete(
-			cli.Bucket.BucketArg.ObjectDelete.ObjectPath,
-			controller.ObjectDeleteConfig{
-				Bucket:      cli.Bucket.BucketArg.BucketName,
-				Force:       cli.Bucket.BucketArg.ObjectDelete.Force,
-				Concurrency: cli.Bucket.BucketArg.ObjectDelete.Concurrency,
-				DryRun:      cli.Bucket.BucketArg.ObjectDelete.DryRun,
-			})
-	case "bucket <bucket> get <object>", "bucket <bucket> get <object> <destination>":
-		err = ctrl.ObjectGet(
-			cli.Bucket.BucketArg.ObjectGet.DestinationPath,
-			cli.Bucket.BucketArg.ObjectGet.ObjectPath,
-			cli.Bucket.BucketArg.ObjectGet.ObjectPath,
-			controller.ObjectGetConfig{
-				Bucket:      cli.Bucket.BucketArg.BucketName,
-				Concurrency: cli.Bucket.BucketArg.ObjectGet.Concurrency,
-				DryRun:      cli.Bucket.BucketArg.ObjectGet.DryRun,
-			})
-	default:
-		panic(kctx.Command())
+	err = kctx.Run(cli, ctrl, config)
+	if err != nil {
+		log.Fatalln(err)
 	}
 
 	if err != nil {
