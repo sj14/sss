@@ -4,15 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"log"
 	"maps"
 	"os"
-	"path/filepath"
 	"slices"
 
-	"github.com/BurntSushi/toml"
-	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/controller"
 	"github.com/sj14/sss/util"
 	docs "github.com/urfave/cli-docs/v3"
@@ -91,94 +87,6 @@ func main() {
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func loadConfig(cmd *cli.Command) (controller.Config, error) {
-	var config controller.Config
-
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return config, err
-	}
-
-	configPath := cmd.Root().String(flagConfig.Name)
-
-	if configPath == "" {
-		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
-	}
-
-	md, err := toml.DecodeFile(configPath, &config)
-	if err != nil {
-		return config, err
-	}
-
-	if undecoded := md.Undecoded(); len(undecoded) > 0 {
-		return config, fmt.Errorf("unknown fields in config: %v", undecoded)
-	}
-
-	return config, nil
-}
-
-func execute(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
-	config, err := loadConfig(cmd)
-	// Do not return an error when the config file does not exist,
-	// as the tool should be usable wihout a config file.
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return fmt.Errorf("failed loading config: %w", err)
-	}
-
-	profileName := cmd.Root().String(flagProfile.Name)
-	profile, ok := config.Profiles[profileName]
-	if !ok && profileName != "default" {
-		fmt.Printf("profile %q not found, available profiles:\n", profileName)
-
-		keys := slices.Collect(maps.Keys(config.Profiles))
-		slices.Sort(keys)
-
-		for _, key := range keys {
-			fmt.Println(key)
-		}
-
-		os.Exit(1)
-	}
-
-	util.SetIfNotZero(&profile.Endpoint, cmd.Root().String(flagEndpoint.Name))
-	util.SetIfNotZero(&profile.Region, cmd.Root().String(flagRegion.Name))
-	util.SetIfNotZero(&profile.PathStyle, cmd.Root().Bool(flagPathStyle.Name))
-	util.SetIfNotZero(&profile.AccessKey, cmd.Root().String(flagAccessKey.Name))
-	util.SetIfNotZero(&profile.SecretKey, cmd.Root().String(flagSecretKey.Name))
-	util.SetIfNotZero(&profile.Insecure, cmd.Root().Bool(flagInsecure.Name))
-	util.SetIfNotZero(&profile.ReadOnly, cmd.Root().Bool(flagReadOnly.Name))
-	util.SetIfNotZero(&profile.SNI, cmd.Root().String(flagSNI.Name))
-
-	var bandwidth uint64 = 0
-	{
-		bwStr := cmd.Root().String(flagBandwidth.Name)
-		if bwStr != "" {
-			bandwidth, err = humanize.ParseBytes(bwStr)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	ctrl, err := controller.New(
-		ctx,
-		cmd.Root().Writer,
-		cmd.Root().ErrWriter,
-		controller.ControllerConfig{
-			Profile:   profile,
-			Bandwidth: bandwidth,
-			Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
-			Headers:   cmd.Root().StringSlice(flagHeaders.Name),
-
-			// non-global flag
-			DryRun: cmd.Bool(flagDryRun.Name),
-		})
-	if err != nil {
-		return err
-	}
-	return fn(ctrl)
 }
 
 func parseSSEC(cmd *cli.Command) util.SSEC {
