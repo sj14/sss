@@ -86,20 +86,20 @@ type Bucket struct {
 type BucketArg struct {
 	BucketName string `arg:"" name:"bucket"`
 
-	BucketCreate  BucketCreate  `cmd:"" name:"mb"`
-	BucketHead    BucketHead    `cmd:"" name:"hb"`
-	BucketRemove  BucketRemove  `cmd:"" name:"rb"`
-	BucketPolicy  BucketPolicy  `cmd:"" name:"policy"`
-	BucketCors    BucketCors    `cmd:"" name:"cors"`
-	BucketTag     BucketTag     `cmd:"" name:"tag"`
-	Multiparts    Multiparts    `cmd:"" name:"multiparts"`
-	ObjectList    ObjectList    `cmd:"" name:"ls" aliases:"list"`
-	ObjectCopy    ObjectCopy    `cmd:"" name:"cp"`
-	ObjectPut     ObjectPut     `cmd:"" name:"put"`
-	ObjectDelete  ObjectDelete  `cmd:"" name:"rm"`
-	ObjectGet     ObjectGet     `cmd:"" name:"get"`
-	ObcectHead    ObjectHead    `cmd:"" name:"head"`
-	ObjectPresign ObjectPresign `cmd:"" name:"presign"`
+	BucketCreate  BucketCreate  `cmd:"" group:"bucket" name:"mb"`
+	BucketHead    BucketHead    `cmd:"" group:"bucket" name:"hb"`
+	BucketRemove  BucketRemove  `cmd:"" group:"bucket" name:"rb"`
+	BucketPolicy  BucketPolicy  `cmd:"" group:"bucket" name:"policy"`
+	BucketCors    BucketCors    `cmd:"" group:"bucket" name:"cors"`
+	BucketTag     BucketTag     `cmd:"" group:"bucket" name:"tag"`
+	Multiparts    Multiparts    `cmd:"" group:"bucket" name:"multiparts"`
+	ObjectList    ObjectList    `cmd:"" group:"object" name:"ls" aliases:"list"`
+	ObjectCopy    ObjectCopy    `cmd:"" group:"object" name:"cp"`
+	ObjectPut     ObjectPut     `cmd:"" group:"object" name:"put"`
+	ObjectDelete  ObjectDelete  `cmd:"" group:"object" name:"rm"`
+	ObjectGet     ObjectGet     `cmd:"" group:"object" name:"get"`
+	ObcectHead    ObjectHead    `cmd:"" group:"object" name:"head"`
+	ObjectPresign ObjectPresign `cmd:"" group:"object" name:"presign"`
 }
 
 type BucketCors struct {
