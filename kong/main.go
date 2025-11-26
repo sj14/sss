@@ -91,10 +91,25 @@ type BucketArg struct {
 	ObjectPut    ObjectPut    `cmd:"" name:"put"`
 	ObjectDelete ObjectDelete `cmd:"" name:"rm"`
 	ObjectGet    ObjectGet    `cmd:"" name:"get"`
+	ObcectHead   ObjectHead   `cmd:"" name:"head"`
+}
+
+type ObjectHead struct {
+	ArgObject
+	DestinationPath string `arg:"" name:"destination" optional:""`
+	FlagDryRun
+	FlagConcurrency
+}
+
+func (s ObjectHead) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectHead(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgObject.Object,
+	)
 }
 
 type ObjectGet struct {
-	ObjectPath      string `arg:"" name:"object"`
+	ArgObject
 	DestinationPath string `arg:"" name:"destination" optional:""`
 	FlagDryRun
 	FlagConcurrency
@@ -103,8 +118,8 @@ type ObjectGet struct {
 func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectGet(
 		cli.Bucket.BucketArg.ObjectGet.DestinationPath,
-		cli.Bucket.BucketArg.ObjectGet.ObjectPath,
-		cli.Bucket.BucketArg.ObjectGet.ObjectPath,
+		s.ArgObject.Object,
+		s.ArgObject.Object,
 		controller.ObjectGetConfig{
 			Bucket:      cli.Bucket.BucketArg.BucketName,
 			Concurrency: cli.Bucket.BucketArg.ObjectGet.FlagConcurrency.Concurrency,
