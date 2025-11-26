@@ -37,3 +37,14 @@ func (c *Controller) BucketPolicyPut(policyPath, bucket string) error {
 
 	return nil
 }
+
+func (c *Controller) BucketPolicyDelete(bucket string) error {
+	_, err := c.client.DeleteBucketPolicy(c.ctx, &s3.DeleteBucketPolicyInput{
+		Bucket: aws.String(bucket),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
