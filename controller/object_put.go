@@ -78,7 +78,7 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		return err
 	}
 
-	pr := progress.NewReader(c.stdoutWriter, f, uint64(stat.Size()), c.verbosity, key)
+	pr := progress.NewReader(c.OutWriter, f, uint64(stat.Size()), c.verbosity, key)
 
 	putObjectInput := &s3.PutObjectInput{
 		Bucket: aws.String(cfg.Bucket),
