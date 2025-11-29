@@ -19,6 +19,10 @@ type ArgPath struct {
 	Path string `arg:"" name:"path"`
 }
 
+type ArgPathOptional struct {
+	Path string `arg:"" name:"path" optional:""`
+}
+
 type ArgObject struct {
 	Object string `arg:"" name:"object"`
 }
@@ -49,6 +53,10 @@ type FlagDryRun struct {
 
 type FlagForce struct {
 	Force bool `name:"force" short:"f"`
+}
+
+type FlagVersion struct {
+	Version string `name:"versin"`
 }
 
 ////////////
@@ -86,20 +94,148 @@ type Bucket struct {
 type BucketArg struct {
 	BucketName string `arg:"" name:"bucket"`
 
-	BucketCreate  BucketCreate  `cmd:"" group:"bucket" name:"mb"`
-	BucketHead    BucketHead    `cmd:"" group:"bucket" name:"hb"`
-	BucketRemove  BucketRemove  `cmd:"" group:"bucket" name:"rb"`
-	BucketPolicy  BucketPolicy  `cmd:"" group:"bucket" name:"policy"`
-	BucketCors    BucketCors    `cmd:"" group:"bucket" name:"cors"`
-	BucketTag     BucketTag     `cmd:"" group:"bucket" name:"tag"`
-	Multiparts    Multiparts    `cmd:"" group:"bucket" name:"multiparts"`
-	ObjectList    ObjectList    `cmd:"" group:"object" name:"ls" aliases:"list"`
-	ObjectCopy    ObjectCopy    `cmd:"" group:"object" name:"cp"`
-	ObjectPut     ObjectPut     `cmd:"" group:"object" name:"put"`
-	ObjectDelete  ObjectDelete  `cmd:"" group:"object" name:"rm"`
-	ObjectGet     ObjectGet     `cmd:"" group:"object" name:"get"`
-	ObcectHead    ObjectHead    `cmd:"" group:"object" name:"head"`
-	ObjectPresign ObjectPresign `cmd:"" group:"object" name:"presign"`
+	BucketCreate     BucketCreate     `cmd:"" group:"bucket" name:"mb"`
+	BucketHead       BucketHead       `cmd:"" group:"bucket" name:"hb"`
+	BucketRemove     BucketRemove     `cmd:"" group:"bucket" name:"rb"`
+	BucketPolicy     BucketPolicy     `cmd:"" group:"bucket" name:"policy"`
+	BucketCors       BucketCors       `cmd:"" group:"bucket" name:"cors"`
+	BucketTag        BucketTag        `cmd:"" group:"bucket" name:"tag"`
+	BucketLifecycle  BucketLifecycle  `cmd:"" group:"bucket" name:"lifecycle"`
+	BucketVersioning BucketVersioning `cmd:"" group:"bucket" name:"versioning"`
+	BucketSize       BucketSize       `cmd:"" group:"bucket" name:"size"`
+	Multiparts       Multiparts       `cmd:"" group:"multiparts" name:"multiparts"`
+	ObjectList       ObjectList       `cmd:"" group:"object" name:"ls" aliases:"list"`
+	ObjectCopy       ObjectCopy       `cmd:"" group:"object" name:"cp"`
+	ObjectPut        ObjectPut        `cmd:"" group:"object" name:"put"`
+	ObjectDelete     ObjectDelete     `cmd:"" group:"object" name:"rm"`
+	ObjectGet        ObjectGet        `cmd:"" group:"object" name:"get"`
+	ObcectHead       ObjectHead       `cmd:"" group:"object" name:"head"`
+	ObjectPresign    ObjectPresign    `cmd:"" group:"object" name:"presign"`
+	ObjectLock       ObjectLock       `cmd:"" group:"object" name:"object-lock"`
+	ObjectACL        ObjectACL        `cmd:"" group:"object" name:"acl"`
+	ObjectVersions   ObjectVersions   `cmd:"" group:"object" name:"versions"`
+}
+
+type ObjectVersions struct {
+	ArgPathOptional
+	FlagJson
+}
+
+func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectVersions(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgPathOptional.Path,
+		s.FlagJson.AsJson,
+	)
+}
+
+type ObjectACL struct {
+	ObjectACLGet ObjectACLGet `cmd:"" name:"get"`
+}
+
+type ObjectACLGet struct {
+	ArgObject
+	FlagVersion
+}
+
+func (s ObjectACLGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectACLGet(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgObject.Object,
+		s.FlagVersion.Version,
+	)
+}
+
+type BucketSize struct {
+	ArgPathOptional
+}
+
+func (s BucketSize) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketSize(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgPathOptional.Path,
+	)
+}
+
+type BucketVersioning struct {
+	BucketVersioningGet BucketVersioningGet `cmd:"" name:"get"`
+	BucketVersioningPut BucketVersioningPut `cmd:"" name:"put"`
+}
+
+type BucketVersioningGet struct{}
+
+func (s BucketVersioningGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketVersioningGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketVersioningPut struct {
+	ArgObject
+}
+
+func (s BucketVersioningPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketVersioningPut(
+		s.ArgObject.Object,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketLifecycle struct {
+	BucketLifecycleGet    BucketLifecycleGet    `cmd:"" name:"get"`
+	BucketLifecyclePut    BucketLifecyclePut    `cmd:"" name:"put"`
+	BucketLifecycleDelete BucketLifecycleDelete `cmd:"" name:"rm"`
+}
+
+type BucketLifecycleGet struct{}
+
+func (s BucketLifecycleGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketLifecycleGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketLifecyclePut struct {
+	ArgPath
+}
+
+func (s BucketLifecyclePut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketLifecyclePut(
+		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketLifecycleDelete struct{}
+
+func (s BucketLifecycleDelete) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketLifecycleDelete(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type ObjectLock struct {
+	ObjectLockGet ObjectLockGet `cmd:"" name:"get"`
+	ObjectLockPut ObjectLockPut `cmd:"" name:"put"`
+}
+
+type ObjectLockGet struct{}
+
+func (s ObjectLockGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketObjectLockGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type ObjectLockPut struct {
+	ArgPath
+}
+
+func (s ObjectLockPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketObjectLockPut(
+		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
 }
 
 type BucketCors struct {
@@ -311,10 +447,15 @@ func (s BucketHead) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketHead(cli.Bucket.BucketArg.BucketName)
 }
 
-type BucketRemove struct{}
+type BucketRemove struct {
+	FlagForce
+}
 
 func (s BucketRemove) Run(cli CLI, ctrl *controller.Controller) error {
-	return ctrl.BucketDelete(cli.Bucket.BucketArg.BucketName)
+	return ctrl.BucketDelete(
+		cli.Bucket.BucketArg.BucketName,
+		s.FlagForce.Force,
+	)
 }
 
 type ObjectList struct {
