@@ -116,7 +116,7 @@ func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg Controll
 		if cfg.Bandwidth > 0 {
 			transportWrapper.Limiter = rate.NewLimiter(
 				rate.Limit(cfg.Bandwidth),
-				128*1024, // add a small burst, otherwise it might fail
+				64*1024, // add a small burst, otherwise it might fail
 			)
 		}
 
