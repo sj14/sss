@@ -32,15 +32,6 @@ func main() {
 	}
 }
 
-func isFlagSet(flags []*kong.Flag, name string) bool {
-	for _, f := range flags {
-		if f.Name == name && f.Set {
-			return true
-		}
-	}
-	return false
-}
-
 func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 	cli := CLI{}
 
@@ -87,7 +78,7 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 	}
 
 	dryRun := false
-	if isFlagSet(kctx.Flags(), "dry-run") {
+	if isFlagSet(kctx.Selected().Flags, "dry-run") {
 		dryRun = true
 	}
 
@@ -177,7 +168,24 @@ type FlagForce struct {
 }
 
 type FlagVersion struct {
-	Version string `name:"versin"`
+	Version string `name:"version" help:"Version ID"`
+}
+
+type flagsSSEC struct {
+	Algo string `name:"sse-c-algorithm" default:"AES256"`
+	Key  string `name:"sse-c-key" help:"32 bytes key for AES256"`
+}
+
+func isFlagSet(flags []*kong.Flag, name string) bool {
+	for _, f := range flags {
+		if !f.Set {
+			continue
+		}
+		if f.Name == name {
+			return true
+		}
+	}
+	return false
 }
 
 type Profiles struct{}
@@ -458,12 +466,16 @@ func (s PresignGet) Run(cli CLI, ctrl *controller.Controller) error {
 
 type ObjectHead struct {
 	ArgObject
+	flagsSSEC
 }
 
 func (s ObjectHead) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectHead(
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgObject.Object,
+		controller.ObjectHeadConfig{
+			SSEC: util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
+		},
 	)
 }
 
@@ -472,6 +484,8 @@ type ObjectGet struct {
 	DestinationPath string `arg:"" name:"destination" optional:""`
 	FlagDryRun
 	FlagConcurrency
+	flagsSSEC
+	FlagVersion
 }
 
 func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
@@ -483,6 +497,15 @@ func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 			Bucket:      cli.Bucket.BucketArg.BucketName,
 			Concurrency: cli.Bucket.BucketArg.ObjectGet.FlagConcurrency.Concurrency,
 			DryRun:      cli.Bucket.BucketArg.ObjectGet.FlagDryRun.DryRun,
+			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
+			VersionID:   s.FlagVersion.Version,
+			// Range:             cmd.String(flagRange.Name),
+			// PartNumber:        cmd.Int32(flagPartNumber.Name),
+			// PartSize:          cmd.Int64(flagPartSize.Name),
+			// IfMatch:           cmd.String(flagIfMatch.Name),
+			// IfNoneMatch:       cmd.String(flagIfNoneMatch.Name),
+			// IfModifiedSince:   cmd.Timestamp(flagIfModifiedSince.Name),
+			// IfUnmodifiedSince: cmd.Timestamp(flagIfUnmodifiedSince.Name),
 		})
 }
 
@@ -511,6 +534,7 @@ type ObjectPut struct {
 	FlagPartSize int64  `name:"part-size"`
 	FlagConcurrency
 	FlagDryRun
+	flagsSSEC
 }
 
 func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
@@ -521,7 +545,7 @@ func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
 			Bucket:      cli.Bucket.BucketArg.BucketName,
 			Concurrency: cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,
 			DryRun:      cli.Bucket.BucketArg.ObjectPut.FlagDryRun.DryRun,
-			// SSEC: ,
+			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 			// LeavePartsOnError: ,
 			// MaxUploadParts: ,
 			// PartSize: ,
@@ -534,6 +558,7 @@ type ObjectCopy struct {
 	SrcObject string `arg:"" name:"src-object"`
 	DstBucket string `arg:"" name:"dst-bucket"`
 	DstObject string `arg:"" name:"dst-object"`
+	flagsSSEC
 }
 
 func (s ObjectCopy) Run(cli CLI, ctrl *controller.Controller) error {
@@ -542,6 +567,7 @@ func (s ObjectCopy) Run(cli CLI, ctrl *controller.Controller) error {
 		SrcKey:    cli.Bucket.BucketArg.ObjectCopy.SrcObject,
 		DstBucket: cli.Bucket.BucketArg.ObjectCopy.DstBucket,
 		DstKey:    cli.Bucket.BucketArg.ObjectCopy.DstObject,
+		SSEC:      util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 	})
 }
 

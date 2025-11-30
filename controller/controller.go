@@ -155,7 +155,7 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 	for _, header := range t.Headers {
 		s := strings.Split(header, ":")
 		if len(s) != 2 {
-			return nil, fmt.Errorf("failed to parse header %q", header)
+			return nil, fmt.Errorf("failed to parse header, needs to be <val1:key1[,val2:key2]> :%q", header)
 		}
 
 		req.Header.Set(s[0], s[1])
