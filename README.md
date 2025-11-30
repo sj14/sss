@@ -97,7 +97,7 @@ multiparts
   bucket <bucket> multiparts parts ls <object> <upload-id> [flags]
 
 object
-  bucket <bucket> ls (list) [<prefix>] [flags]
+  bucket <bucket> ls [<prefix>] [flags]
 
   bucket <bucket> cp <src-object> <dst-bucket> <dst-object>
 

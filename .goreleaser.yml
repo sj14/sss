@@ -1,0 +1,39 @@
+version: 2
+
+project_name: sss
+
+before:
+  hooks:
+    - go mod download
+builds:
+  - main: ./main.go
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+archives:
+  - format: binary
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  version_template: "{{ .Tag }}-next-{{.Commit}}"
+brews:
+  - name: sss
+    skip_upload: auto
+    repository:
+      owner: sj14
+      name: homebrew-tap
+    description: "S3 clietn"
+release:
+  github:
+    owner: sj14
+    name: sss
+  disable: false
+  draft: false
+  prerelease: auto
+changelog:
+  filters:
+    exclude:
+      - typo
