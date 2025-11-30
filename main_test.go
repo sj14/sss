@@ -32,11 +32,15 @@ func (w *safeWriter) Write(p []byte) (int, error) {
 	return w.sb.Write(p)
 }
 
+var runMutex sync.Mutex
+
 func run(ctx context.Context, args ...string) (string, error) {
 	writer := &safeWriter{}
-	// err := cmdCopy.Run(ctx, append([]string{"sss"}, args...))
+
+	runMutex.Lock()
 	os.Args = append([]string{"sss"}, args...)
 	err := exec(ctx, writer, writer)
+	runMutex.Unlock()
 
 	return writer.sb.String(), err
 }
