@@ -116,24 +116,24 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 
 type CLI struct {
 	// Commands
-	Profiles Profiles `cmd:"" name:"profiles"`
-	Buckets  Buckets  `cmd:"" name:"buckets"`
-	Bucket   Bucket   `cmd:"" name:"bucket"`
-	Version  Version  `cmd:"" name:"version"`
+	Profiles Profiles `cmd:"" name:"profiles" help:"List availale profiles."`
+	Buckets  Buckets  `cmd:"" name:"buckets" group:"Bucket Commands" help:"List all buckets."`
+	Bucket   Bucket   `cmd:"" name:"bucket"   help:"Manage bucket and objects."`
+	Version  Version  `cmd:"" name:"version"  help:"Show version information."`
 
 	// Flags
-	Config    string   `name:"config"`
-	Profile   string   `name:"profile" default:"default"`
-	Endpoint  string   `name:"endpoint"`
-	Region    string   `name:"region"`
-	PathStyle bool     `name:"path-style"`
-	AccessKey string   `name:"access-key"`
-	SecretKey string   `name:"secret-key"`
-	Insecure  bool     `name:"insecure"`
-	ReadOnly  bool     `name:"read-only"`
-	Bandwidth string   `name:"bandwidth"`
-	Header    []string `name:"header"`
-	SNI       string   `name:"sni"`
+	Config    string   `name:"config"     help:"Path to the config file (default: ~/.config/sss/config.toml)."`
+	Profile   string   `name:"profile"    help:"Profile to use." default:"default"`
+	Endpoint  string   `name:"endpoint"   help:"S3 endpoint URL."`
+	Region    string   `name:"region"     help:"S3 region."`
+	PathStyle bool     `name:"path-style" help:"Use path style S3 requests."`
+	AccessKey string   `name:"access-key" help:"S3 access key."`
+	SecretKey string   `name:"secret-key" help:"S3 secret key."`
+	Insecure  bool     `name:"insecure"   help:"Skip TLS verification."`
+	ReadOnly  bool     `name:"read-only"  help:"Only allow safe HTTP methods."`
+	Bandwidth string   `name:"bandwidth"  help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
+	Header    []string `name:"header"     help:"Add additional HTTP headers (format: 'key1:val1,key2:val2')."`
+	SNI       string   `name:"sni"        help:"TLS Server Name Indication."`
 }
 
 type ArgPath struct {
@@ -212,26 +212,26 @@ type Bucket struct {
 type BucketArg struct {
 	BucketName string `arg:"" name:"bucket"`
 
-	BucketCreate     BucketCreate     `cmd:"" group:"bucket" name:"mb"`
-	BucketHead       BucketHead       `cmd:"" group:"bucket" name:"hb"`
-	BucketRemove     BucketRemove     `cmd:"" group:"bucket" name:"rb"`
-	BucketPolicy     BucketPolicy     `cmd:"" group:"bucket" name:"policy"`
-	BucketCors       BucketCors       `cmd:"" group:"bucket" name:"cors"`
-	BucketTag        BucketTag        `cmd:"" group:"bucket" name:"tag"`
-	BucketLifecycle  BucketLifecycle  `cmd:"" group:"bucket" name:"lifecycle"`
-	BucketVersioning BucketVersioning `cmd:"" group:"bucket" name:"versioning"`
-	ObjectLock       ObjectLock       `cmd:"" group:"bucket" name:"object-lock"`
-	BucketSize       BucketSize       `cmd:"" group:"bucket" name:"size"`
-	Multiparts       Multiparts       `cmd:"" group:"multiparts" name:"multiparts"`
-	ObjectList       ObjectList       `cmd:"" group:"object" name:"ls"`
-	ObjectCopy       ObjectCopy       `cmd:"" group:"object" name:"cp"`
-	ObjectPut        ObjectPut        `cmd:"" group:"object" name:"put"`
-	ObjectDelete     ObjectDelete     `cmd:"" group:"object" name:"rm"`
-	ObjectGet        ObjectGet        `cmd:"" group:"object" name:"get"`
-	ObcectHead       ObjectHead       `cmd:"" group:"object" name:"head"`
-	ObjectPresign    ObjectPresign    `cmd:"" group:"object" name:"presign"`
-	ObjectACL        ObjectACL        `cmd:"" group:"object" name:"acl"`
-	ObjectVersions   ObjectVersions   `cmd:"" group:"object" name:"versions"`
+	BucketCreate     BucketCreate     `cmd:"" group:"Bucket Commands" name:"mb"`
+	BucketHead       BucketHead       `cmd:"" group:"Bucket Commands" name:"hb"`
+	BucketRemove     BucketRemove     `cmd:"" group:"Bucket Commands" name:"rb"`
+	BucketPolicy     BucketPolicy     `cmd:"" group:"Bucket Commands" name:"policy"`
+	BucketCors       BucketCors       `cmd:"" group:"Bucket Commands" name:"cors"`
+	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands" name:"tag"`
+	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands" name:"lifecycle"`
+	BucketVersioning BucketVersioning `cmd:"" group:"Bucket Commands" name:"versioning"`
+	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands" name:"object-lock"`
+	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands" name:"size"`
+	Multiparts       Multiparts       `cmd:"" group:"Multipart Commands" name:"multiparts"`
+	ObjectList       ObjectList       `cmd:"" group:"Object Commands" name:"ls"`
+	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands" name:"cp"`
+	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands" name:"put"`
+	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands" name:"rm"`
+	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands" name:"get"`
+	ObcectHead       ObjectHead       `cmd:"" group:"Object Commands" name:"head"`
+	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands" name:"presign"`
+	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands" name:"acl"`
+	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands" name:"versions"`
 }
 
 type ObjectVersions struct {
