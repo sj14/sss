@@ -32,6 +32,15 @@ func main() {
 	}
 }
 
+func isFlagSet(flags []*kong.Flag, name string) bool {
+	for _, f := range flags {
+		if f.Name == name && f.Set {
+			return true
+		}
+	}
+	return false
+}
+
 func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 	cli := CLI{}
 
@@ -78,11 +87,8 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 	}
 
 	dryRun := false
-	for _, f := range kctx.Flags() {
-		if f.Name == "dry-run" && f.Set {
-			dryRun = true
-			break
-		}
+	if isFlagSet(kctx.Flags(), "dry-run") {
+		dryRun = true
 	}
 
 	ctrl, err := controller.New(
@@ -113,6 +119,7 @@ type CLI struct {
 	Profiles Profiles `cmd:"" name:"profiles"`
 	Buckets  Buckets  `cmd:"" name:"buckets"`
 	Bucket   Bucket   `cmd:"" name:"bucket"`
+	Version  Version  `cmd:"" name:"version"`
 
 	// Flags
 	Config    string   `name:"config"`
@@ -182,6 +189,13 @@ func (s Profiles) Run(cli CLI, ctrl *controller.Controller, config controller.Co
 		fmt.Println(key)
 	}
 
+	return nil
+}
+
+type Version struct{}
+
+func (s Version) Run(cli CLI, ctrl *controller.Controller, config controller.Config) error {
+	fmt.Fprintf(ctrl.OutWriter, "version: %s | commit: %s | date: %s\n", version, commit, date)
 	return nil
 }
 
