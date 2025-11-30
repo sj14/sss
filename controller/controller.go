@@ -146,7 +146,8 @@ type TransportWrapper struct {
 func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if t.ReadOnly {
 		switch req.Method {
-		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost, http.MethodConnect:
+		case http.MethodGet, http.MethodOptions, http.MethodHead:
+		default:
 			return nil, fmt.Errorf("blocked by read-only mode")
 		}
 	}
