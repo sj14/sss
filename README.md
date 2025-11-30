@@ -30,62 +30,94 @@ read_only  = true
 ## Usage
 
 ```
-NAME:
-   sss - S3 client
+Usage: sss <command> [flags]
 
-USAGE:
-   sss [global options] [command [command options]]
+Flags:
+  -h, --help                 Show context-sensitive help.
+      --config=STRING        ($SSS_CONFIG)
+      --profile="default"    ($SSS_PROFILE)
+      --endpoint=STRING      ($SSS_ENDPOINT)
+      --region=STRING        ($SSS_REGION)
+      --path-style           ($SSS_PATH_STYLE)
+      --access-key=STRING    ($SSS_ACCESS_KEY)
+      --secret-key=STRING    ($SSS_SECRET_KEY)
+      --insecure             ($SSS_INSECURE)
+      --read-only            ($SSS_READ_ONLY)
+      --bandwidth=STRING     ($SSS_BANDWIDTH)
+      --header=HEADER,...    ($SSS_HEADER)
+      --sni=STRING           ($SSS_SNI)
 
-COMMANDS:
-   profiles    Config Profiles
-   help, h     Shows a list of commands or help for one command
-   completion  Output shell completion script for bash, zsh, fish, or Powershell
+Commands:
+  profiles [flags]
 
-   bucket management:
-     buckets      Bucket List
-     bucket       Bucket Head
-     mb           Bucket Create
-     rb           Bucket Remove
-     size         Bucket Size
-     policy       Bucket Policy
-     versioning   Bucket Versioning
-     object-lock  Bucket Object Locking
-     lifecycle    Bucket Lifecycle
-     cors         Bucket CORS
-     tag          Bucket Tagging
+  buckets [flags]
 
-   multipart management:
-     multiparts  Multipart Uploads
-     parts       Multipart Parts
+bucket
+  bucket <bucket> mb [flags]
 
-   object management:
-     ls        Object List
-     head      Object Head
-     get       Object Download
-     put       Object Upload
-     rm        Object Remove
-     cp        Object Server Side Copy
-     versions  Object Versions
-     acl       Object ACL
-     presign   Object pre-signed URL
+  bucket <bucket> hb
 
-GLOBAL OPTIONS:
-   --config string                      ~/.config/sss/config.toml [$SSS_CONFIG]
-   --profile string                     (default: "default") [$SSS_PROFILE]
-   --access-key string                   [$SSS_ACCESS_KEY]
-   --secret-key string                   [$SSS_SECRET_KEY]
-   --endpoint string                     [$SSS_ENDPOINT]
-   --region string                       [$SSS_REGION]
-   --path-style                          [$SSS_PATH_STYLE]
-   --insecure                            [$SSS_INSECURE]
-   --bucket string                       [$SSS_BUCKET]
-   --read-only                           [$SSS_READ_ONLY]
-   --bandwidth string, --bw string      Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst) [$SSS_BANDWIDTH]
-   --sni string                          [$SSS_SNI]
-   --header string [ --header string ]  format: 'key1:val1,key2:val2'
-   --verbosity uint                     (default: 1) [$SSS_VERBOSITY]
-   --help, -h                           show help
-   --version, -v                        print the version
+  bucket <bucket> rb [flags]
+
+  bucket <bucket> policy get
+
+  bucket <bucket> policy put <path>
+
+  bucket <bucket> policy rm
+
+  bucket <bucket> cors get
+
+  bucket <bucket> cors put <path>
+
+  bucket <bucket> cors rm
+
+  bucket <bucket> tag get
+
+  bucket <bucket> lifecycle get
+
+  bucket <bucket> lifecycle put <path>
+
+  bucket <bucket> lifecycle rm
+
+  bucket <bucket> versioning get
+
+  bucket <bucket> versioning put <path>
+
+  bucket <bucket> object-lock get
+
+  bucket <bucket> object-lock put <path>
+
+  bucket <bucket> size [<path>]
+
+multiparts
+  bucket <bucket> multiparts rm <object> <upload-id>
+
+  bucket <bucket> multiparts ls [<prefix>] [flags]
+
+  bucket <bucket> multiparts parts ls <object> <upload-id> [flags]
+
+object
+  bucket <bucket> ls (list) [<prefix>] [flags]
+
+  bucket <bucket> cp <src-object> <dst-bucket> <dst-object>
+
+  bucket <bucket> put <path> [<destination>] [flags]
+
+  bucket <bucket> rm <object> [flags]
+
+  bucket <bucket> get <object> [<destination>] [flags]
+
+  bucket <bucket> head <object>
+
+  bucket <bucket> presign get <object> [flags]
+
+  bucket <bucket> presign put <object> [flags]
+
+  bucket <bucket> acl get <object> [flags]
+
+  bucket <bucket> versions [<path>] [flags]
+
+Run "sss <command> --help" for more information on a command.
 ```
 
 ### Shell completion
@@ -103,7 +135,7 @@ The forward slash (`/`) is the only supported delimiter.
 ##### List bucket root
 
 ```
-➜ sss --bucket <BUCKET> ls
+➜ sss bucket <BUCKET> ls
                       PREFIX  test/
 2025-11-22 11:11:05  100 MiB  100MB.bin
 ```
@@ -111,7 +143,7 @@ The forward slash (`/`) is the only supported delimiter.
 ##### List recursively
 
 ```
-➜ sss --bucket <BUCKET> ls -r
+➜ sss bucket <BUCKET> ls -r
 2025-11-22 14:19:58  1.0 MiB  test/1MB.bin
 2025-11-22 14:20:00  2.0 MiB  test/2MB.bin
 2025-11-22 11:11:05  100 MiB  100MB.bin
@@ -120,7 +152,7 @@ The forward slash (`/`) is the only supported delimiter.
 ##### List directory/prefix
 
 ```
-➜ sss --bucket <BUCKET> ls test/
+➜ sss bucket <BUCKET> ls test/
 2025-11-22 14:19:58  1.0 MiB  1MB.bin
 2025-11-22 14:20:00  2.0 MiB  2MB.bin
 ```
@@ -130,7 +162,7 @@ The forward slash (`/`) is the only supported delimiter.
 ##### Download a single object
 
 ```
-➜ test sss --bucket <BUCKET> get 100MB.bin
+➜ test sss bucket <BUCKET> get 100MB.bin
 100 MiB in 11s | 9.0 MiB/s | 100MB.bin
 ```
 
@@ -139,7 +171,7 @@ The forward slash (`/`) is the only supported delimiter.
 Only works when the end of the prefix is `/`.
 
 ```
-➜ test sss --bucket <BUCKET> get test/
+➜ test sss bucket <BUCKET> get test/
 1.0 MiB in 0s | 2.5 MiB/s | test/1MB.bin
 2.0 MiB in 0s | 5.0 MiB/s | test/2MB.bin
 ```
@@ -149,14 +181,14 @@ Only works when the end of the prefix is `/`.
 ##### Upload a single object:
 
 ```
-➜ sss --bucket <BUCKET> put 1MB.bin
+➜ sss bucket <BUCKET> put 1MB.bin
 1.0 MiB in 1s | 808 KiB/s | 1MB.bin                                             
 ```
 
 ##### Upload a directory:
 
 ```
-➜ sss --bucket <BUCKET> put test/
+➜ sss bucket <BUCKET> put test/
 1.0 MiB in 1s | 904 KiB/s | test/1MB.bin                                             
 2.0 MiB in 2s | 1.2 MiB/s | test/2MB.bin                                             
 ```
@@ -166,7 +198,7 @@ Only works when the end of the prefix is `/`.
 ##### Delete a single object
 
 ```
-➜ sss --bucket <BUCKET> rm 100MB.bin
+➜ sss bucket <BUCKET> rm 100MB.bin
 deleting 100MB.bin (100 MiB)
 ```
 
@@ -175,7 +207,7 @@ deleting 100MB.bin (100 MiB)
 Only works when the end of the prefix is `/`.
 
 ```
-➜ sss --bucket <BUCKET> rm test/
+➜ sss bucket <BUCKET> rm test/
 deleting test/2MB.bin (2.0 MiB)
 deleting test/1MB.bin (1.0 MiB)
 ```

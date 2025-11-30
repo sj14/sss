@@ -24,7 +24,10 @@ var (
 )
 
 func main() {
-	if err := exec(context.Background(), os.Stdout, os.Stderr); err != nil {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := exec(ctx, os.Stdout, os.Stderr); err != nil {
 		log.Fatalln(err)
 	}
 }
@@ -34,11 +37,9 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 
 	kctx := kong.Parse(
 		&cli,
+		kong.Name("sss"),
 		kong.DefaultEnvars("SSS"),
 	)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	config, err := controller.LoadConfig(cli.Config)
 	if err != nil {
@@ -144,7 +145,7 @@ type ArgUploadID struct {
 	UploadID string `arg:"" name:"upload-id"`
 }
 
-type FlagPrefix struct {
+type ArgPrefix struct {
 	Prefix string `arg:"" name:"prefix" optional:""`
 }
 
@@ -208,7 +209,7 @@ type BucketArg struct {
 	ObjectLock       ObjectLock       `cmd:"" group:"bucket" name:"object-lock"`
 	BucketSize       BucketSize       `cmd:"" group:"bucket" name:"size"`
 	Multiparts       Multiparts       `cmd:"" group:"multiparts" name:"multiparts"`
-	ObjectList       ObjectList       `cmd:"" group:"object" name:"ls" aliases:"list"`
+	ObjectList       ObjectList       `cmd:"" group:"object" name:"ls"`
 	ObjectCopy       ObjectCopy       `cmd:"" group:"object" name:"cp"`
 	ObjectPut        ObjectPut        `cmd:"" group:"object" name:"put"`
 	ObjectDelete     ObjectDelete     `cmd:"" group:"object" name:"rm"`
@@ -274,12 +275,12 @@ func (s BucketVersioningGet) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketVersioningPut struct {
-	ArgObject
+	ArgPath
 }
 
 func (s BucketVersioningPut) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketVersioningPut(
-		s.ArgObject.Object,
+		s.ArgPath.Path,
 		cli.Bucket.BucketArg.BucketName,
 	)
 }
@@ -559,7 +560,7 @@ func (s BucketRemove) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type ObjectList struct {
-	FlagPrefix
+	ArgPrefix
 	FlagRecursive
 	FlagJson
 }
@@ -567,8 +568,8 @@ type ObjectList struct {
 func (s ObjectList) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectList(
 		cli.Bucket.BucketArg.BucketName,
-		cli.Bucket.BucketArg.ObjectList.FlagPrefix.Prefix,
-		cli.Bucket.BucketArg.ObjectList.FlagPrefix.Prefix,
+		cli.Bucket.BucketArg.ObjectList.ArgPrefix.Prefix,
+		cli.Bucket.BucketArg.ObjectList.ArgPrefix.Prefix,
 		cli.Bucket.BucketArg.ObjectList.FlagRecursive.Recursive,
 		cli.Bucket.BucketArg.ObjectList.FlagJson.AsJson,
 	)
@@ -591,14 +592,14 @@ type Multiparts struct {
 }
 
 type MultipartList struct {
-	FlagPrefix
+	ArgPrefix
 	FlagJson
 }
 
 func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketMultipartUploadsList(
 		cli.Bucket.BucketArg.BucketName,
-		s.FlagPrefix.Prefix,
+		s.ArgPrefix.Prefix,
 		s.FlagJson.AsJson,
 	)
 }
