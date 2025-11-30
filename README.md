@@ -15,7 +15,7 @@ Binaries are available for all major platforms. See the [releases](https://githu
 ### Container
 
 ```bash
-docker run ghcr.io/sj14/sss
+docker pull ghcr.io/sj14/sss
 ```
 
 ### Homebrew
