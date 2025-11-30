@@ -148,10 +148,6 @@ object
 Run "sss <command> --help" for more information on a command.
 ```
 
-### Shell completion
-
-Follow the instructions from `sss completion --help`.
-
 ### Delimiter
 
 The forward slash (`/`) is the only supported delimiter.
