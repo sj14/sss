@@ -76,16 +76,24 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 		}
 	}
 
+	dryRun := false
+	for _, f := range kctx.Flags() {
+		if f.Name == "dry-run" && f.Set {
+			dryRun = true
+			break
+		}
+	}
+
 	ctrl, err := controller.New(
 		ctx,
 		controller.ControllerConfig{
-			OutWriter: os.Stdout,
-			ErrWriter: os.Stderr,
+			OutWriter: outWriter,
+			ErrWriter: errWriter,
 			Profile:   profile,
 			Verbosity: 1,
 			Headers:   cli.Header,
 			Bandwidth: bandwidth,
-			// DryRun:    cli.Dry,
+			DryRun:    dryRun,
 		})
 	if err != nil {
 		return err
@@ -435,9 +443,6 @@ func (s PresignGet) Run(cli CLI, ctrl *controller.Controller) error {
 
 type ObjectHead struct {
 	ArgObject
-	DestinationPath string `arg:"" name:"destination" optional:""`
-	FlagDryRun
-	FlagConcurrency
 }
 
 func (s ObjectHead) Run(cli CLI, ctrl *controller.Controller) error {
