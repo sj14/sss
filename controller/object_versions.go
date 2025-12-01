@@ -13,14 +13,21 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectVersions(bucket, prefix string, asJson bool) error {
-	for v, err := range c.objectVersions(bucket, prefix) {
+func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
+	for v, err := range c.objectVersions(bucket, prefix, "/") {
 		if err != nil {
 			return err
 		}
 
 		if v.Prefix != nil {
-			fmt.Printf("%61s  %s\n", "PREFIX", *v.Prefix.Prefix)
+			if recursive {
+				err := c.ObjectVersions(bucket, *v.Prefix.Prefix, originalPrefix, recursive, asJson)
+				if err != nil {
+					return err
+				}
+			} else {
+				fmt.Printf("%61s  %s\n", "PREFIX", *v.Prefix.Prefix)
+			}
 		}
 
 		if v.Versions != nil {
@@ -36,7 +43,7 @@ func (c *Controller) ObjectVersions(bucket, prefix string, asJson bool) error {
 				v.Versions.LastModified.Local().Format(time.DateTime),
 				*v.Versions.VersionId,
 				humanize.IBytes(uint64(*v.Versions.Size)),
-				strings.TrimPrefix(*v.Versions.Key, prefix),
+				strings.TrimPrefix(*v.Versions.Key, originalPrefix),
 			)
 		}
 	}
@@ -49,11 +56,11 @@ type VersionsItem struct {
 	Prefix   *types.CommonPrefix
 }
 
-func (c *Controller) objectVersions(bucket, prefix string) iter.Seq2[VersionsItem, error] {
+func (c *Controller) objectVersions(bucket, prefix, delimiter string) iter.Seq2[VersionsItem, error] {
 	return func(yield func(VersionsItem, error) bool) {
 		paginator := s3.NewListObjectVersionsPaginator(c.client, &s3.ListObjectVersionsInput{
 			Bucket:    aws.String(bucket),
-			Delimiter: aws.String("/"),
+			Delimiter: aws.String(delimiter),
 			Prefix:    aws.String(prefix),
 			MaxKeys:   aws.Int32(100),
 		})

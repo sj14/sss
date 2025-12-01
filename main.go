@@ -163,6 +163,10 @@ type FlagDryRun struct {
 	DryRun bool `name:"dry-run"`
 }
 
+type FlagBypassGovernance struct {
+	BypassGovernance bool `name:"bypass-governance" help:"delete even when objects are governance retention locked"`
+}
+
 type FlagForce struct {
 	Force bool `name:"force" short:"f"`
 }
@@ -171,8 +175,8 @@ type FlagRange struct {
 	Range string `name:"range" help:"'bytes=0-500' to get the first 501 bytes"`
 }
 
-type FlagVersion struct {
-	Version string `name:"version" help:"Version ID"`
+type FlagVersionID struct {
+	VersionID string `name:"version" help:"Version ID"`
 }
 
 type flagsSSEC struct {
@@ -251,55 +255,35 @@ type BucketCleanup struct {
 	FlagConcurrency
 	FlagForce
 	FlagDryRun
-	FlagObjects    bool `name:"all-objects" help:"Removes all objects from a bucket"`
-	FlagMultiparts bool `name:"all-multiparts" help:"Removes all multipart uploads from a bucket"`
+	FlagObjectsVersions bool `name:"all-object-versions" help:"Removes all object versions from a bucket"`
+	FlagMultiparts      bool `name:"all-multiparts"      help:"Removes all multipart uploads from a bucket"`
 }
 
 func (s BucketCleanup) Run(cli CLI, ctrl *controller.Controller) error {
-	if !s.FlagForce.Force && !s.DryRun {
-		return fmt.Errorf("--force flag required")
-	}
-
-	if !s.FlagObjects && !s.FlagMultiparts {
-		return fmt.Errorf("at least one of --all-objects or --all-multiparts needs to be set")
-	}
-
-	if s.FlagObjects {
-		fmt.Fprintln(ctrl.OutWriter, "> deleting all objects <")
-		err := ctrl.ObjectDelete("/", controller.ObjectDeleteConfig{
-			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Force:       s.Force,
-			Concurrency: s.Concurrency,
-			DryRun:      s.DryRun,
-		})
-		if err != nil {
-			return err
-		}
-	}
-
-	if s.FlagMultiparts {
-		fmt.Fprintln(ctrl.OutWriter, "> deleting all multipart uploads <")
-		err := ctrl.BucketMultipartUploadAbortAll(
-			cli.Bucket.BucketArg.BucketName,
-			s.DryRun,
-		)
-		if err != nil {
-			return err
-		}
-	}
-
+	ctrl.BucketCleanup(controller.BucketCleanupConfig{
+		Bucket:           cli.Bucket.BucketArg.BucketName,
+		Concurrency:      s.Concurrency,
+		Force:            s.Force,
+		DryRun:           s.DryRun,
+		Multiparts:       s.FlagMultiparts,
+		ObjectVersion:    s.FlagObjectsVersions,
+		BypassGovernance: true,
+	})
 	return nil
 }
 
 type ObjectVersions struct {
 	ArgPathOptional
 	FlagJson
+	FlagRecursive
 }
 
 func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectVersions(
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgPathOptional.Path,
+		s.ArgPathOptional.Path,
+		s.Recursive,
 		s.FlagJson.AsJson,
 	)
 }
@@ -310,14 +294,14 @@ type ObjectACL struct {
 
 type ObjectACLGet struct {
 	ArgObject
-	FlagVersion
+	FlagVersionID
 }
 
 func (s ObjectACLGet) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectACLGet(
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgObject.Object,
-		s.FlagVersion.Version,
+		s.FlagVersionID.VersionID,
 	)
 }
 
@@ -534,7 +518,7 @@ type ObjectGet struct {
 	FlagDryRun
 	FlagConcurrency
 	flagsSSEC
-	FlagVersion
+	FlagVersionID
 	FlagRange
 }
 
@@ -548,7 +532,7 @@ func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 			Concurrency: cli.Bucket.BucketArg.ObjectGet.FlagConcurrency.Concurrency,
 			DryRun:      cli.Bucket.BucketArg.ObjectGet.FlagDryRun.DryRun,
 			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
-			VersionID:   s.FlagVersion.Version,
+			VersionID:   s.FlagVersionID.VersionID,
 			Range:       s.FlagRange.Range,
 			// PartNumber:        cmd.Int32(flagPartNumber.Name),
 			// PartSize:          cmd.Int64(flagPartSize.Name),
@@ -564,6 +548,7 @@ type ObjectDelete struct {
 	FlagConcurrency
 	FlagDryRun
 	FlagForce
+	FlagVersionID
 }
 
 func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
@@ -574,6 +559,8 @@ func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
 			Force:       cli.Bucket.BucketArg.ObjectDelete.FlagForce.Force,
 			Concurrency: cli.Bucket.BucketArg.ObjectDelete.FlagConcurrency.Concurrency,
 			DryRun:      cli.Bucket.BucketArg.ObjectDelete.FlagDryRun.DryRun,
+			VersionID:   s.FlagVersionID.VersionID,
+			// BypassGovernance: ,
 		})
 
 }
