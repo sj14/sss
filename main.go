@@ -260,7 +260,7 @@ type BucketCleanup struct {
 }
 
 func (s BucketCleanup) Run(cli CLI, ctrl *controller.Controller) error {
-	ctrl.BucketCleanup(controller.BucketCleanupConfig{
+	return ctrl.BucketCleanup(controller.BucketCleanupConfig{
 		Bucket:           cli.Bucket.BucketArg.BucketName,
 		Concurrency:      s.Concurrency,
 		Force:            s.Force,
@@ -269,7 +269,6 @@ func (s BucketCleanup) Run(cli CLI, ctrl *controller.Controller) error {
 		ObjectVersion:    s.FlagObjectsVersions,
 		BypassGovernance: true,
 	})
-	return nil
 }
 
 type ObjectVersions struct {
