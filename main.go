@@ -88,7 +88,7 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 			OutWriter: outWriter,
 			ErrWriter: errWriter,
 			Profile:   profile,
-			Verbosity: 1,
+			Verbosity: 1, // TODO: FIXME
 			Headers:   cli.Header,
 			Bandwidth: bandwidth,
 			DryRun:    dryRun,
@@ -669,6 +669,7 @@ type Multiparts struct {
 
 type MultipartList struct {
 	ArgPrefix
+	FlagRecursive
 	FlagJson
 }
 
@@ -676,6 +677,8 @@ func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketMultipartUploadsList(
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgPrefix.Prefix,
+		s.ArgPrefix.Prefix,
+		s.FlagRecursive.Recursive,
 		s.FlagJson.AsJson,
 	)
 }

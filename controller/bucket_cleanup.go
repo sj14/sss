@@ -26,25 +26,23 @@ func (c *Controller) BucketCleanup(cfg BucketCleanupConfig) error {
 	if cfg.ObjectVersion {
 		fmt.Fprintln(c.OutWriter, "> deleting all objects <")
 
-		for v, err := range c.objectVersions(cfg.Bucket, "", "") {
+		for versions, err := range c.objectVersions(cfg.Bucket, "", "") {
 			if err != nil {
 				return err
 			}
 
-			if v.Versions == nil {
-				continue
-			}
-
-			err := c.ObjectDelete("/", ObjectDeleteConfig{
-				Bucket:           cfg.Bucket,
-				Force:            cfg.Force,
-				Concurrency:      cfg.Concurrency,
-				DryRun:           cfg.DryRun,
-				BypassGovernance: cfg.BypassGovernance,
-				VersionID:        *v.Versions.VersionId,
-			})
-			if err != nil {
-				return err
+			for _, version := range versions.Versions {
+				err := c.ObjectDelete("/", ObjectDeleteConfig{
+					Bucket:           cfg.Bucket,
+					Force:            cfg.Force,
+					Concurrency:      cfg.Concurrency,
+					DryRun:           cfg.DryRun,
+					BypassGovernance: cfg.BypassGovernance,
+					VersionID:        *version.VersionId,
+				})
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

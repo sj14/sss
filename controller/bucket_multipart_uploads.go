@@ -4,62 +4,66 @@ import (
 	"encoding/json"
 	"fmt"
 	"iter"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"golang.org/x/sync/errgroup"
 )
 
-func (c *Controller) BucketMultipartUploadsList(bucket, prefix string, asJson bool) error {
-	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix) {
+func (c *Controller) BucketMultipartUploadsList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
+	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, "/") {
 		if err != nil {
 			return err
 		}
 
-		if asJson {
-			b, err := json.MarshalIndent(upload, "", "  ")
-			if err != nil {
-				return err
+		for _, prefix := range upload.CommonPrefixes {
+			if recursive {
+				err := c.BucketMultipartUploadsList(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
+				if err != nil {
+					return err
+				}
+			} else {
+				fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *prefix.Prefix)
 			}
-
-			fmt.Println(string(b))
-			continue
 		}
 
-		fmt.Printf("%s  %s  %s\n",
-			upload.Initiated.Local().Format(time.DateTime),
-			*upload.UploadId,
-			*upload.Key,
-		)
+		for _, ul := range upload.Uploads {
+			if asJson {
+				b, err := json.MarshalIndent(upload, "", "  ")
+				if err != nil {
+					return err
+				}
+
+				fmt.Println(string(b))
+				continue
+			}
+
+			fmt.Fprintf(c.OutWriter, "%s  %s  %s\n",
+				ul.Initiated.Local().Format(time.DateTime),
+				*ul.UploadId,
+				strings.TrimPrefix(*ul.Key, originalPrefix),
+			)
+		}
 	}
 
 	return nil
 }
 
-func (c *Controller) bucketMultipartUploadsList(bucket, prefix string) iter.Seq2[types.MultipartUpload, error] {
-	return func(yield func(types.MultipartUpload, error) bool) {
+func (c *Controller) bucketMultipartUploadsList(bucket, prefix, delimiter string) iter.Seq2[*s3.ListMultipartUploadsOutput, error] {
+	return func(yield func(*s3.ListMultipartUploadsOutput, error) bool) {
 		paginator := s3.NewListMultipartUploadsPaginator(c.client, &s3.ListMultipartUploadsInput{
 			Bucket:     aws.String(bucket),
-			Prefix:     &prefix,
-			Delimiter:  aws.String("/"),
+			Prefix:     aws.String(prefix),
+			Delimiter:  aws.String(delimiter),
 			MaxUploads: aws.Int32(100),
 		})
 
 		for paginator.HasMorePages() {
 			page, err := paginator.NextPage(c.ctx)
-			if err != nil {
-				yield(types.MultipartUpload{}, err)
+			if !yield(page, err) {
 				return
-			}
-
-			// TODO: not working correctly. page.CommonPrefixes missing.
-
-			for _, p := range page.Uploads {
-				if !yield(p, nil) {
-					return
-				}
 			}
 		}
 	}
@@ -86,20 +90,24 @@ func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool, c
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(concurrency)
 
-	for upload, err := range c.bucketMultipartUploadsList(bucket, "") {
+	for resp, err := range c.bucketMultipartUploadsList(bucket, "", "") {
 		if err != nil {
 			return err
 		}
 
-		fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *upload.Key, *upload.UploadId)
+		// No prefixes to handle as we don't set a delimiter,
 
-		if !dryRun {
-			continue
+		for _, upload := range resp.Uploads {
+			fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *upload.Key, *upload.UploadId)
+
+			if !dryRun {
+				continue
+			}
+
+			eg.Go(func() error {
+				return c.BucketMultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
+			})
 		}
-
-		eg.Go(func() error {
-			return c.BucketMultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
-		})
 	}
 
 	return eg.Wait()

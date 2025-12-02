@@ -9,30 +9,29 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/dustin/go-humanize"
 )
 
 func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
-	for v, err := range c.objectVersions(bucket, prefix, "/") {
+	for resp, err := range c.objectVersions(bucket, prefix, "/") {
 		if err != nil {
 			return err
 		}
 
-		if v.Prefix != nil {
+		for _, prefix := range resp.CommonPrefixes {
 			if recursive {
-				err := c.ObjectVersions(bucket, *v.Prefix.Prefix, originalPrefix, recursive, asJson)
+				err := c.ObjectVersions(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
 				if err != nil {
 					return err
 				}
 			} else {
-				fmt.Printf("%61s  %s\n", "PREFIX", *v.Prefix.Prefix)
+				fmt.Printf("%61s  %s\n", "PREFIX", *prefix.Prefix)
 			}
 		}
 
-		if v.Versions != nil {
+		for _, v := range resp.Versions {
 			if asJson {
-				b, err := json.MarshalIndent(v.Versions, "", "  ")
+				b, err := json.MarshalIndent(v, "", "  ")
 				if err != nil {
 					return err
 				}
@@ -40,10 +39,10 @@ func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recur
 				continue
 			}
 			fmt.Printf("%s  %s %8s  %s\n",
-				v.Versions.LastModified.Local().Format(time.DateTime),
-				*v.Versions.VersionId,
-				humanize.IBytes(uint64(*v.Versions.Size)),
-				strings.TrimPrefix(*v.Versions.Key, originalPrefix),
+				v.LastModified.Local().Format(time.DateTime),
+				*v.VersionId,
+				humanize.IBytes(uint64(*v.Size)),
+				strings.TrimPrefix(*v.Key, originalPrefix),
 			)
 		}
 	}
@@ -51,13 +50,8 @@ func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recur
 	return nil
 }
 
-type VersionsItem struct {
-	Versions *types.ObjectVersion
-	Prefix   *types.CommonPrefix
-}
-
-func (c *Controller) objectVersions(bucket, prefix, delimiter string) iter.Seq2[VersionsItem, error] {
-	return func(yield func(VersionsItem, error) bool) {
+func (c *Controller) objectVersions(bucket, prefix, delimiter string) iter.Seq2[*s3.ListObjectVersionsOutput, error] {
+	return func(yield func(*s3.ListObjectVersionsOutput, error) bool) {
 		paginator := s3.NewListObjectVersionsPaginator(c.client, &s3.ListObjectVersionsInput{
 			Bucket:    aws.String(bucket),
 			Delimiter: aws.String(delimiter),
@@ -67,21 +61,8 @@ func (c *Controller) objectVersions(bucket, prefix, delimiter string) iter.Seq2[
 
 		for paginator.HasMorePages() {
 			page, err := paginator.NextPage(c.ctx)
-			if err != nil {
-				yield(VersionsItem{}, err)
+			if !yield(page, err) {
 				return
-			}
-
-			for _, p := range page.CommonPrefixes {
-				if !yield(VersionsItem{Prefix: &p}, nil) {
-					return
-				}
-			}
-
-			for _, v := range page.Versions {
-				if !yield(VersionsItem{Versions: &v}, nil) {
-					return
-				}
 			}
 		}
 	}

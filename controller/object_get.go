@@ -55,22 +55,24 @@ func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg Obj
 			return err
 		}
 
-		if l.Prefix != nil {
-			err := c.ObjectGet(targetDir, *l.Prefix.Prefix, originalPrefix, cfg)
+		for _, l := range l.CommonPrefixes {
+			err := c.ObjectGet(targetDir, *l.Prefix, originalPrefix, cfg)
 			if err != nil {
 				return err
 			}
 			continue
 		}
 
-		lastDir := filepath.Base(filepath.Dir(originalPrefix))
-		trimmedPrefix := strings.TrimPrefix(*l.Object.Key, originalPrefix)
+		for _, l := range l.Contents {
+			lastDir := filepath.Base(filepath.Dir(originalPrefix))
+			trimmedPrefix := strings.TrimPrefix(*l.Key, originalPrefix)
 
-		fp := filepath.Join(targetDir, lastDir, trimmedPrefix)
+			fp := filepath.Join(targetDir, lastDir, trimmedPrefix)
 
-		err = c.objectGet(fp, *l.Object.Key, cfg)
-		if err != nil {
-			return err
+			err = c.objectGet(fp, *l.Key, cfg)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

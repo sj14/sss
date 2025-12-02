@@ -56,17 +56,17 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 			return err
 		}
 
-		if l.Prefix != nil {
-			err := c.ObjectDelete(*l.Prefix.Prefix, cfg)
+		for _, l := range l.CommonPrefixes {
+			err := c.ObjectDelete(*l.Prefix, cfg)
 			if err != nil {
 				return err
 			}
 		}
 
-		if l.Object != nil {
+		for _, l := range l.Contents {
 			eg.Go(func() error {
-				fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
-				err := c.objectDelete(cfg.DryRun, cfg.BypassGovernance, cfg.Bucket, *l.Object.Key, cfg.VersionID)
+				fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *l.Key, humanize.IBytes(uint64(*l.Size)))
+				err := c.objectDelete(cfg.DryRun, cfg.BypassGovernance, cfg.Bucket, *l.Key, cfg.VersionID)
 				if err != nil {
 					return err
 				}
