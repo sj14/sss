@@ -1,0 +1,7 @@
+[profiles.default]
+endpoint = "https://localhost:4566"
+access_key = "SOMETHING_SOMETHING"
+secret_key = "SOMETHING_SOMETHING_SOMETHING_SOMETHING"
+region = "auto"
+path_style = true
+insecure = true

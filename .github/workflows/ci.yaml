@@ -31,6 +31,18 @@ jobs:
         uses: dominikh/staticcheck-action@v1.4.0
         with:
           install-go: false
-      - name: Test
+      - name: Test Short
+        env:
+          SSS_CONFIG: ./config_localstack.toml
         run: |
-          go test -short -race ./...
+           go test -short -count=1 -race ./...
+      - name: Start LocalStack
+        uses: LocalStack/setup-localstack@v0.2.3
+        with:
+          image-tag: 'latest'
+          configuration: SERVICES=s3
+      - name: Test Full
+        env:
+          SSS_CONFIG: ./config_localstack.toml
+        run: |
+           go test -count=1 -race ./...
