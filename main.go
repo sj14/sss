@@ -88,7 +88,7 @@ func exec(ctx context.Context, outWriter, errWriter io.Writer) error {
 			OutWriter: outWriter,
 			ErrWriter: errWriter,
 			Profile:   profile,
-			Verbosity: 1, // TODO: FIXME
+			Verbosity: cli.Verbosity,
 			Headers:   cli.Header,
 			Bandwidth: bandwidth,
 			DryRun:    dryRun,
@@ -113,18 +113,19 @@ type CLI struct {
 	Version  Version  `cmd:"" name:"version"  help:"Show version information."`
 
 	// Flags
-	Config    string   `name:"config"     help:"Path to the config file (default: ~/.config/sss/config.toml)."`
-	Profile   string   `name:"profile"    help:"Profile to use." default:"default"`
-	Endpoint  string   `name:"endpoint"   help:"S3 endpoint URL."`
-	Region    string   `name:"region"     help:"S3 region."`
-	PathStyle bool     `name:"path-style" help:"Use path style S3 requests."`
-	AccessKey string   `name:"access-key" help:"S3 access key."`
-	SecretKey string   `name:"secret-key" help:"S3 secret key."`
-	Insecure  bool     `name:"insecure"   help:"Skip TLS verification."`
-	ReadOnly  bool     `name:"read-only"  help:"Only allow safe HTTP methods."`
-	Bandwidth string   `name:"bandwidth"  help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
-	Header    []string `name:"header"     help:"Add additional HTTP headers (format: 'key1:val1,key2:val2')."`
-	SNI       string   `name:"sni"        help:"TLS Server Name Indication."`
+	Config    string   `name:"config"    short:"c"         help:"Path to the config file (default: ~/.config/sss/config.toml)."`
+	Profile   string   `name:"profile"   short:"p" default:"default" help:"Profile to use." `
+	Verbosity uint8    `name:"verbosity" short:"v" default:"1"       help:"Verbose output"`
+	Endpoint  string   `name:"endpoint"                     help:"S3 endpoint URL."`
+	Region    string   `name:"region"                       help:"S3 region."`
+	PathStyle bool     `name:"path-style"                   help:"Use path style S3 requests."`
+	AccessKey string   `name:"access-key"                   help:"S3 access key."`
+	SecretKey string   `name:"secret-key"                   help:"S3 secret key."`
+	Insecure  bool     `name:"insecure"                     help:"Skip TLS verification."`
+	ReadOnly  bool     `name:"read-only"                    help:"Only allow safe HTTP methods."`
+	Bandwidth string   `name:"bandwidth"                    help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
+	Header    []string `name:"header"                       help:"Add additional HTTP headers (format: 'key1:val1,key2:val2')."`
+	SNI       string   `name:"sni"                          help:"TLS Server Name Indication."`
 }
 
 type ArgPath struct {
@@ -156,7 +157,7 @@ type FlagJson struct {
 }
 
 type FlagConcurrency struct {
-	Concurrency int `name:"concurrency" default:"5"`
+	Concurrency int `name:"concurrency" short:"C" default:"5"`
 }
 
 type FlagDryRun struct {
@@ -565,9 +566,12 @@ func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type ObjectPut struct {
-	Filepath     string `arg:"" name:"path"`
-	Destinaton   string `arg:"" name:"destination" optional:""`
-	FlagPartSize int64  `name:"part-size"`
+	Filepath              string `arg:"" name:"path"`
+	Destinaton            string `arg:"" name:"destination" optional:""`
+	FlagPartSize          int64  `name:"part-size"`
+	FlagMaxUploadParts    int32  `name:"max-parts"`
+	FlagLeavePartsOnError bool   `name:"leave-error-parts"`
+	FlagACL               string `name:"acl"`
 	FlagConcurrency
 	FlagDryRun
 	flagsSSEC
@@ -578,14 +582,14 @@ func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.ObjectPut.Filepath,
 		cli.Bucket.BucketArg.ObjectPut.Destinaton,
 		controller.ObjectPutConfig{
-			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Concurrency: cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,
-			DryRun:      cli.Bucket.BucketArg.ObjectPut.FlagDryRun.DryRun,
-			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
-			// LeavePartsOnError: ,
-			// MaxUploadParts: ,
-			// PartSize: ,
-			// ACL: ,
+			Bucket:            cli.Bucket.BucketArg.BucketName,
+			Concurrency:       cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,
+			DryRun:            cli.Bucket.BucketArg.ObjectPut.FlagDryRun.DryRun,
+			SSEC:              util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
+			PartSize:          s.FlagPartSize,
+			MaxUploadParts:    s.FlagMaxUploadParts,
+			LeavePartsOnError: s.FlagLeavePartsOnError,
+			ACL:               s.FlagACL,
 		},
 	)
 }

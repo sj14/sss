@@ -31,7 +31,7 @@ func (c *Controller) BucketMultipartUploadsList(bucket, prefix, originalPrefix s
 
 		for _, ul := range upload.Uploads {
 			if asJson {
-				b, err := json.MarshalIndent(upload, "", "  ")
+				b, err := json.MarshalIndent(ul, "", "  ")
 				if err != nil {
 					return err
 				}
