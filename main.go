@@ -239,7 +239,7 @@ type BucketArg struct {
 	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands" name:"cleanup"`
 	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands" name:"object-lock"`
 	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands" name:"size"`
-	Multiparts       Multiparts       `cmd:"" group:"Multipart Commands" name:"multiparts"`
+	Multiparts       Multiparts       `cmd:"" group:"Multipart Commands" name:"multipart"`
 	ObjectList       ObjectList       `cmd:"" group:"Object Commands" name:"ls"`
 	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands" name:"cp"`
 	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands" name:"put"`
