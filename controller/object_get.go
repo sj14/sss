@@ -29,6 +29,7 @@ type ObjectGetConfig struct {
 	Concurrency       int
 	PartSize          int64
 	DryRun            bool
+	Force             bool
 }
 
 func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg ObjectGetConfig) error {
@@ -131,12 +132,22 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	}
 
 	// create the output dir
-	if err := os.MkdirAll(filepath.Dir(targetPath), 0775); err != nil {
+	if err := os.MkdirAll(filepath.Dir(targetPath), os.ModePerm); err != nil {
 		return err
 	}
 
+	_, err = os.Stat(targetPath)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	if err == nil && !cfg.Force && !cfg.DryRun {
+		return fmt.Errorf("%q already exists, override with the --force flag", targetPath)
+	}
+	// if err == nil {
+	// 	getObjectInput.IfModifiedSince = aws.Time(stat.ModTime())
+	// }
+
 	// create the output file
-	// TOOD: flag for overriding exiting file (--force?)
 	file, err := os.Create(targetPath)
 	if err != nil {
 		return err
