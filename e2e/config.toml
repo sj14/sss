@@ -1,7 +1,15 @@
-[profiles.default]
+[profiles.localstack]
 endpoint = "https://localhost:4566"
 access_key = "SOMETHING_SOMETHING"
 secret_key = "SOMETHING_SOMETHING_SOMETHING_SOMETHING"
+region = "auto"
+path_style = true
+insecure = true
+
+[profiles.seaweedfs]
+endpoint = "http://localhost:8333"
+access_key = "your_access_key"
+secret_key = "your_secret_key"
 region = "auto"
 path_style = true
 insecure = true
