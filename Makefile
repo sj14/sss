@@ -4,4 +4,4 @@ test-deps:
 
 .PHONY: test-run
 test-run:
-	SSS_CONFIG=./config_localstack.toml go test ./... -count=1 -race
+	go test ./... -count=1 -race
