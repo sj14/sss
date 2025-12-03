@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -113,14 +112,14 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 		getObjectInput.Range = &cfg.Range
 	}
 
-	var total uint64 = 0
-	if cfg.Range == "" {
-		headResp, err := c.client.HeadObject(c.ctx, headObjectInput)
-		if err != nil {
-			log.Printf("head object: %v\n", err)
-		} else {
-			total = uint64(*headResp.ContentLength)
-		}
+	headResp, err := c.client.HeadObject(c.ctx, headObjectInput)
+	if err != nil {
+		return fmt.Errorf("head object: %v", err)
+	}
+
+	total := uint64(*headResp.ContentLength)
+	if cfg.Range != "" {
+		total = 0
 	}
 
 	// TODO: represent download ranges

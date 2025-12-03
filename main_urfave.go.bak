@@ -1,3 +1,5 @@
+// See https://github.com/urfave/cli/discussions/2233
+
 package main
 
 import (
