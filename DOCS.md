@@ -35,7 +35,7 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--access-key**="": 
 
-**--bandwidth**="": Limit the bandwith per second (e.g. '1 MiB')
+**--bandwidth**="": Limit the bandwith per second (e.g. '1 MiB'). If set, an initial burst of 128 KiB is added.
 
 **--bucket**="": 
 

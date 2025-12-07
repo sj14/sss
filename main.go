@@ -187,11 +187,6 @@ var (
 		Name: "key",
 	}
 
-	flagBandwidth = &cli.StringFlag{
-		Name:    "bandwidth",
-		Usage:   "Limit the bandwith per second (e.g. '1 MiB')",
-		Sources: cli.EnvVars("SSS_BANDWIDTH"),
-	}
 	flagConfig = &cli.StringFlag{
 		Name:      "config",
 		Usage:     "~/.config/sss/config.toml",
@@ -202,6 +197,11 @@ var (
 		Name:    "verbosity",
 		Value:   1,
 		Sources: cli.EnvVars("SSS_VERBOSITY"),
+	}
+	flagBandwidth = &cli.StringFlag{
+		Name:    "bandwidth",
+		Usage:   "Limit the bandwith per second (e.g. '1 MiB'). If set, an initial burst of 128 KiB is added.",
+		Sources: cli.EnvVars("SSS_BANDWIDTH"),
 	}
 	flagProfile = &cli.StringFlag{
 		Name:    "profile",
@@ -347,8 +347,9 @@ var (
 		},
 	}
 	cmdBucketList = &cli.Command{
-		Name:  "buckets",
-		Usage: "Bucket List",
+		Category: "bucket management",
+		Name:     "buckets",
+		Usage:    "Bucket List",
 		Flags: []cli.Flag{
 			flagPrefix,
 		},
@@ -367,8 +368,9 @@ var (
 		},
 	}
 	cmdBucketHead = &cli.Command{
-		Name:  "bucket",
-		Usage: "Bucket Head",
+		Category: "bucket management",
+		Name:     "bucket",
+		Usage:    "Bucket Head",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
 				return ctrl.BucketHead(cmd.String(flagBucket.Name))
@@ -376,8 +378,9 @@ var (
 		},
 	}
 	cmdBucketTag = &cli.Command{
-		Name:  "tag-bucket",
-		Usage: "Bucket Tagging",
+		Category: "bucket management",
+		Name:     "tag-bucket",
+		Usage:    "Bucket Tagging",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -390,8 +393,9 @@ var (
 		},
 	}
 	cmdBucketMake = &cli.Command{
-		Name:  "mb",
-		Usage: "Bucket Create",
+		Category: "bucket management",
+		Name:     "mb",
+		Usage:    "Bucket Create",
 		Flags: []cli.Flag{
 			flagObjectLock,
 		},
@@ -405,8 +409,9 @@ var (
 		},
 	}
 	cmdBucketRemove = &cli.Command{
-		Name:  "rb",
-		Usage: "Bucket Remove",
+		Category: "bucket management",
+		Name:     "rb",
+		Usage:    "Bucket Remove",
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
 				return ctrl.BucketDelete(cmd.String(flagBucket.Name))
@@ -414,8 +419,9 @@ var (
 		},
 	}
 	cmdBucketMultiparts = &cli.Command{
-		Name:  "multiparts",
-		Usage: "Multipart Uploads",
+		Category: "multipart management",
+		Name:     "multiparts",
+		Usage:    "Multipart Uploads",
 		Commands: []*cli.Command{
 			{
 				Name: "ls",
@@ -452,8 +458,9 @@ var (
 		},
 	}
 	cmdBucketParts = &cli.Command{
-		Name:  "parts",
-		Usage: "Multipart Parts",
+		Category: "multipart management",
+		Name:     "parts",
+		Usage:    "Multipart Parts",
 		Flags: []cli.Flag{
 			flagObjectKey,
 			flagUploadID,
@@ -474,8 +481,9 @@ var (
 		},
 	}
 	cmdObjectsList = &cli.Command{
-		Name:  "ls",
-		Usage: "Object List",
+		Category: "object management",
+		Name:     "ls",
+		Usage:    "Object List",
 		Arguments: []cli.Argument{
 			argPrefix,
 		},
@@ -493,8 +501,9 @@ var (
 		},
 	}
 	cmdObjectsCopy = &cli.Command{
-		Name:  "cp",
-		Usage: "Object Server Side Copy",
+		Category: "object management",
+		Name:     "cp",
+		Usage:    "Object Server Side Copy",
 		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			flagBucket.Required = false
 			if flagBucket.IsSet() && flagVerbosity.Value > 0 {
@@ -540,8 +549,9 @@ var (
 		},
 	}
 	cmdObjectPut = &cli.Command{
-		Name:  "put",
-		Usage: "Object Upload",
+		Category: "object management",
+		Name:     "put",
+		Usage:    "Object Upload",
 		Arguments: []cli.Argument{
 			&cli.StringArg{
 				Name: "path",
@@ -586,8 +596,9 @@ var (
 		},
 	}
 	cmdObjectRemove = &cli.Command{
-		Name:  "rm",
-		Usage: "Object Remove",
+		Category: "object management",
+		Name:     "rm",
+		Usage:    "Object Remove",
 		Arguments: []cli.Argument{
 			argKey,
 		},
@@ -611,8 +622,9 @@ var (
 		},
 	}
 	cmdObjectGet = &cli.Command{
-		Name:  "get",
-		Usage: "Object Download",
+		Category: "object management",
+		Name:     "get",
+		Usage:    "Object Download",
 		Arguments: []cli.Argument{
 			&cli.StringArg{
 				Name: "key",
@@ -658,8 +670,9 @@ var (
 		},
 	}
 	cmdObjectHead = &cli.Command{
-		Name:  "head",
-		Usage: "Object Head",
+		Category: "object management",
+		Name:     "head",
+		Usage:    "Object Head",
 		Arguments: []cli.Argument{
 			argKey,
 		},
@@ -673,8 +686,9 @@ var (
 		},
 	}
 	cmdObjectPresign = &cli.Command{
-		Name:  "presign",
-		Usage: "Object pre-signed URL",
+		Category: "object management",
+		Name:     "presign",
+		Usage:    "Object pre-signed URL",
 		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			if flagReadOnly.IsSet() {
 				return ctx, errors.New("deactivated due to read only mode")
@@ -724,8 +738,9 @@ var (
 		},
 	}
 	cmdBucketPolicy = &cli.Command{
-		Name:  "policy",
-		Usage: "Bucket Policy",
+		Category: "bucket management",
+		Name:     "policy",
+		Usage:    "Bucket Policy",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -756,8 +771,9 @@ var (
 		},
 	}
 	cmdBucketCors = &cli.Command{
-		Name:  "cors",
-		Usage: "Bucket CORS",
+		Category: "bucket management",
+		Name:     "cors",
+		Usage:    "Bucket CORS",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -798,8 +814,9 @@ var (
 		},
 	}
 	cmdBucketObjectLock = &cli.Command{
-		Name:  "object-lock",
-		Usage: "Bucket Object Locking",
+		Category: "bucket management",
+		Name:     "object-lock",
+		Usage:    "Bucket Object Locking",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -830,8 +847,9 @@ var (
 		},
 	}
 	cmdBucketLifecycle = &cli.Command{
-		Name:  "lifecycle",
-		Usage: "Bucket Lifecycle",
+		Category: "bucket management",
+		Name:     "lifecycle",
+		Usage:    "Bucket Lifecycle",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -872,8 +890,9 @@ var (
 		},
 	}
 	cmdBucketVersioning = &cli.Command{
-		Name:  "versioning",
-		Usage: "Bucket Versioning",
+		Category: "bucket management",
+		Name:     "versioning",
+		Usage:    "Bucket Versioning",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -888,8 +907,9 @@ var (
 		},
 	}
 	cmdBucketSize = &cli.Command{
-		Name:  "size",
-		Usage: "Bucket Size",
+		Category: "bucket management",
+		Name:     "size",
+		Usage:    "Bucket Size",
 		Arguments: []cli.Argument{
 			argPrefix,
 		},
@@ -907,8 +927,9 @@ var (
 		},
 	}
 	cmdObjectACL = &cli.Command{
-		Name:  "acl-object",
-		Usage: "Object ACL",
+		Category: "object management",
+		Name:     "acl-object",
+		Usage:    "Object ACL",
 		Commands: []*cli.Command{
 			{
 				Name: "get",
@@ -931,8 +952,9 @@ var (
 		},
 	}
 	cmdObjectVersions = &cli.Command{
-		Name:  "versions",
-		Usage: "Object Versions",
+		Category: "object management",
+		Name:     "versions",
+		Usage:    "Object Versions",
 		Arguments: []cli.Argument{
 			argPrefix,
 		},
