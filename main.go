@@ -137,8 +137,12 @@ func parseSSEC(cmd *cli.Command) util.SSEC {
 }
 
 var cmd = &cli.Command{
-	Name:  "sss",
-	Usage: "S3 client",
+	Name:                  "sss",
+	Usage:                 "S3 client",
+	EnableShellCompletion: true,
+	ConfigureShellCompletionCommand: func(c *cli.Command) {
+		flagBucket.Required = false
+	},
 	Flags: []cli.Flag{
 		flagEndpoint,
 		flagInsecure,
