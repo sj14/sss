@@ -210,15 +210,30 @@ Only works when the end of the prefix is `/`.
 
 ```
 ➜ sss bucket <BUCKET> put 1MB.bin
-1.0 MiB in 1s | 808 KiB/s | 1MB.bin                                             
+1.0 MiB in 1s | 808 KiB/s | 1MB.bin
 ```
+
+##### Upload a single object with different name:
+
+```
+➜ sss bucket simon-crasher put ~/Downloads/1MB.bin yolo
+1.0 MiB in  1s | 1.6 MiB/s | yolo
+```
+
+##### Upload a single object into a directory/prefix:
+
+```
+➜ sss bucket simon-crasher put ~/Downloads/1MB.bin yolo/
+1.0 MiB in  1s | 1.6 MiB/s | yolo/1MB.bin
+```
+
 
 ##### Upload a directory:
 
 ```
 ➜ sss bucket <BUCKET> put test/
-1.0 MiB in 1s | 904 KiB/s | test/1MB.bin                                             
-2.0 MiB in 2s | 1.2 MiB/s | test/2MB.bin                                             
+1.0 MiB in 1s | 904 KiB/s | test/1MB.bin
+2.0 MiB in 2s | 1.2 MiB/s | test/2MB.bin
 ```
 
 #### Delete
