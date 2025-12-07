@@ -13,9 +13,9 @@ import (
 
 type CLI struct {
 	// Commands
-	Profiles Profiles `cmd:"" name:"profiles" help:"List availale profiles."`
-	Buckets  Buckets  `cmd:"" name:"buckets" group:"Bucket Commands" help:"List all buckets."`
-	Bucket   Bucket   `cmd:"" name:"bucket"   help:"Manage bucket and objects."`
+	Profiles Profiles `cmd:"" name:"profiles" aliases:"p"  help:"List availale profiles."`
+	Buckets  Buckets  `cmd:"" name:"buckets"  aliases:"ls" group:"Bucket Commands" help:"List all buckets."`
+	Bucket   Bucket   `cmd:"" name:"bucket"   aliases:"b"  help:"Manage bucket and objects."`
 	Version  Version  `cmd:"" name:"version"  help:"Show version information."`
 
 	// Flags
@@ -144,12 +144,12 @@ type BucketArg struct {
 	BucketPolicy     BucketPolicy     `cmd:"" group:"Bucket Commands" name:"policy"`
 	BucketCors       BucketCors       `cmd:"" group:"Bucket Commands" name:"cors"`
 	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands" name:"tag"`
-	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands" name:"lifecycle"`
+	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands" name:"lifecycle" aliases:"lc"`
 	BucketVersioning BucketVersioning `cmd:"" group:"Bucket Commands" name:"versioning"`
 	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands" name:"cleanup"`
-	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands" name:"object-lock"`
+	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands" name:"object-lock" aliases:"ol"`
 	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands" name:"size"`
-	Multiparts       Multiparts       `cmd:"" group:"Multipart Commands" name:"multipart"`
+	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart" aliases:"mp"`
 	ObjectList       ObjectList       `cmd:"" group:"Object Commands" name:"ls"`
 	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands" name:"cp"`
 	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands" name:"put"`
@@ -576,7 +576,7 @@ func (s BucketTagGet) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketTagging(cli.Bucket.BucketArg.BucketName)
 }
 
-type Multiparts struct {
+type Multipart struct {
 	MultipartRemove MultipartRemove `cmd:"" name:"rm"`
 	MultipartList   MultipartList   `cmd:"" name:"ls"`
 	MultipartCreate MultipartCreate `cmd:"" name:"create"`
