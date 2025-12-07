@@ -31,7 +31,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 		return err
 	}
 	if !info.IsDir() {
-		return c.objectPut(filePath, path.Join(dest, path.Base(filePath)), cfg)
+		return c.objectPut(filePath, path.Join(dest, filepath.Base(filePath)), cfg)
 	}
 
 	return filepath.Walk(filePath, func(p string, info os.FileInfo, err error) error {
@@ -42,10 +42,15 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 			return nil
 		}
 
-		lastDir := path.Base(filePath)
-		trimmedPrefix := strings.TrimPrefix(p, filePath)
+		// Switch to forward slash even when uploading from Windows.
+		p = filepath.ToSlash(p)
+		filePath = filepath.ToSlash(filepath.Clean(filePath))
 
-		fp := path.Join(dest, lastDir, trimmedPrefix)
+		var (
+			lastDir       = filepath.Base(filePath)
+			trimmedPrefix = strings.TrimPrefix(p, filePath)
+			fp            = path.Join(dest, lastDir, trimmedPrefix)
+		)
 
 		err = c.objectPut(p, fp, cfg)
 		if err != nil {
@@ -58,7 +63,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 
 func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error {
 	if key == "" {
-		key = path.Base(filePath)
+		key = filepath.Base(filePath)
 	}
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -82,7 +87,7 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 
 	putObjectInput := &s3.PutObjectInput{
 		Bucket: aws.String(cfg.Bucket),
-		Key:    aws.String(key),
+		Key:    aws.String(filepath.ToSlash(filepath.Clean(key))),
 		Body:   pr,
 		ACL:    types.ObjectCannedACL(cfg.ACL),
 	}

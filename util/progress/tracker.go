@@ -93,7 +93,7 @@ func (p *tracker) finish() {
 	avgSpeed := float64(p.done) / totalTime.Seconds()
 
 	fmt.Fprintf(p.outputWriter, "\r%-*s\r", p.lastLineLen, "") // clear terminal line
-	out := fmt.Sprintf("%s in %v | %s/s | %s\n", humanize.IBytes(p.done), totalTime.Round(time.Second), humanize.IBytes(uint64(avgSpeed)), p.key)
+	out := fmt.Sprintf("%7s in %v | %7s/s | %s\n", humanize.IBytes(p.done), totalTime.Round(time.Second), humanize.IBytes(uint64(avgSpeed)), p.key)
 	fmt.Fprint(p.outputWriter, out)
 	p.lastLineLen = len([]rune(out))
 }

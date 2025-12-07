@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -40,7 +39,7 @@ func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg Obj
 
 	// only get single object
 	if !strings.HasSuffix(prefix, "/") {
-		fp := path.Join(targetDir, path.Base(prefix))
+		fp := filepath.Join(targetDir, filepath.Base(prefix))
 		return c.objectGet(fp, prefix, cfg)
 	}
 
@@ -64,10 +63,10 @@ func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg Obj
 			continue
 		}
 
-		lastDir := path.Base(path.Dir(originalPrefix))
+		lastDir := filepath.Base(filepath.Dir(originalPrefix))
 		trimmedPrefix := strings.TrimPrefix(*l.Object.Key, originalPrefix)
 
-		fp := path.Join(targetDir, lastDir, trimmedPrefix)
+		fp := filepath.Join(targetDir, lastDir, trimmedPrefix)
 
 		err = c.objectGet(fp, *l.Object.Key, cfg)
 		if err != nil {
@@ -136,6 +135,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	}
 
 	// create the output file
+	// TOOD: flag for overriding exiting file (--force?)
 	file, err := os.Create(targetPath)
 	if err != nil {
 		return err
