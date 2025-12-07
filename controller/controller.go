@@ -21,18 +21,18 @@ type Controller struct {
 }
 
 type Config struct {
-	Profiles map[string]Profile
+	Profiles map[string]Profile `toml:"profiles"`
 }
 
 type Profile struct {
-	Endpoint  string `yaml:"endpoint"`
-	Region    string `yaml:"region"`
-	AccessKey string `yaml:"access_key"`
-	SecretKey string `yaml:"secret_key"`
-	PathStyle bool   `yaml:"path_style"`
-	Insecure  bool   `yaml:"insecure"`
-	ReadOnly  bool   `yaml:"read_only"`
-	SNI       string `yaml:"sni"`
+	Endpoint  string `toml:"endpoint"`
+	Region    string `toml:"region"`
+	AccessKey string `toml:"access_key"`
+	SecretKey string `toml:"secret_key"`
+	PathStyle bool   `toml:"path_style"`
+	Insecure  bool   `toml:"insecure"`
+	ReadOnly  bool   `toml:"read_only"`
+	SNI       string `toml:"sni"`
 }
 
 func New(ctx context.Context, verbosity uint8, headers []string, cfg Profile) (*Controller, error) {
