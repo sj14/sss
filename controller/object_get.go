@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 	"unicode"
@@ -116,7 +117,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	}
 
 	// create the output dir
-	if err := os.MkdirAll(path.Dir(targetPath), 0775); err != nil {
+	if err := os.MkdirAll(filepath.Dir(targetPath), 0775); err != nil {
 		return err
 	}
 
