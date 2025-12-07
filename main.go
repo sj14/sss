@@ -138,7 +138,7 @@ func parseSSEC(cmd *cli.Command) util.SSEC {
 
 var cmd = &cli.Command{
 	Name:  "sss",
-	Usage: "CLI S3 client",
+	Usage: "S3 client",
 	Flags: []cli.Flag{
 		flagEndpoint,
 		flagInsecure,
