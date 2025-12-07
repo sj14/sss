@@ -57,6 +57,10 @@ var (
 		Name:    "read-only",
 		Sources: cli.EnvVars("SSS_READ_ONLY"),
 	}
+	flagSNI = &cli.StringFlag{
+		Name:    "sni",
+		Sources: cli.EnvVars("SSS_SNI"),
+	}
 	flagRegion = &cli.StringFlag{
 		Name:    "region",
 		Sources: cli.EnvVars("SSS_REGION"),
@@ -190,6 +194,7 @@ func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 	util.SetIfNotZero(&profile.SecretKey, cmd.Root().String(flagSecretKey.Name))
 	util.SetIfNotZero(&profile.Insecure, cmd.Root().Bool(flagInsecure.Name))
 	util.SetIfNotZero(&profile.ReadOnly, cmd.Root().Bool(flagReadOnly.Name))
+	util.SetIfNotZero(&profile.SNI, cmd.Root().String(flagSNI.Name))
 
 	verbosity := cmd.Root().Uint8(flagVerbosity.Name)
 
@@ -216,6 +221,7 @@ var cmd = &cli.Command{
 		flagEndpoint,
 		flagInsecure,
 		flagReadOnly,
+		flagSNI,
 		flagRegion,
 		flagPathStyle,
 		flagProfile,

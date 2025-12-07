@@ -31,6 +31,7 @@ type Profile struct {
 	PathStyle bool   `yaml:"path_style"`
 	Insecure  bool   `yaml:"insecure"`
 	ReadOnly  bool   `yaml:"read_only"`
+	SNI       string `yaml:"sni"`
 }
 
 func New(ctx context.Context, verbosity uint8, cfg Profile) (*Controller, error) {
@@ -67,6 +68,7 @@ func New(ctx context.Context, verbosity uint8, cfg Profile) (*Controller, error)
 			Base:     http.DefaultTransport,
 			Insecure: cfg.Insecure,
 			ReadOnly: cfg.ReadOnly,
+			SNI:      cfg.SNI,
 		}
 
 		o.HTTPClient = &http.Client{
@@ -89,6 +91,7 @@ type Transport struct {
 	Base     http.RoundTripper
 	ReadOnly bool
 	Insecure bool
+	SNI      string
 }
 
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -104,16 +107,25 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		t.Base = http.DefaultTransport
 	}
 
-	if t.Insecure {
-		if tr, ok := t.Base.(*http.Transport); ok {
-			cloned := tr.Clone()
-			if cloned.TLSClientConfig == nil {
-				cloned.TLSClientConfig = &tls.Config{}
-			}
-			cloned.TLSClientConfig.InsecureSkipVerify = true
-			t.Base = cloned
-		}
+	tr, ok := t.Base.(*http.Transport)
+	if !ok {
+		return nil, fmt.Errorf("failed to create HTTP transport")
 	}
+
+	transport := tr.Clone()
+	if transport.TLSClientConfig == nil {
+		transport.TLSClientConfig = &tls.Config{}
+	}
+
+	if t.Insecure {
+		transport.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	if t.SNI != "" {
+		transport.TLSClientConfig.ServerName = t.SNI
+	}
+
+	t.Base = transport
 
 	return t.Base.RoundTrip(req)
 }
