@@ -26,8 +26,8 @@ var (
 	date    = "undefined"
 )
 
-func main() {
-	cmd := &cli.Command{
+var (
+	cmd = &cli.Command{
 		Name:                  "sss",
 		Usage:                 "S3 client",
 		Version:               fmt.Sprintf("%s %s %s", version, commit, date),
@@ -84,7 +84,9 @@ func main() {
 			cmdObjectPresign,
 		},
 	}
+)
 
+func main() {
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatalln(err)
 	}
@@ -159,15 +161,19 @@ func execute(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Con
 		}
 	}
 
-	ctrl, err := controller.New(ctx, controller.ControllerConfig{
-		Profile:   profile,
-		Bandwidth: bandwidth,
-		Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
-		Headers:   cmd.Root().StringSlice(flagHeaders.Name),
+	ctrl, err := controller.New(
+		ctx,
+		cmd.Writer,
+		cmd.ErrWriter,
+		controller.ControllerConfig{
+			Profile:   profile,
+			Bandwidth: bandwidth,
+			Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
+			Headers:   cmd.Root().StringSlice(flagHeaders.Name),
 
-		// non-global flag
-		DryRun: cmd.Bool(flagDryRun.Name),
-	})
+			// non-global flag
+			DryRun: cmd.Bool(flagDryRun.Name),
+		})
 	if err != nil {
 		return err
 	}

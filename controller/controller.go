@@ -18,9 +18,11 @@ import (
 )
 
 type Controller struct {
-	ctx       context.Context
-	client    *s3.Client
-	verbosity uint8
+	ctx          context.Context
+	stdoutWriter io.Writer
+	stdErrWriter io.Writer
+	client       *s3.Client
+	verbosity    uint8
 }
 
 type ControllerConfig struct {
@@ -46,7 +48,7 @@ type Profile struct {
 	SNI       string `toml:"sni"`
 }
 
-func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
+func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg ControllerConfig) (*Controller, error) {
 	if cfg.Verbosity > 0 && cfg.Profile.ReadOnly {
 		fmt.Println("> read-only mode <")
 	}
@@ -124,9 +126,11 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 	})
 
 	return &Controller{
-		ctx:       ctx,
-		verbosity: cfg.Verbosity,
-		client:    s3.NewFromConfig(awsCfg, clientOptions...),
+		ctx:          ctx,
+		stdoutWriter: stdoutWriter,
+		stdErrWriter: stdErrWriter,
+		verbosity:    cfg.Verbosity,
+		client:       s3.NewFromConfig(awsCfg, clientOptions...),
 	}, nil
 }
 
