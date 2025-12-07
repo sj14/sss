@@ -20,7 +20,7 @@ jobs:
       - name: Get dependencies
         run: go get -v -t -d ./...
       - name: Go mod tidy
-        run: | 
+        run: |
           go mod tidy
           git diff --exit-code
       - name: Format
@@ -35,14 +35,15 @@ jobs:
         env:
           SSS_CONFIG: ./config_localstack.toml
         run: |
-           go test -short -race ./...
+          go test -short -race ./...
       - name: Start LocalStack
         uses: LocalStack/setup-localstack@v0.2.4
         with:
-          image-tag: 'latest'
+          image-tag: "latest"
+          install-awslocal: "false"
           configuration: SERVICES=s3
       - name: Test Full
         env:
           SSS_CONFIG: ./config_localstack.toml
         run: |
-           go test -race ./...
+          go test -race ./...
