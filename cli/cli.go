@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/alecthomas/kong"
+	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/controller"
 	"github.com/sj14/sss/util"
 )
@@ -100,6 +101,18 @@ type flagExpires struct {
 	Expires time.Time `name:"expires"`
 }
 
+type flagSize struct {
+	Size string `name:"size" default:"1 MiB"`
+}
+
+type flagPath struct {
+	Path string `name:"path" default:"rand/"`
+}
+
+type flagCount struct {
+	Count uint64 `name:"count" default:"1"`
+}
+
 func isFlagSet(flags []*kong.Flag, name string) bool {
 	for _, f := range flags {
 		if !f.Set {
@@ -161,6 +174,7 @@ type BucketArg struct {
 	ObjectList       ObjectList       `cmd:"" group:"Object Commands" name:"ls"`
 	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands" name:"cp"`
 	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands" name:"put"`
+	ObjectPutRand    ObjectPutRand    `cmd:"" group:"Object Commands" name:"put-rand"`
 	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands" name:"rm"`
 	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands" name:"get" help:"Download files. Requires HeadObject permission."`
 	ObcectHead       ObjectHead       `cmd:"" group:"Object Commands" name:"head"`
@@ -501,6 +515,44 @@ func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectPut(
 		cli.Bucket.BucketArg.ObjectPut.Filepath,
 		cli.Bucket.BucketArg.ObjectPut.Destinaton,
+		controller.ObjectPutConfig{
+			Bucket:            cli.Bucket.BucketArg.BucketName,
+			Concurrency:       cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,
+			DryRun:            cli.Bucket.BucketArg.ObjectPut.FlagDryRun.DryRun,
+			SSEC:              util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
+			PartSize:          s.FlagPartSize,
+			MaxUploadParts:    s.FlagMaxUploadParts,
+			LeavePartsOnError: s.FlagLeavePartsOnError,
+			ACL:               s.FlagACL,
+			Expires:           s.flagExpires.Expires,
+		},
+	)
+}
+
+type ObjectPutRand struct {
+	FlagPartSize          int64  `name:"part-size"`
+	FlagMaxUploadParts    int32  `name:"max-parts"`
+	FlagLeavePartsOnError bool   `name:"leave-error-parts"`
+	FlagACL               string `name:"acl"`
+	FlagConcurrency
+	FlagDryRun
+	flagsSSEC
+	flagExpires
+	flagSize
+	flagPath
+	flagCount
+}
+
+func (s ObjectPutRand) Run(cli CLI, ctrl *controller.Controller) error {
+	size, err := humanize.ParseBytes(s.Size)
+	if err != nil {
+		return err
+	}
+
+	return ctrl.ObjectPutRand(
+		s.Path,
+		size,
+		s.flagCount.Count,
 		controller.ObjectPutConfig{
 			Bucket:            cli.Bucket.BucketArg.BucketName,
 			Concurrency:       cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,

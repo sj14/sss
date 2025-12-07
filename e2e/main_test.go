@@ -2,7 +2,6 @@ package e2e
 
 import (
 	"context"
-	"math/rand/v2"
 	"os"
 	"strings"
 	"sync"
@@ -10,20 +9,11 @@ import (
 
 	"github.com/shoenig/test/must"
 	"github.com/sj14/sss/cli"
+	"github.com/sj14/sss/util"
 )
 
 func TestMain(m *testing.M) {
 	os.Exit(m.Run())
-}
-
-func randomString(n int) string {
-	var letters = []rune("abcdefghijklmnopqrstuvwxyz")
-
-	s := make([]rune, n)
-	for i := range s {
-		s[i] = letters[rand.IntN(len(letters))]
-	}
-	return string(s)
 }
 
 type safeWriter struct {
@@ -51,7 +41,7 @@ func run(ctx context.Context, args ...string) (string, error) {
 }
 
 func createBucket(t *testing.T) string {
-	bucketName := randomString(16)
+	bucketName := util.RandomString(16, util.LettersLower)
 	t.Attr("bucket", bucketName)
 
 	t.Run("create bucket", func(t *testing.T) {
