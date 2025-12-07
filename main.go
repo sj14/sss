@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
-	"log/slog"
 	"maps"
 	"os"
 	"path/filepath"
@@ -363,8 +362,7 @@ var (
 		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			flagBucket.Required = false
 			if flagBucket.IsSet() && flagVerbosity.Value > 0 {
-				slog.InfoContext(ctx, "ignoring -bucket flag")
-				fmt.Println()
+				fmt.Println("> ignoring -bucket flag <")
 			}
 			return ctx, nil
 		},
@@ -514,8 +512,7 @@ var (
 		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			flagBucket.Required = false
 			if flagBucket.IsSet() && flagVerbosity.Value > 0 {
-				slog.InfoContext(ctx, "ignoring -bucket flag")
-				fmt.Println()
+				fmt.Println("> ignoring -bucket flag <")
 			}
 			return ctx, nil
 		},
