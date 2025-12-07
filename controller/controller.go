@@ -24,10 +24,11 @@ type Controller struct {
 }
 
 type ControllerConfig struct {
+	Profile   Profile
 	Verbosity uint8
 	Headers   []string
-	Profile   Profile
 	Bandwidth uint64
+	DryRun    bool
 }
 
 type Config struct {
@@ -46,6 +47,19 @@ type Profile struct {
 }
 
 func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
+	if cfg.Verbosity > 0 && cfg.Profile.ReadOnly {
+		fmt.Println("> read-only mode <")
+	}
+
+	if cfg.DryRun {
+		// additional protection when dry-run is enabled
+		cfg.Profile.ReadOnly = true
+
+		if cfg.Verbosity > 0 {
+			fmt.Println("> dry-run mode <")
+		}
+	}
+
 	clientOptions := []func(o *s3.Options){
 		func(o *s3.Options) { o.UsePathStyle = cfg.Profile.PathStyle },
 	}
@@ -104,10 +118,6 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 			Transport: transportWrapper,
 		}
 	})
-
-	if cfg.Verbosity > 0 && cfg.Profile.ReadOnly {
-		fmt.Println("> read-only mode <")
-	}
 
 	return &Controller{
 		ctx:       ctx,

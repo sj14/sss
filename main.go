@@ -160,10 +160,13 @@ func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 	}
 
 	ctrl, err := controller.New(ctx, controller.ControllerConfig{
-		Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
-		Headers:   cmd.Root().StringSlice(flagHeaders.Name),
 		Profile:   profile,
 		Bandwidth: bandwidth,
+		Verbosity: cmd.Root().Uint8(flagVerbosity.Name),
+		Headers:   cmd.Root().StringSlice(flagHeaders.Name),
+
+		// non-global flag
+		DryRun: cmd.Bool(flagDryRun.Name),
 	})
 	if err != nil {
 		return err

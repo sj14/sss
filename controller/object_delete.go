@@ -20,9 +20,6 @@ type ObjectDeleteConfig struct {
 }
 
 func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error) {
-	if cfg.DryRun {
-		fmt.Println("> dry-run mode <")
-	}
 	if key == "" && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
