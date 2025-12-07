@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -19,28 +20,32 @@ type ObjectDeleteConfig struct {
 	DryRun      bool
 }
 
-func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error) {
+func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
 	if key == "" && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 
+	// only delete single object
+	if !strings.HasSuffix(key, cfg.Delimiter) {
+		resp, err := c.client.HeadObject(c.ctx, &s3.HeadObjectInput{
+			Bucket: aws.String(cfg.Bucket),
+			Key:    aws.String(key),
+		})
+		if err != nil {
+			log.Printf("failed to head object, continuing: %v\n", err)
+		} else {
+			fmt.Printf("deleting %s (%s)\n", key, humanize.IBytes(uint64(*resp.ContentLength)))
+		}
+		return c.objectDelete(cfg.DryRun, cfg.Bucket, key)
+	}
+
+	// recrusive deletion
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(cfg.Concurrency)
 
-	defer func() {
-		// make sure to wait even when we return early somwhere
-		e := eg.Wait()
-		if err == nil {
-			err = e
-		} else {
-			log.Println(e)
-		}
-	}()
-
 	for l, err := range c.objectList(cfg.Bucket, key, cfg.Delimiter) {
 		if err != nil {
-			log.Printf("failed to list objects, falling back to single delete: %v", err)
-			return c.objectDelete(cfg.DryRun, cfg.Bucket, key)
+			return err
 		}
 
 		if l.Prefix != nil {
@@ -59,16 +64,6 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error
 				}
 				return nil
 			})
-
-			exactMatch := key == *l.Object.Key
-			if exactMatch {
-				// Single file deletiong, mimicing "normal" behaviour.
-				// e.g. ls => "file", "file1"
-				// Without this check, "file1" would also be deleted
-				// when only "file" is requested.
-				// As an alternative, add a -recursive flag or similar.
-				break
-			}
 		}
 	}
 

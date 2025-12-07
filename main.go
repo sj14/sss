@@ -206,7 +206,7 @@ var (
 	}
 	flagBandwidth = &cli.StringFlag{
 		Name:    "bandwidth",
-		Usage:   "Limit the bandwith per second (e.g. '1 MiB'). If set, an initial burst of 128 KiB is added.",
+		Usage:   "Limit bandwith per second, e.g. '1 MiB' (always adds 128 KiB burst)",
 		Sources: cli.EnvVars("SSS_BANDWIDTH"),
 	}
 	flagProfile = &cli.StringFlag{
@@ -328,7 +328,7 @@ var (
 			return ctx, nil
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			s, err := docs.ToMarkdown(cmd.Root())
+			s, err := docs.ToTabularMarkdown(cmd.Root(), cmd.Name)
 			if err != nil {
 				return err
 			}
@@ -608,9 +608,10 @@ var (
 		},
 	}
 	cmdObjectRemove = &cli.Command{
-		Category: "object management",
-		Name:     "rm",
-		Usage:    "Object Remove",
+		Category:    "object management",
+		Name:        "rm",
+		Usage:       "Object Remove",
+		Description: "Remove a single object or add the delimiter (e.g. '/') as path suffix to remove recursively.",
 		Arguments: []cli.Argument{
 			argKey,
 		},
@@ -636,9 +637,10 @@ var (
 		},
 	}
 	cmdObjectGet = &cli.Command{
-		Category: "object management",
-		Name:     "get",
-		Usage:    "Object Download",
+		Category:    "object management",
+		Name:        "get",
+		Usage:       "Object Download",
+		Description: "Get a single object or add the delimiter (e.g. '/') as path suffix to download recursively.",
 		Arguments: []cli.Argument{
 			&cli.StringArg{
 				Name: "key",
@@ -648,6 +650,7 @@ var (
 			},
 		},
 		Flags: []cli.Flag{
+			flagDelimiter,
 			flagSSEcKey,
 			flagSSEcAlgo,
 			flagConcurrency,
