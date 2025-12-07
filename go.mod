@@ -11,6 +11,7 @@ require (
 	github.com/aws/smithy-go v1.23.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/urfave/cli/v3 v3.5.0
+	golang.org/x/sync v0.17.0
 )
 
 require (
