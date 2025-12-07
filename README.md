@@ -18,26 +18,26 @@ USAGE:
    sss [global options] [command [command options]]
 
 COMMANDS:
-   buckets      
-   bucket       
-   mb           
-   rb           
-   multiparts   
-   parts        
-   ls           
-   cp           
-   put          
-   rm           
-   get          
-   head         
-   presign      
-   policy       
-   cors         
-   object-lock  
-   lifecycle    
-   versioning   
-   acl          
-   versions     
+   buckets      List Buckets
+   bucket       Head Bucket
+   mb           Make Bucket
+   rb           Remove Bucket
+   multiparts   Handle Multipart Uploads
+   parts        Parts from Multipart Uploads
+   ls           List Objects
+   cp           Server Side Object Copy
+   put          Upload Object
+   rm           Remove Object
+   get          Download Object
+   head         Head Object
+   presign      Create pre-signed URL
+   policy       Handle Bucket Policy
+   cors         Handle Bucket CORS
+   object-lock  Handle Bucket Object Locking
+   lifecycle    Handle Bucket Lifecycle
+   versioning   Handle Bucket Versioning
+   acl          Handle Object ACL
+   versions     List Object Versions
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
@@ -45,7 +45,7 @@ GLOBAL OPTIONS:
    --insecure           
    --region string      
    --path-style         
-   --profile string     (default: "default")
+   --profile string     
    --bucket string      
    --secret-key string  
    --access-key string  
@@ -55,7 +55,7 @@ GLOBAL OPTIONS:
 
 ## Configuraton
 
-`sss` uses the AWS SDK and the same configuration files and environment variables (e.g. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) as the AWS CLI.
+`sss` uses the AWS package and the same configuration files and environment variables (e.g. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) as the AWS CLI.
 
 `~/.aws/config`:
 
