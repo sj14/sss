@@ -32,6 +32,12 @@ func TestMultipart(t *testing.T) {
 		must.StrContains(t, out, "yolo")
 	})
 
+	t.Run("list dir/prefix", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "multipart", "ls", "mydir/")
+		must.NoError(t, err)
+		must.StrContains(t, out, "something")
+	})
+
 	t.Run("list resursive", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "multipart", "ls", "-r")
 		must.NoError(t, err)
