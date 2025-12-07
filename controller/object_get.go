@@ -59,8 +59,14 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	}
 
 	getObjectInput := &s3.GetObjectInput{
-		Bucket: aws.String(cfg.Bucket),
-		Key:    aws.String(cfg.ObjectKey),
+		Bucket:            aws.String(cfg.Bucket),
+		Key:               aws.String(cfg.ObjectKey),
+		VersionId:         util.IfNotZero(cfg.VersionID),
+		IfMatch:           util.IfNotZero(cfg.IfMatch),
+		IfModifiedSince:   util.IfNotZero(cfg.IfModifiedSince),
+		IfNoneMatch:       util.IfNotZero(cfg.IfNoneMatch),
+		IfUnmodifiedSince: util.IfNotZero(cfg.IfUnmodifiedSince),
+		PartNumber:        util.IfNotZero(cfg.PartNumber),
 	}
 
 	if cfg.SSEC.KeyIsSet() {
@@ -77,15 +83,8 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	// It's easy to miss the "bytes=" part, add it when the flag value starts with a digit
 	if cfg.Range != "" && unicode.IsDigit(rune(cfg.Range[0])) {
 		cfg.Range = fmt.Sprintf("bytes=%v", cfg.Range)
-		util.SetIfNotZero(&getObjectInput.Range, cfg.Range)
+		getObjectInput.Range = &cfg.Range
 	}
-
-	util.SetIfNotZero(&getObjectInput.VersionId, cfg.VersionID)
-	util.SetIfNotZero(&getObjectInput.IfMatch, cfg.IfMatch)
-	util.SetIfNotZero(&getObjectInput.IfModifiedSince, cfg.IfModifiedSince)
-	util.SetIfNotZero(&getObjectInput.IfNoneMatch, cfg.IfNoneMatch)
-	util.SetIfNotZero(&getObjectInput.IfUnmodifiedSince, cfg.IfUnmodifiedSince)
-	util.SetIfNotZero(&getObjectInput.PartNumber, cfg.PartNumber)
 
 	var total uint64 = 0
 	{

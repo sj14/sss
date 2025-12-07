@@ -8,9 +8,9 @@ func IfNotZero[T comparable](value T) *T {
 	return nil
 }
 
-func SetIfNotZero[T comparable](dst **T, value T) {
-	var zero T
-	if value != zero {
-		*dst = &value
-	}
-}
+// func SetIfNotZero[T comparable](dst **T, value T) {
+// 	var zero T
+// 	if value != zero {
+// 		*dst = &value
+// 	}
+// }
