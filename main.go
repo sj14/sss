@@ -167,6 +167,10 @@ type FlagForce struct {
 	Force bool `name:"force" short:"f"`
 }
 
+type FlagRange struct {
+	Range string `name:"range" help:"'bytes=0-500' to get the first 501 bytes"`
+}
+
 type FlagVersion struct {
 	Version string `name:"version" help:"Version ID"`
 }
@@ -486,6 +490,7 @@ type ObjectGet struct {
 	FlagConcurrency
 	flagsSSEC
 	FlagVersion
+	FlagRange
 }
 
 func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
@@ -499,7 +504,7 @@ func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 			DryRun:      cli.Bucket.BucketArg.ObjectGet.FlagDryRun.DryRun,
 			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 			VersionID:   s.FlagVersion.Version,
-			// Range:             cmd.String(flagRange.Name),
+			Range:       s.FlagRange.Range,
 			// PartNumber:        cmd.Int32(flagPartNumber.Name),
 			// PartSize:          cmd.Int64(flagPartSize.Name),
 			// IfMatch:           cmd.String(flagIfMatch.Name),
