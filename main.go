@@ -26,6 +26,146 @@ var (
 	date    = "undefined"
 )
 
+func main() {
+	cmd := &cli.Command{
+		Name:                  "sss",
+		Usage:                 "S3 client",
+		Version:               fmt.Sprintf("%s %s %s", version, commit, date),
+		EnableShellCompletion: true,
+		ConfigureShellCompletionCommand: func(c *cli.Command) {
+			c.Hidden = false
+			c.Before = func(ctx context.Context, c *cli.Command) (context.Context, error) {
+				flagBucket.Required = false
+				return ctx, nil
+			}
+		},
+		Flags: []cli.Flag{
+			// order will appear the same in the help text
+			flagConfig,
+			flagProfile,
+			flagAccessKey,
+			flagSecretKey,
+			flagEndpoint,
+			flagRegion,
+			flagPathStyle,
+			flagInsecure,
+			flagBucket,
+			flagReadOnly,
+			flagSNI,
+			flagHeaders,
+			flagVerbosity,
+		},
+		Commands: []*cli.Command{
+			// order will appear the same in the help text
+			cmdDocs,
+			cmdListProfiles,
+			cmdBucketList,
+			cmdBucketHead,
+			cmdBucketMake,
+			cmdBucketRemove,
+			cmdBucketSize,
+			cmdBucketPolicy,
+			cmdBucketVersioning,
+			cmdBucketObjectLock,
+			cmdBucketLifecycle,
+			cmdBucketCors,
+			cmdBucketTag,
+			cmdBucketMultiparts,
+			cmdBucketParts,
+			cmdObjectsList,
+			cmdObjectHead,
+			cmdObjectGet,
+			cmdObjectPut,
+			cmdObjectRemove,
+			cmdObjectVersions,
+			cmdObjectsCopy,
+			cmdObjectACL,
+			cmdObjectPresign,
+		},
+	}
+
+	if err := cmd.Run(context.Background(), os.Args); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func loadConfig(cmd *cli.Command) (controller.Config, error) {
+	var config controller.Config
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return config, err
+	}
+
+	configPath := cmd.Root().String(flagConfig.Name)
+
+	if configPath == "" {
+		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
+	}
+
+	md, err := toml.DecodeFile(configPath, &config)
+	if err != nil {
+		return config, err
+	}
+
+	if undecoded := md.Undecoded(); len(undecoded) > 0 {
+		return config, fmt.Errorf("unknown fields in config: %v", undecoded)
+	}
+
+	return config, nil
+}
+
+func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
+	config, err := loadConfig(cmd)
+	// Do not return an error when the config file does not exist,
+	// as the tool should be usable wihout a config file.
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return fmt.Errorf("failed loading config: %w", err)
+	}
+
+	profileName := cmd.Root().String(flagProfile.Name)
+	profile, ok := config.Profiles[profileName]
+	if !ok && profileName != "default" {
+		fmt.Printf("profile %q not found, available profiles:\n", profileName)
+
+		keys := slices.Collect(maps.Keys(config.Profiles))
+		slices.Sort(keys)
+
+		for _, key := range keys {
+			fmt.Println(key)
+		}
+
+		os.Exit(1)
+	}
+
+	util.SetIfNotZero(&profile.Endpoint, cmd.Root().String(flagEndpoint.Name))
+	util.SetIfNotZero(&profile.Region, cmd.Root().String(flagRegion.Name))
+	util.SetIfNotZero(&profile.PathStyle, cmd.Root().Bool(flagPathStyle.Name))
+	util.SetIfNotZero(&profile.AccessKey, cmd.Root().String(flagAccessKey.Name))
+	util.SetIfNotZero(&profile.SecretKey, cmd.Root().String(flagSecretKey.Name))
+	util.SetIfNotZero(&profile.Insecure, cmd.Root().Bool(flagInsecure.Name))
+	util.SetIfNotZero(&profile.ReadOnly, cmd.Root().Bool(flagReadOnly.Name))
+	util.SetIfNotZero(&profile.SNI, cmd.Root().String(flagSNI.Name))
+
+	var (
+		verbosity = cmd.Root().Uint8(flagVerbosity.Name)
+		headers   = cmd.Root().StringSlice(flagHeaders.Name)
+	)
+
+	ctrl, err := controller.New(ctx, verbosity, headers, profile)
+	if err != nil {
+		return err
+	}
+	return fn(ctrl)
+}
+
+func parseSSEC(cmd *cli.Command) util.SSEC {
+	return util.NewSSEC(
+		cmd.String(flagSSEcAlgo.Name),
+		cmd.String(flagSSEcKey.Name),
+	)
+}
+
 var (
 	argPrefix = &cli.StringArg{
 		Name: "prefix",
@@ -148,756 +288,644 @@ var (
 	}
 )
 
-func main() {
-	if err := cmd.Run(context.Background(), os.Args); err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func parseSSEC(cmd *cli.Command) util.SSEC {
-	return util.NewSSEC(
-		cmd.String(flagSSEcAlgo.Name),
-		cmd.String(flagSSEcKey.Name),
-	)
-}
-
-func loadConfig(cmd *cli.Command) (controller.Config, error) {
-	var config controller.Config
-
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return config, err
-	}
-
-	configPath := cmd.Root().String(flagConfig.Name)
-
-	if configPath == "" {
-		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
-	}
-
-	md, err := toml.DecodeFile(configPath, &config)
-	if err != nil {
-		return config, err
-	}
-
-	if undecoded := md.Undecoded(); len(undecoded) > 0 {
-		return config, fmt.Errorf("unknown fields in config: %v", undecoded)
-	}
-
-	return config, nil
-}
-
-func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
-	config, err := loadConfig(cmd)
-	// Do not return an error when the config file does not exist,
-	// as the tool should be usable wihout a config file.
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
-		return fmt.Errorf("failed loading config: %w", err)
-	}
-
-	profileName := cmd.Root().String(flagProfile.Name)
-	profile, ok := config.Profiles[profileName]
-	if !ok && profileName != "default" {
-		fmt.Printf("profile %q not found, available profiles:\n", profileName)
-
-		keys := slices.Collect(maps.Keys(config.Profiles))
-		slices.Sort(keys)
-
-		for _, key := range keys {
-			fmt.Println(key)
-		}
-
-		os.Exit(1)
-	}
-
-	util.SetIfNotZero(&profile.Endpoint, cmd.Root().String(flagEndpoint.Name))
-	util.SetIfNotZero(&profile.Region, cmd.Root().String(flagRegion.Name))
-	util.SetIfNotZero(&profile.PathStyle, cmd.Root().Bool(flagPathStyle.Name))
-	util.SetIfNotZero(&profile.AccessKey, cmd.Root().String(flagAccessKey.Name))
-	util.SetIfNotZero(&profile.SecretKey, cmd.Root().String(flagSecretKey.Name))
-	util.SetIfNotZero(&profile.Insecure, cmd.Root().Bool(flagInsecure.Name))
-	util.SetIfNotZero(&profile.ReadOnly, cmd.Root().Bool(flagReadOnly.Name))
-	util.SetIfNotZero(&profile.SNI, cmd.Root().String(flagSNI.Name))
-
-	var (
-		verbosity = cmd.Root().Uint8(flagVerbosity.Name)
-		headers   = cmd.Root().StringSlice(flagHeaders.Name)
-	)
-
-	ctrl, err := controller.New(ctx, verbosity, headers, profile)
-	if err != nil {
-		return err
-	}
-	return fn(ctrl)
-}
-
-var cmd = &cli.Command{
-	Name:                  "sss",
-	Usage:                 "S3 client",
-	Version:               fmt.Sprintf("%s %s %s", version, commit, date),
-	EnableShellCompletion: true,
-	ConfigureShellCompletionCommand: func(c *cli.Command) {
-		c.Hidden = false
-		c.Before = func(ctx context.Context, c *cli.Command) (context.Context, error) {
+var (
+	cmdDocs = &cli.Command{
+		Name:   "docs",
+		Hidden: true,
+		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 			flagBucket.Required = false
 			return ctx, nil
-		}
-	},
-	Flags: []cli.Flag{
-		flagConfig,
-		flagEndpoint,
-		flagInsecure,
-		flagReadOnly,
-		flagRegion,
-		flagPathStyle,
-		flagProfile,
-		flagBucket,
-		flagSecretKey,
-		flagAccessKey,
-		flagSNI,
-		flagHeaders,
-		flagVerbosity,
-	},
-	Commands: []*cli.Command{
-		{
-			Name:   "docs",
-			Hidden: true,
-			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-				flagBucket.Required = false
-				return ctx, nil
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				s, err := docs.ToMarkdown(cmd.Root())
-				if err != nil {
-					return err
-				}
-				return os.WriteFile("DOCS.md", []byte(s), os.ModePerm)
-			},
 		},
-		{
-			Name:  "profiles",
-			Usage: "List config profiles",
-			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-				flagBucket.Required = false
-				return ctx, nil
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				config, err := loadConfig(cmd)
-				if err != nil {
-					return err
-				}
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			s, err := docs.ToMarkdown(cmd.Root())
+			if err != nil {
+				return err
+			}
+			return os.WriteFile("DOCS.md", []byte(s), os.ModePerm)
+		},
+	}
+	cmdListProfiles = &cli.Command{
+		Name:  "profiles",
+		Usage: "Config Profiles",
+		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+			flagBucket.Required = false
+			return ctx, nil
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			config, err := loadConfig(cmd)
+			if err != nil {
+				return err
+			}
 
-				keys := slices.Collect(maps.Keys(config.Profiles))
-				slices.Sort(keys)
+			keys := slices.Collect(maps.Keys(config.Profiles))
+			slices.Sort(keys)
 
-				for _, key := range keys {
-					fmt.Println(key)
-				}
+			for _, key := range keys {
+				fmt.Println(key)
+			}
 
-				return nil
-			},
+			return nil
 		},
-		{
-			Name:  "buckets",
-			Usage: "List Buckets",
-			Flags: []cli.Flag{
-				flagPrefix,
-			},
-			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-				flagBucket.Required = false
-				if flagBucket.IsSet() && flagVerbosity.Value > 0 {
-					slog.InfoContext(ctx, "ignoring -bucket flag")
-					fmt.Println()
-				}
-				return ctx, nil
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketList(cmd.String(flagPrefix.Name))
-				})
-			},
+	}
+	cmdBucketList = &cli.Command{
+		Name:  "buckets",
+		Usage: "Bucket List",
+		Flags: []cli.Flag{
+			flagPrefix,
 		},
-		{
-			Name:  "head-bucket",
-			Usage: "Head Bucket",
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketHead(cmd.String(flagBucket.Name))
-				})
-			},
+		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+			flagBucket.Required = false
+			if flagBucket.IsSet() && flagVerbosity.Value > 0 {
+				slog.InfoContext(ctx, "ignoring -bucket flag")
+				fmt.Println()
+			}
+			return ctx, nil
 		},
-		{
-			Name:  "tag-bucket",
-			Usage: "Bucket Tagging",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketTagging(cmd.String(flagBucket.Name))
-						})
-					},
-				},
-			},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.BucketList(cmd.String(flagPrefix.Name))
+			})
 		},
-		{
-			Name:  "mb",
-			Usage: "Make Bucket",
-			Flags: []cli.Flag{
-				flagObjectLock,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketCreate(
-						cmd.String(flagBucket.Name),
-						cmd.Bool(flagObjectLock.Name),
-					)
-				})
-			},
+	}
+	cmdBucketHead = &cli.Command{
+		Name:  "bucket",
+		Usage: "Bucket Head",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.BucketHead(cmd.String(flagBucket.Name))
+			})
 		},
-		{
-			Name:  "rb",
-			Usage: "Remove Bucket",
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketDelete(cmd.String(flagBucket.Name))
-				})
-			},
-		},
-		{
-			Name:  "multiparts",
-			Usage: "Handle Multipart Uploads",
-			Commands: []*cli.Command{
-				{
-					Name: "ls",
-					Flags: []cli.Flag{
-						flagPrefix,
-						flagDelimiter,
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketMultipartUploadsList(
-								cmd.String(flagBucket.Name),
-								cmd.String(flagPrefix.Name),
-								cmd.String(flagDelimiter.Name),
-							)
-						})
-					},
-				},
-				{
-					Name: "rm",
-					Flags: []cli.Flag{
-						flagObjectKey,
-						flagUploadID,
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketMultipartUploadAbort(
-								cmd.String(flagBucket.Name),
-								cmd.String(flagObjectKey.Name),
-								cmd.String(flagUploadID.Name),
-							)
-						})
-					},
+	}
+	cmdBucketTag = &cli.Command{
+		Name:  "tag-bucket",
+		Usage: "Bucket Tagging",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketTagging(cmd.String(flagBucket.Name))
+					})
 				},
 			},
 		},
-		{
-			Name:  "parts",
-			Usage: "Parts from Multipart Uploads",
-			Flags: []cli.Flag{
-				flagObjectKey,
-				flagUploadID,
+	}
+	cmdBucketMake = &cli.Command{
+		Name:  "mb",
+		Usage: "Bucket Create",
+		Flags: []cli.Flag{
+			flagObjectLock,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.BucketCreate(
+					cmd.String(flagBucket.Name),
+					cmd.Bool(flagObjectLock.Name),
+				)
+			})
+		},
+	}
+	cmdBucketRemove = &cli.Command{
+		Name:  "rb",
+		Usage: "Bucket Remove",
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.BucketDelete(cmd.String(flagBucket.Name))
+			})
+		},
+	}
+	cmdBucketMultiparts = &cli.Command{
+		Name:  "multiparts",
+		Usage: "Multipart Uploads",
+		Commands: []*cli.Command{
+			{
+				Name: "ls",
+				Flags: []cli.Flag{
+					flagPrefix,
+					flagDelimiter,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketMultipartUploadsList(
+							cmd.String(flagBucket.Name),
+							cmd.String(flagPrefix.Name),
+							cmd.String(flagDelimiter.Name),
+						)
+					})
+				},
 			},
-			Commands: []*cli.Command{
-				{
-					Name: "ls",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketPartsList(
-								cmd.String(flagBucket.Name),
-								cmd.String(flagObjectKey.Name),
-								cmd.String(flagUploadID.Name),
-							)
-						})
-					},
+			{
+				Name: "rm",
+				Flags: []cli.Flag{
+					flagObjectKey,
+					flagUploadID,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketMultipartUploadAbort(
+							cmd.String(flagBucket.Name),
+							cmd.String(flagObjectKey.Name),
+							cmd.String(flagUploadID.Name),
+						)
+					})
 				},
 			},
 		},
-		{
-			Name:  "ls",
-			Usage: "List Objects",
-			Arguments: []cli.Argument{
-				argPrefix,
-			},
-			Flags: []cli.Flag{
-				flagDelimiter,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectList(
-						cmd.String(flagBucket.Name),
-						cmd.StringArg(argPrefix.Name),
-						cmd.String(flagDelimiter.Name),
-					)
-				})
-			},
+	}
+	cmdBucketParts = &cli.Command{
+		Name:  "parts",
+		Usage: "Multipart Parts",
+		Flags: []cli.Flag{
+			flagObjectKey,
+			flagUploadID,
 		},
-		{
-			Name:  "cp",
-			Usage: "Server Side Object Copy",
-			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-				flagBucket.Required = false
-				if flagBucket.IsSet() && flagVerbosity.Value > 0 {
-					slog.InfoContext(ctx, "ignoring -bucket flag")
-					fmt.Println()
-				}
-				return ctx, nil
-			},
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "src-bucket",
-					Usage:    "Source bucket",
-					Required: true,
-				},
-				&cli.StringFlag{
-					Name:     "src-key",
-					Usage:    "Source key",
-					Required: true,
-				},
-				&cli.StringFlag{
-					Name:     "dst-bucket",
-					Usage:    "Destinaton bucket",
-					Required: true,
-				},
-				&cli.StringFlag{
-					Name:  "dst-key",
-					Usage: "Destination key. When empty, the src-key will be used",
-				},
-				flagSSEcKey,
-				flagSSEcAlgo,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectCopy(
-						controller.ObjectCopyConfig{
-							SrcBucket: cmd.String("src-bucket"),
-							SrcKey:    cmd.String("src-key"),
-							DstBucket: cmd.String("dst-bucket"),
-							DstKey:    cmd.String("dst-key"),
-							SSEC:      parseSSEC(cmd),
-						})
-				})
-			},
-		},
-		{
-			Name:  "put",
-			Usage: "Upload Object",
-			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "path",
-				},
-			},
-			Flags: []cli.Flag{
-				flagSSEcKey,
-				flagSSEcAlgo,
-				flagPartSize,
-				flagConcurrency,
-				&cli.IntFlag{
-					Name: "leave-parts-on-error",
-				},
-				&cli.IntFlag{
-					Name: "max-parts",
-				},
-				&cli.StringFlag{
-					Name:  "target",
-					Usage: "target key for single file or prefix multiple files",
-				},
-				&cli.StringFlag{
-					Name:  "acl",
-					Usage: "e.g. 'public-read'",
-				},
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectPut(
-						cmd.StringArg("path"),
-						cmd.String("target"),
-						controller.ObjectPutConfig{
-							Bucket:            cmd.String(flagBucket.Name),
-							SSEC:              parseSSEC(cmd),
-							Concurrency:       cmd.Int("concurrency"),
-							LeavePartsOnError: cmd.Bool("leave-parts-on-error"),
-							MaxUploadParts:    cmd.Int32("max-parts"),
-							PartSize:          cmd.Int64("part-size"),
-							ACL:               cmd.String("acl"),
-						},
-					)
-				})
-			},
-		},
-		{
-			Name:  "rm",
-			Usage: "Remove Object",
-			Arguments: []cli.Argument{
-				argKey,
-			},
-			Flags: []cli.Flag{
-				flagDelimiter,
-				flagForce,
-				flagConcurrency,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectDelete(
-						cmd.StringArg("key"),
-						controller.ObjectDeleteConfig{
-							Bucket:      cmd.String(flagBucket.Name),
-							Delimiter:   cmd.String(flagDelimiter.Name),
-							Force:       cmd.Bool(flagForce.Name),
-							Concurrency: cmd.Int(flagConcurrency.Name),
-						},
-					)
-				})
-			},
-		},
-		{
-			Name:  "get",
-			Usage: "Download Object",
-			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "key",
-				},
-				&cli.StringArg{
-					Name: "target",
-				},
-			},
-			Flags: []cli.Flag{
-				flagSSEcKey,
-				flagSSEcAlgo,
-				flagConcurrency,
-				flagPartSize,
-				flagVersionID,
-				flagRange,
-				flagPartNumber,
-				flagIfMatch,
-				flagIfNoneMatch,
-				flagIfModifiedSince,
-				flagIfUnmodifiedSince,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectGet(
-						cmd.StringArg("target"),
-						cmd.String(flagDelimiter.Name),
-						controller.ObjectGetConfig{
-							Bucket:            cmd.String(flagBucket.Name),
-							ObjectKey:         cmd.StringArg(argKey.Name),
-							SSEC:              parseSSEC(cmd),
-							VersionID:         cmd.String(flagVersionID.Name),
-							Range:             cmd.String(flagRange.Name),
-							PartNumber:        cmd.Int32(flagPartNumber.Name),
-							Concurrency:       cmd.Int(flagConcurrency.Name),
-							PartSize:          cmd.Int64(flagPartSize.Name),
-							IfMatch:           cmd.String(flagIfMatch.Name),
-							IfNoneMatch:       cmd.String(flagIfNoneMatch.Name),
-							IfModifiedSince:   cmd.Timestamp(flagIfModifiedSince.Name),
-							IfUnmodifiedSince: cmd.Timestamp(flagIfUnmodifiedSince.Name),
-						},
-					)
-				})
-			},
-		},
-		{
-			Name:  "head-object",
-			Usage: "Head Object",
-			Arguments: []cli.Argument{
-				argKey,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectHead(
-						cmd.String(flagBucket.Name),
-						cmd.StringArg(argKey.Name),
-					)
-				})
-			},
-		},
-		{
-			Name:  "presign",
-			Usage: "Create pre-signed URL",
-			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-				if flagReadOnly.IsSet() {
-					return ctx, errors.New("deactivated due to read only mode")
-				}
-				return ctx, nil
-			},
-			Flags: []cli.Flag{
-				&cli.DurationFlag{
-					Name: "expires-in",
-				},
-			},
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Arguments: []cli.Argument{
-						argKey,
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.ObjectPresignGet(
-								cmd.Duration("expires-in"),
-								controller.ObjectGetConfig{
-									Bucket:    cmd.String(flagBucket.Name),
-									ObjectKey: cmd.StringArg(argKey.Name),
-								},
-							)
-						})
-					}},
-				{
-					Name: "put",
-					Arguments: []cli.Argument{
-						argKey,
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.ObjectPresignPut(
-								cmd.Duration("expires-in"),
-								cmd.StringArg(argKey.Name),
-								controller.ObjectPutConfig{
-									Bucket: cmd.String(flagBucket.Name),
-								},
-							)
-						})
-					}},
-			},
-		},
-		{
-			Name:  "policy",
-			Usage: "Handle Bucket Policy",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketPolicyGet(
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
-				},
-				{
-					Name: "put",
-					Arguments: []cli.Argument{
-						&cli.StringArg{
-							Name: "policy",
-						},
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketPolicyPut(
-								cmd.StringArg("policy"),
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
+		Commands: []*cli.Command{
+			{
+				Name: "ls",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketPartsList(
+							cmd.String(flagBucket.Name),
+							cmd.String(flagObjectKey.Name),
+							cmd.String(flagUploadID.Name),
+						)
+					})
 				},
 			},
 		},
-		{
-			Name:  "cors",
-			Usage: "Handle Bucket CORS",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketCORSGet(
-								cmd.String(flagBucket.Name),
-							)
-						})
+	}
+	cmdObjectsList = &cli.Command{
+		Name:  "ls",
+		Usage: "Object List",
+		Arguments: []cli.Argument{
+			argPrefix,
+		},
+		Flags: []cli.Flag{
+			flagDelimiter,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectList(
+					cmd.String(flagBucket.Name),
+					cmd.StringArg(argPrefix.Name),
+					cmd.String(flagDelimiter.Name),
+				)
+			})
+		},
+	}
+	cmdObjectsCopy = &cli.Command{
+		Name:  "cp",
+		Usage: "Object Server Side Copy",
+		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+			flagBucket.Required = false
+			if flagBucket.IsSet() && flagVerbosity.Value > 0 {
+				slog.InfoContext(ctx, "ignoring -bucket flag")
+				fmt.Println()
+			}
+			return ctx, nil
+		},
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "src-bucket",
+				Usage:    "Source bucket",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     "src-key",
+				Usage:    "Source key",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     "dst-bucket",
+				Usage:    "Destinaton bucket",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:  "dst-key",
+				Usage: "Destination key. When empty, the src-key will be used",
+			},
+			flagSSEcKey,
+			flagSSEcAlgo,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectCopy(
+					controller.ObjectCopyConfig{
+						SrcBucket: cmd.String("src-bucket"),
+						SrcKey:    cmd.String("src-key"),
+						DstBucket: cmd.String("dst-bucket"),
+						DstKey:    cmd.String("dst-key"),
+						SSEC:      parseSSEC(cmd),
+					})
+			})
+		},
+	}
+	cmdObjectPut = &cli.Command{
+		Name:  "put",
+		Usage: "Object Upload",
+		Arguments: []cli.Argument{
+			&cli.StringArg{
+				Name: "path",
+			},
+		},
+		Flags: []cli.Flag{
+			flagSSEcKey,
+			flagSSEcAlgo,
+			flagPartSize,
+			flagConcurrency,
+			&cli.IntFlag{
+				Name: "leave-parts-on-error",
+			},
+			&cli.IntFlag{
+				Name: "max-parts",
+			},
+			&cli.StringFlag{
+				Name:  "target",
+				Usage: "target key for single file or prefix multiple files",
+			},
+			&cli.StringFlag{
+				Name:  "acl",
+				Usage: "e.g. 'public-read'",
+			},
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectPut(
+					cmd.StringArg("path"),
+					cmd.String("target"),
+					controller.ObjectPutConfig{
+						Bucket:            cmd.String(flagBucket.Name),
+						SSEC:              parseSSEC(cmd),
+						Concurrency:       cmd.Int("concurrency"),
+						LeavePartsOnError: cmd.Bool("leave-parts-on-error"),
+						MaxUploadParts:    cmd.Int32("max-parts"),
+						PartSize:          cmd.Int64("part-size"),
+						ACL:               cmd.String("acl"),
+					},
+				)
+			})
+		},
+	}
+	cmdObjectRemove = &cli.Command{
+		Name:  "rm",
+		Usage: "Object Remove",
+		Arguments: []cli.Argument{
+			argKey,
+		},
+		Flags: []cli.Flag{
+			flagDelimiter,
+			flagForce,
+			flagConcurrency,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectDelete(
+					cmd.StringArg("key"),
+					controller.ObjectDeleteConfig{
+						Bucket:      cmd.String(flagBucket.Name),
+						Delimiter:   cmd.String(flagDelimiter.Name),
+						Force:       cmd.Bool(flagForce.Name),
+						Concurrency: cmd.Int(flagConcurrency.Name),
+					},
+				)
+			})
+		},
+	}
+	cmdObjectGet = &cli.Command{
+		Name:  "get",
+		Usage: "Object Download",
+		Arguments: []cli.Argument{
+			&cli.StringArg{
+				Name: "key",
+			},
+			&cli.StringArg{
+				Name: "target",
+			},
+		},
+		Flags: []cli.Flag{
+			flagSSEcKey,
+			flagSSEcAlgo,
+			flagConcurrency,
+			flagPartSize,
+			flagVersionID,
+			flagRange,
+			flagPartNumber,
+			flagIfMatch,
+			flagIfNoneMatch,
+			flagIfModifiedSince,
+			flagIfUnmodifiedSince,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectGet(
+					cmd.StringArg("target"),
+					cmd.String(flagDelimiter.Name),
+					controller.ObjectGetConfig{
+						Bucket:            cmd.String(flagBucket.Name),
+						ObjectKey:         cmd.StringArg(argKey.Name),
+						SSEC:              parseSSEC(cmd),
+						VersionID:         cmd.String(flagVersionID.Name),
+						Range:             cmd.String(flagRange.Name),
+						PartNumber:        cmd.Int32(flagPartNumber.Name),
+						Concurrency:       cmd.Int(flagConcurrency.Name),
+						PartSize:          cmd.Int64(flagPartSize.Name),
+						IfMatch:           cmd.String(flagIfMatch.Name),
+						IfNoneMatch:       cmd.String(flagIfNoneMatch.Name),
+						IfModifiedSince:   cmd.Timestamp(flagIfModifiedSince.Name),
+						IfUnmodifiedSince: cmd.Timestamp(flagIfUnmodifiedSince.Name),
+					},
+				)
+			})
+		},
+	}
+	cmdObjectHead = &cli.Command{
+		Name:  "head",
+		Usage: "Object Head",
+		Arguments: []cli.Argument{
+			argKey,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectHead(
+					cmd.String(flagBucket.Name),
+					cmd.StringArg(argKey.Name),
+				)
+			})
+		},
+	}
+	cmdObjectPresign = &cli.Command{
+		Name:  "presign",
+		Usage: "Create pre-signed URL",
+		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+			if flagReadOnly.IsSet() {
+				return ctx, errors.New("deactivated due to read only mode")
+			}
+			return ctx, nil
+		},
+		Flags: []cli.Flag{
+			&cli.DurationFlag{
+				Name: "expires-in",
+			},
+		},
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Arguments: []cli.Argument{
+					argKey,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.ObjectPresignGet(
+							cmd.Duration("expires-in"),
+							controller.ObjectGetConfig{
+								Bucket:    cmd.String(flagBucket.Name),
+								ObjectKey: cmd.StringArg(argKey.Name),
+							},
+						)
+					})
+				}},
+			{
+				Name: "put",
+				Arguments: []cli.Argument{
+					argKey,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.ObjectPresignPut(
+							cmd.Duration("expires-in"),
+							cmd.StringArg(argKey.Name),
+							controller.ObjectPutConfig{
+								Bucket: cmd.String(flagBucket.Name),
+							},
+						)
+					})
+				}},
+		},
+	}
+	cmdBucketPolicy = &cli.Command{
+		Name:  "policy",
+		Usage: "Bucket Policy",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketPolicyGet(
+							cmd.String(flagBucket.Name),
+						)
+					})
+				},
+			},
+			{
+				Name: "put",
+				Arguments: []cli.Argument{
+					&cli.StringArg{
+						Name: "policy",
 					},
 				},
-				{
-					Name: "put",
-					Arguments: []cli.Argument{
-						&cli.StringArg{
-							Name: "cors",
-						},
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketCORSPut(
-								cmd.StringArg("cors"),
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
-				},
-				{
-					Name: "rm",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketCORSDelete(
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketPolicyPut(
+							cmd.StringArg("policy"),
+							cmd.String(flagBucket.Name),
+						)
+					})
 				},
 			},
 		},
-		{
-			Name:  "object-lock",
-			Usage: "Handle Bucket Object Locking",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketObjectLockGet(
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
-				},
-				{
-					Name: "put",
-					Arguments: []cli.Argument{
-						&cli.StringArg{
-							Name: "config",
-						},
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketObjectLockPut(
-								cmd.StringArg("config"),
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
+	}
+	cmdBucketCors = &cli.Command{
+		Name:  "cors",
+		Usage: "Bucket CORS",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketCORSGet(
+							cmd.String(flagBucket.Name),
+						)
+					})
 				},
 			},
-		},
-		{
-			Name:  "lifecycle",
-			Usage: "Handle Bucket Lifecycle",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketLifecycleGet(
-								cmd.String(flagBucket.Name),
-							)
-						})
+			{
+				Name: "put",
+				Arguments: []cli.Argument{
+					&cli.StringArg{
+						Name: "cors",
 					},
 				},
-				{
-					Name: "put",
-					Arguments: []cli.Argument{
-						&cli.StringArg{
-							Name: "lifecycle",
-						},
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketLifecyclePut(
-								cmd.StringArg("lifecycle"),
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketCORSPut(
+							cmd.StringArg("cors"),
+							cmd.String(flagBucket.Name),
+						)
+					})
 				},
-				{
-					Name: "rm",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketLifecycleDelete(
-								cmd.String(flagBucket.Name),
-							)
-						})
-					},
+			},
+			{
+				Name: "rm",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketCORSDelete(
+							cmd.String(flagBucket.Name),
+						)
+					})
 				},
 			},
 		},
-		{
-			Name:  "versioning",
-			Usage: "Handle Bucket Versioning",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketVersioningGet(
-								cmd.String(flagBucket.Name),
-							)
-						})
+	}
+	cmdBucketObjectLock = &cli.Command{
+		Name:  "object-lock",
+		Usage: "Bucket Object Locking",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketObjectLockGet(
+							cmd.String(flagBucket.Name),
+						)
+					})
+				},
+			},
+			{
+				Name: "put",
+				Arguments: []cli.Argument{
+					&cli.StringArg{
+						Name: "config",
 					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketObjectLockPut(
+							cmd.StringArg("config"),
+							cmd.String(flagBucket.Name),
+						)
+					})
 				},
 			},
 		},
-		{
-			Name:  "size",
-			Usage: "Calculate the bucket size",
-			Arguments: []cli.Argument{
-				argPrefix,
+	}
+	cmdBucketLifecycle = &cli.Command{
+		Name:  "lifecycle",
+		Usage: "Bucket Lifecycle",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketLifecycleGet(
+							cmd.String(flagBucket.Name),
+						)
+					})
+				},
 			},
-			Flags: []cli.Flag{
-				flagDelimiter,
+			{
+				Name: "put",
+				Arguments: []cli.Argument{
+					&cli.StringArg{
+						Name: "lifecycle",
+					},
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketLifecyclePut(
+							cmd.StringArg("lifecycle"),
+							cmd.String(flagBucket.Name),
+						)
+					})
+				},
 			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketSize(
-						cmd.String(flagBucket.Name),
-						cmd.StringArg(argPrefix.Name),
-						cmd.String(flagDelimiter.Name),
-					)
-				})
-			},
-		},
-
-		{
-			Name:  "object-acl",
-			Usage: "Handle Object ACL",
-			Commands: []*cli.Command{
-				{
-					Name: "get",
-					Arguments: []cli.Argument{
-						argKey,
-					},
-					Flags: []cli.Flag{
-						flagVersionID,
-					},
-					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.ObjectACLGet(
-								cmd.String(flagBucket.Name),
-								cmd.StringArg(argKey.Name),
-								cmd.String(flagVersionID.Name),
-							)
-						})
-					},
+			{
+				Name: "rm",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketLifecycleDelete(
+							cmd.String(flagBucket.Name),
+						)
+					})
 				},
 			},
 		},
-		{
-			Name:  "versions",
-			Usage: "List Object Versions",
-			Arguments: []cli.Argument{
-				argPrefix,
-			},
-			Flags: []cli.Flag{
-				flagDelimiter,
-			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectVersions(
-						cmd.String(flagBucket.Name),
-						cmd.StringArg(argPrefix.Name),
-						cmd.String(flagDelimiter.Name),
-					)
-				})
+	}
+	cmdBucketVersioning = &cli.Command{
+		Name:  "versioning",
+		Usage: "Bucket Versioning",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketVersioningGet(
+							cmd.String(flagBucket.Name),
+						)
+					})
+				},
 			},
 		},
-	},
-}
+	}
+	cmdBucketSize = &cli.Command{
+		Name:  "size",
+		Usage: "Bucket Size",
+		Arguments: []cli.Argument{
+			argPrefix,
+		},
+		Flags: []cli.Flag{
+			flagDelimiter,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.BucketSize(
+					cmd.String(flagBucket.Name),
+					cmd.StringArg(argPrefix.Name),
+					cmd.String(flagDelimiter.Name),
+				)
+			})
+		},
+	}
+	cmdObjectACL = &cli.Command{
+		Name:  "acl-object",
+		Usage: "Object ACL",
+		Commands: []*cli.Command{
+			{
+				Name: "get",
+				Arguments: []cli.Argument{
+					argKey,
+				},
+				Flags: []cli.Flag{
+					flagVersionID,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.ObjectACLGet(
+							cmd.String(flagBucket.Name),
+							cmd.StringArg(argKey.Name),
+							cmd.String(flagVersionID.Name),
+						)
+					})
+				},
+			},
+		},
+	}
+	cmdObjectVersions = &cli.Command{
+		Name:  "versions",
+		Usage: "Object Versions",
+		Arguments: []cli.Argument{
+			argPrefix,
+		},
+		Flags: []cli.Flag{
+			flagDelimiter,
+		},
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+				return ctrl.ObjectVersions(
+					cmd.String(flagBucket.Name),
+					cmd.StringArg(argPrefix.Name),
+					cmd.String(flagDelimiter.Name),
+				)
+			})
+		},
+	}
+)
