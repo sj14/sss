@@ -437,7 +437,7 @@ type ObjectGet struct {
 	flagsSSEC
 	FlagVersionID
 	FlagRange
-	FlagForce
+	// FlagForce
 }
 
 func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
@@ -452,7 +452,7 @@ func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 			VersionID:   s.FlagVersionID.VersionID,
 			Range:       s.FlagRange.Range,
-			Force:       s.Force,
+			// Force:       s.Force,
 			// PartNumber:        cmd.Int32(flagPartNumber.Name),
 			// PartSize:          cmd.Int64(flagPartSize.Name),
 			// IfMatch:           cmd.String(flagIfMatch.Name),

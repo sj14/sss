@@ -29,7 +29,7 @@ type ObjectGetConfig struct {
 	Concurrency       int
 	PartSize          int64
 	DryRun            bool
-	Force             bool
+	// Force             bool // not yet sure about it
 }
 
 func (c *Controller) ObjectGet(dest, prefix, originalPrefix string, cfg ObjectGetConfig) error {
@@ -147,11 +147,8 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
-	if err == nil && !cfg.Force && !cfg.DryRun {
-		return fmt.Errorf("%q already exists, override with the --force flag", targetPath)
-	}
-	// if err == nil {
-	// 	getObjectInput.IfModifiedSince = aws.Time(stat.ModTime())
+	// if err == nil && !cfg.Force && !cfg.DryRun {
+	// 	return fmt.Errorf("%q already exists, override with the --force flag", targetPath)
 	// }
 
 	// create the output file
