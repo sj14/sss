@@ -604,7 +604,7 @@ func main() {
 			Verbosity: 1,
 			Headers:   cli.Header,
 			Bandwidth: bandwidth,
-			// DryRun: ,
+			// DryRun:    cli.Dry,
 		})
 	if err != nil {
 		log.Fatalln(err)
