@@ -7,12 +7,17 @@ import (
 	"maps"
 	"os"
 	"slices"
+	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/sj14/sss/controller"
 )
 
 // //////// Common
+
+type ArgPath struct {
+	Path string `arg:"" name:"path"`
+}
 
 type ArgObject struct {
 	Object string `arg:"" name:"object"`
@@ -81,17 +86,120 @@ type Bucket struct {
 type BucketArg struct {
 	BucketName string `arg:"" name:"bucket"`
 
-	BucketCreate BucketCreate `cmd:"" name:"mb"`
-	BucketHead   BucketHead   `cmd:"" name:"hb"`
-	BucketRemove BucketRemove `cmd:"" name:"rb"`
-	BucketTag    BucketTag    `cmd:"" name:"tag"`
-	Multiparts   Multiparts   `cmd:"" name:"multiparts"`
-	ObjectList   ObjectList   `cmd:"" name:"ls" aliases:"list"`
-	ObjectCopy   ObjectCopy   `cmd:"" name:"cp"`
-	ObjectPut    ObjectPut    `cmd:"" name:"put"`
-	ObjectDelete ObjectDelete `cmd:"" name:"rm"`
-	ObjectGet    ObjectGet    `cmd:"" name:"get"`
-	ObcectHead   ObjectHead   `cmd:"" name:"head"`
+	BucketCreate  BucketCreate  `cmd:"" name:"mb"`
+	BucketHead    BucketHead    `cmd:"" name:"hb"`
+	BucketRemove  BucketRemove  `cmd:"" name:"rb"`
+	BucketPolicy  BucketPolicy  `cmd:"" name:"policy"`
+	BucketCors    BucketCors    `cmd:"" name:"cors"`
+	BucketTag     BucketTag     `cmd:"" name:"tag"`
+	Multiparts    Multiparts    `cmd:"" name:"multiparts"`
+	ObjectList    ObjectList    `cmd:"" name:"ls" aliases:"list"`
+	ObjectCopy    ObjectCopy    `cmd:"" name:"cp"`
+	ObjectPut     ObjectPut     `cmd:"" name:"put"`
+	ObjectDelete  ObjectDelete  `cmd:"" name:"rm"`
+	ObjectGet     ObjectGet     `cmd:"" name:"get"`
+	ObcectHead    ObjectHead    `cmd:"" name:"head"`
+	ObjectPresign ObjectPresign `cmd:"" name:"presign"`
+}
+
+type BucketCors struct {
+	BucketCorsGet    BucketCorsGet    `cmd:"" name:"get"`
+	BucketCorsPut    BucketCorsPut    `cmd:"" name:"put"`
+	BucketCorsRemove BucketCorsRemove `cmd:"" name:"rm"`
+}
+
+type BucketCorsRemove struct{}
+
+func (s BucketCorsRemove) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketCORSDelete(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketCorsPut struct {
+	ArgPath
+}
+
+func (s BucketCorsPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketCORSPut(
+		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketCorsGet struct{}
+
+func (s BucketCorsGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketCORSGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPolicy struct {
+	BucketPolicyGet    BucketPolicyGet    `cmd:"" name:"get"`
+	BucketPolicyPut    BucketPolicyPut    `cmd:"" name:"put"`
+	BucketPolicyRemove BucketPolicyRemove `cmd:"" name:"rm"`
+}
+
+type BucketPolicyPut struct {
+	ArgPath
+}
+
+func (s BucketPolicyPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPolicyPut(
+		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPolicyGet struct{}
+
+func (s BucketPolicyGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPolicyGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPolicyRemove struct{}
+
+func (s BucketPolicyRemove) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPolicyDelete(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type ObjectPresign struct {
+	PresignGet    PresignGet    `cmd:"" name:"get"`
+	PresignPut    PresignPut    `cmd:"" name:"put"`
+	FlagExpiresIn time.Duration `name:"epxires-in"` // flag
+}
+
+type PresignPut struct {
+	ArgObject
+}
+
+func (s PresignPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectPresignPut(
+		cli.Bucket.BucketArg.ObjectPresign.FlagExpiresIn,
+		s.ArgObject.Object,
+		controller.ObjectPutConfig{
+			Bucket: cli.Bucket.BucketArg.BucketName,
+		},
+	)
+}
+
+type PresignGet struct {
+	ArgObject
+}
+
+func (s PresignGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectPresignGet(
+		s.ArgObject.Object,
+		controller.ObjectGetConfig{
+			Bucket: cli.Bucket.BucketArg.BucketName,
+		},
+		cli.Bucket.BucketArg.ObjectPresign.FlagExpiresIn,
+	)
 }
 
 type ObjectHead struct {
