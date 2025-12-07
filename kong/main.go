@@ -107,13 +107,13 @@ func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.ObjectGet.ObjectPath,
 		controller.ObjectGetConfig{
 			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Concurrency: cli.Bucket.BucketArg.ObjectGet.Concurrency,
-			DryRun:      cli.Bucket.BucketArg.ObjectGet.DryRun,
+			Concurrency: cli.Bucket.BucketArg.ObjectGet.FlagConcurrency.Concurrency,
+			DryRun:      cli.Bucket.BucketArg.ObjectGet.FlagDryRun.DryRun,
 		})
 }
 
 type ObjectDelete struct {
-	ObjectPath string `arg:"" name:"path"`
+	ArgObject
 	FlagConcurrency
 	FlagDryRun
 	FlagForce
@@ -121,12 +121,12 @@ type ObjectDelete struct {
 
 func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectDelete(
-		cli.Bucket.BucketArg.ObjectDelete.ObjectPath,
+		cli.Bucket.BucketArg.ObjectDelete.Object,
 		controller.ObjectDeleteConfig{
 			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Force:       cli.Bucket.BucketArg.ObjectDelete.Force,
-			Concurrency: cli.Bucket.BucketArg.ObjectDelete.Concurrency,
-			DryRun:      cli.Bucket.BucketArg.ObjectDelete.DryRun,
+			Force:       cli.Bucket.BucketArg.ObjectDelete.FlagForce.Force,
+			Concurrency: cli.Bucket.BucketArg.ObjectDelete.FlagConcurrency.Concurrency,
+			DryRun:      cli.Bucket.BucketArg.ObjectDelete.FlagDryRun.DryRun,
 		})
 
 }
@@ -145,8 +145,8 @@ func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.ObjectPut.Destinaton,
 		controller.ObjectPutConfig{
 			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Concurrency: cli.Bucket.BucketArg.ObjectPut.Concurrency,
-			DryRun:      cli.Bucket.BucketArg.ObjectPut.DryRun,
+			Concurrency: cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,
+			DryRun:      cli.Bucket.BucketArg.ObjectPut.FlagDryRun.DryRun,
 			// SSEC: ,
 			// LeavePartsOnError: ,
 			// MaxUploadParts: ,
@@ -203,15 +203,15 @@ type ObjectList struct {
 func (s ObjectList) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectList(
 		cli.Bucket.BucketArg.BucketName,
-		cli.Bucket.BucketArg.ObjectList.Prefix,
-		cli.Bucket.BucketArg.ObjectList.Prefix,
-		cli.Bucket.BucketArg.ObjectList.Recursive,
-		cli.Bucket.BucketArg.ObjectList.AsJson,
+		cli.Bucket.BucketArg.ObjectList.FlagPrefix.Prefix,
+		cli.Bucket.BucketArg.ObjectList.FlagPrefix.Prefix,
+		cli.Bucket.BucketArg.ObjectList.FlagRecursive.Recursive,
+		cli.Bucket.BucketArg.ObjectList.FlagJson.AsJson,
 	)
 }
 
 type BucketTag struct {
-	BucketTagGet `cmd:"" name:"get"`
+	BucketTagGet BucketTagGet `cmd:"" name:"get"`
 }
 
 type BucketTagGet struct{}
@@ -221,9 +221,9 @@ func (s BucketTagGet) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type Multiparts struct {
-	MultipartRemove `cmd:"" name:"rm"`
-	MultipartParts  `cmd:"" name:"parts"`
-	MultipartList   `cmd:"" name:"ls"`
+	MultipartRemove MultipartRemove `cmd:"" name:"rm"`
+	MultipartList   MultipartList   `cmd:"" name:"ls"`
+	MultipartParts  MultipartParts  `cmd:"" name:"parts"`
 }
 
 type MultipartList struct {
@@ -234,8 +234,8 @@ type MultipartList struct {
 func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketMultipartUploadsList(
 		cli.Bucket.BucketArg.BucketName,
-		s.Prefix,
-		s.AsJson,
+		s.FlagPrefix.Prefix,
+		s.FlagJson.AsJson,
 	)
 }
 
@@ -247,20 +247,20 @@ type MultipartRemove struct {
 func (s MultipartRemove) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketMultipartUploadAbort(
 		cli.Bucket.BucketArg.BucketName,
-		cli.Bucket.BucketArg.Multiparts.MultipartRemove.Object,
-		cli.Bucket.BucketArg.Multiparts.MultipartRemove.UploadID,
+		cli.Bucket.BucketArg.Multiparts.MultipartRemove.ArgObject.Object,
+		cli.Bucket.BucketArg.Multiparts.MultipartRemove.ArgUploadID.UploadID,
 	)
 
 }
 
 type MultipartParts struct {
-	PartsList `cmd:"" name:"ls"`
+	PartsList PartsList `cmd:"" name:"ls"`
 }
 
 type PartsList struct {
 	ArgObject
 	ArgUploadID
-	// FlagJson
+	FlagJson
 }
 
 func (s PartsList) Run(cli CLI, ctrl *controller.Controller) error {
@@ -268,7 +268,7 @@ func (s PartsList) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.BucketName,
 		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.Object,
 		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.UploadID,
-		false, //cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.AsJson,
+		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.AsJson,
 	)
 }
 
