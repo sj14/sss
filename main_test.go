@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"math/rand"
+	"math/rand/v2"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/shoenig/test/must"
@@ -14,18 +15,30 @@ func randomString(n int) string {
 
 	s := make([]rune, n)
 	for i := range s {
-		s[i] = letters[rand.Intn(len(letters))]
+		s[i] = letters[rand.IntN(len(letters))]
 	}
 	return string(s)
 }
 
+type safeWriter struct {
+	sb strings.Builder
+	mu sync.Mutex
+}
+
+func (w *safeWriter) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.sb.Write(p)
+}
+
 func run(ctx context.Context, args ...string) (string, error) {
-	sb := &strings.Builder{}
-	cmdCopy := *cmd
-	cmdCopy.Writer = sb
-	cmdCopy.ErrWriter = sb
+	writer := &safeWriter{}
+	cmdCopy := GetCMD()
+	cmdCopy.Writer = writer
+	cmdCopy.ErrWriter = writer
+
 	err := cmdCopy.Run(ctx, append([]string{"sss"}, args...))
-	return sb.String(), err
+	return writer.sb.String(), err
 }
 
 func createBucket(t *testing.T) string {
@@ -41,11 +54,11 @@ func createBucket(t *testing.T) string {
 		// context from the test is already cancelled at that point
 		ctx := context.Background()
 
-		out, err := run(ctx, "--bucket", bucketName, "rm", "/", "--force")
-		must.NoError(t, err, must.Sprint(out))
+		_, err := run(ctx, "--bucket", bucketName, "rm", "/", "--force")
+		must.NoError(t, err)
 
-		out, err = run(ctx, "--bucket", bucketName, "rb")
-		must.NoError(t, err, must.Sprint(out))
+		_, err = run(ctx, "--bucket", bucketName, "rb")
+		must.NoError(t, err)
 	})
 
 	return bucketName
@@ -61,9 +74,9 @@ func TestBasic(t *testing.T) {
 	bucketName := createBucket(t)
 
 	t.Run("upload read-only", func(t *testing.T) {
-		out, err := run(t.Context(), "--bucket", bucketName, "put", "README.md", "-read-only")
+		_, err := run(t.Context(), "--bucket", bucketName, "put", "README.md", "-read-only")
 		must.Error(t, err)
-		must.StrContains(t, out, "blocked by read-only mode")
+		must.StrContains(t, err.Error(), "blocked by read-only mode")
 	})
 
 	t.Run("list after read-only upload attempt", func(t *testing.T) {
@@ -180,7 +193,6 @@ func TestSubdir(t *testing.T) {
 	t.Run("upload subdir 2", func(t *testing.T) {
 		out, err := run(t.Context(), "-bucket", bucketName, "put", "util/", "test")
 		must.NoError(t, err)
-		t.Log(out)
 		must.StrContains(t, out, "test/util/progress/reader.go")
 		must.StrContains(t, out, "test/util/zero.go")
 	})
@@ -199,18 +211,3 @@ func TestSubdir(t *testing.T) {
 		must.StrContains(t, out, "test/yolo/util/zero.go")
 	})
 }
-
-// func TestR(t *testing.T) {
-// 	t.Parallel()
-
-// 	if testing.Short() {
-// 		t.Skip("skipping e2e tests")
-// 	}
-
-// 	bucketName := createBucket(t)
-
-// 	out, err := run(t.Context(), []string{"--bucket", bucketName, "put", "util/", "test/yolo", "-dry-run"})
-// 	must.NoError(t, err)
-
-// 	t.Log(out)
-// }

@@ -26,8 +26,8 @@ var (
 	date    = "undefined"
 )
 
-var (
-	cmd = &cli.Command{
+func GetCMD() cli.Command {
+	return cli.Command{
 		Name:                  "sss",
 		Usage:                 "S3 client",
 		Version:               fmt.Sprintf("%s %s %s", version, commit, date),
@@ -84,9 +84,10 @@ var (
 			cmdObjectPresign,
 		},
 	}
-)
+}
 
 func main() {
+	cmd := GetCMD()
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		log.Fatalln(err)
 	}
@@ -163,8 +164,8 @@ func execute(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Con
 
 	ctrl, err := controller.New(
 		ctx,
-		cmd.Writer,
-		cmd.ErrWriter,
+		cmd.Root().Writer,
+		cmd.Root().ErrWriter,
 		controller.ControllerConfig{
 			Profile:   profile,
 			Bandwidth: bandwidth,
