@@ -5,4 +5,4 @@ test-deps:
 
 .PHONY: test-run
 test-run:
-	go test ./... -count=1 -race
+	go test ./... -race

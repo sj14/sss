@@ -62,10 +62,7 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, version string) e
 		}
 	}
 
-	dryRun := false
-	if isFlagSet(kctx.Selected().Flags, "dry-run") {
-		dryRun = true
-	}
+	dryRun := isFlagSet(kctx.Selected().Flags, "dry-run")
 
 	ctrl, err := controller.New(
 		ctx,
