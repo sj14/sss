@@ -1,12 +1,26 @@
 {
-    "Rules": [
-        {
-            "ID": "AbortIncompleteMultipartUpload",
-            "Status": "Enabled",
-            "Prefix": "",
-            "AbortIncompleteMultipartUpload": {
-                "DaysAfterInitiation": 1
-            }
-        }
-    ]
-}
+    "Rules": [{
+       "ID": "expiry",
+       "Status": "Enabled",
+       "Prefix": "",
+
+       "Expiration": {
+         "Days": 90
+       },
+       "NoncurrentVersionExpiration": {
+         "NoncurrentDays": 30
+       },
+       "AbortIncompleteMultipartUpload": {
+         "DaysAfterInitiation": 10
+       }
+     },
+     {
+       "ID": "deletemarker",
+       "Status": "Enabled",
+       "Prefix": "",
+
+       "Expiration": {
+         "ExpiredObjectDeleteMarker": true
+       }
+     }]
+   }
