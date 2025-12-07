@@ -47,7 +47,6 @@ func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig)
 
 	for _, object := range objects {
 		cfg.ObjectKey = *object.Key
-		fmt.Printf("loading %s\n", *object.Key)
 		err = c.objectGet(targetDir, cfg)
 		if err != nil {
 			return err
@@ -120,7 +119,7 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	})
 
 	// TODO: represent download ranges
-	pw := progress.NewWriter(file, total, c.verbosity)
+	pw := progress.NewWriter(file, total, c.verbosity, cfg.ObjectKey)
 	defer pw.Finish()
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)

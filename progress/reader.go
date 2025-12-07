@@ -7,10 +7,10 @@ type Reader struct {
 	tracker *tracker
 }
 
-func NewReader(r io.Reader, total uint64, verbosity uint8) *Reader {
+func NewReader(r io.Reader, total uint64, verbosity uint8, key string) *Reader {
 	return &Reader{
 		reader:  r,
-		tracker: newTracker(total, verbosity),
+		tracker: newTracker(total, verbosity, key),
 	}
 }
 

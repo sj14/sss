@@ -9,6 +9,7 @@ import (
 )
 
 type tracker struct {
+	key         string
 	verbosity   uint8
 	total       uint64
 	done        uint64
@@ -18,9 +19,10 @@ type tracker struct {
 	mu          sync.Mutex
 }
 
-func newTracker(total uint64, verbosity uint8) *tracker {
+func newTracker(total uint64, verbosity uint8, key string) *tracker {
 	now := time.Now()
 	return &tracker{
+		key:         key,
 		verbosity:   verbosity,
 		total:       total,
 		startTime:   now,
@@ -69,7 +71,7 @@ func (p *tracker) progress(now time.Time) {
 		}
 	}
 
-	fmt.Printf("\r%-50s\r%s/%s%s | %s/s %s", "", humanize.Bytes(p.done), total, percent, humanize.Bytes(uint64(speed)), eta)
+	fmt.Printf("\r%-80s\r%s/%s%s | %s/s %s | %s", "", humanize.Bytes(p.done), total, percent, humanize.Bytes(uint64(speed)), eta, p.key)
 }
 
 func (p *tracker) finish() {
@@ -83,5 +85,5 @@ func (p *tracker) finish() {
 	totalTime := time.Since(p.startTime)
 	avgSpeed := float64(p.done) / totalTime.Seconds()
 
-	fmt.Printf("\r%-50v\r%s in %v | %s/s\n", "", humanize.Bytes(p.done), totalTime.Round(time.Second), humanize.Bytes(uint64(avgSpeed)))
+	fmt.Printf("\r%-80v\r%s in %v | %s/s | %s\n", "", humanize.Bytes(p.done), totalTime.Round(time.Second), humanize.Bytes(uint64(avgSpeed)), p.key)
 }
