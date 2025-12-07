@@ -1,6 +1,6 @@
 package util
 
-func IfNotZero[T comparable](value T) *T {
+func NilIfZero[T comparable](value T) *T {
 	var zero T
 	if value != zero {
 		return &value
