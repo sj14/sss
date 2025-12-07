@@ -11,6 +11,7 @@ sss
 [--bucket]=[value]
 [--config]=[value]
 [--endpoint]=[value]
+[--header]=[value]
 [--help|-h]
 [--insecure]
 [--path-style]
@@ -18,6 +19,7 @@ sss
 [--read-only]
 [--region]=[value]
 [--secret-key]=[value]
+[--sni]=[value]
 [--verbosity]=[value]
 ```
 
@@ -37,6 +39,8 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--endpoint**="": 
 
+**--header**="": format: 'key:val'
+
 **--help, -h**: show help
 
 **--insecure**: 
@@ -51,10 +55,21 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--secret-key**="": 
 
+**--sni**="": 
+
 **--verbosity**="":  (default: 1)
 
 
 # COMMANDS
+
+## profiles
+
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command
 
 ## buckets
 
