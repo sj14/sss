@@ -35,7 +35,7 @@ func (c *Controller) BucketPartsList(bucket, key, uploadID string, asJson bool) 
 			continue
 		}
 
-		fmt.Printf("%s  #%d  %8s  %s\n",
+		fmt.Fprintf(c.OutWriter, "%s  #%d  %8s  %s\n",
 			part.LastModified.Local().Format(time.DateTime),
 			*part.PartNumber,
 			humanize.IBytes(uint64(*part.Size)),

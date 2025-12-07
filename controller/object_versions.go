@@ -25,7 +25,7 @@ func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recur
 					return err
 				}
 			} else {
-				fmt.Printf("%61s  %s\n", "PREFIX", *prefix.Prefix)
+				fmt.Fprintf(c.OutWriter, "%61s  %s\n", "PREFIX", *prefix.Prefix)
 			}
 		}
 
@@ -38,7 +38,7 @@ func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recur
 				fmt.Println(string(b))
 				continue
 			}
-			fmt.Printf("%s  %s %8s  %s\n",
+			fmt.Fprintf(c.OutWriter, "%s  %s %8s  %s\n",
 				v.LastModified.Local().Format(time.DateTime),
 				*v.VersionId,
 				humanize.IBytes(uint64(*v.Size)),

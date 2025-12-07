@@ -21,7 +21,7 @@ func (c *Controller) ObjectPresignGet(objectKey string, cfg ObjectGetConfig, exp
 		return err
 	}
 
-	fmt.Printf("%s\n", req.URL)
+	fmt.Fprintf(c.OutWriter, "%s\n", req.URL)
 	return nil
 }
 
@@ -39,6 +39,6 @@ func (c *Controller) ObjectPresignPut(expiration time.Duration, key string, cfg 
 		return err
 	}
 
-	fmt.Printf("%s\n", req.URL)
+	fmt.Fprintf(c.OutWriter, "%s\n", req.URL)
 	return nil
 }

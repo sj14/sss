@@ -35,8 +35,8 @@ func (c *Controller) BucketSize(bucket, prefix string) error {
 		}
 	}
 
-	fmt.Printf("current: %v (%d)", humanize.IBytes(sizeCurrent), countCurrent)
-	fmt.Printf(" | versions: %v (%d)", humanize.IBytes(sizeVersioned), countVersioned)
+	fmt.Fprintf(c.OutWriter, "current: %v (%d)", humanize.IBytes(sizeCurrent), countCurrent)
+	fmt.Fprintf(c.OutWriter, " | versions: %v (%d)", humanize.IBytes(sizeVersioned), countVersioned)
 
 	for uploads, err := range c.bucketMultipartUploadsList(bucket, prefix, "") {
 		if err != nil {
@@ -61,8 +61,8 @@ func (c *Controller) BucketSize(bucket, prefix string) error {
 		totalCount = countCurrent + countVersioned + countMultiparts
 	)
 
-	fmt.Printf(" | multiparts: %v (%d)", humanize.IBytes(sizeMultiparts), countMultiparts)
-	fmt.Printf(" | total: %v (%d)\n", totalByte, totalCount)
+	fmt.Fprintf(c.OutWriter, " | multiparts: %v (%d)", humanize.IBytes(sizeMultiparts), countMultiparts)
+	fmt.Fprintf(c.OutWriter, " | total: %v (%d)\n", totalByte, totalCount)
 
 	return nil
 }

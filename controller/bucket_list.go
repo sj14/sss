@@ -20,7 +20,7 @@ func (c *Controller) BucketList(prefix string) error {
 			return err
 		}
 		for _, bucket := range page.Buckets {
-			fmt.Printf("%s %s\n", bucket.CreationDate.Local().Format(time.DateTime), *bucket.Name)
+			fmt.Fprintf(c.OutWriter, "%s %s\n", bucket.CreationDate.Local().Format(time.DateTime), *bucket.Name)
 		}
 	}
 

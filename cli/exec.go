@@ -33,13 +33,13 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, version string) e
 
 	profile, ok := config.Profiles[cli.Profile]
 	if !ok && cli.Config != "" {
-		fmt.Printf("available profiles:\n")
+		fmt.Fprintf(errWriter, "available profiles:\n")
 
 		keys := slices.Collect(maps.Keys(config.Profiles))
 		slices.Sort(keys)
 
 		for _, key := range keys {
-			fmt.Printf("  %s\n", key)
+			fmt.Fprintf(errWriter, "  %s\n", key)
 		}
 
 		return fmt.Errorf("profile not found: %q", cli.Profile)
