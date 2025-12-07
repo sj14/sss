@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/dustin/go-humanize"
+	"github.com/sj14/sss/util"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -86,7 +87,7 @@ func (c *Controller) objectDelete(dryRun, bypassGovernanceRetention bool, bucket
 	input := &s3.DeleteObjectInput{
 		Bucket:                    aws.String(bucket),
 		Key:                       aws.String(key),
-		BypassGovernanceRetention: &bypassGovernanceRetention,
+		BypassGovernanceRetention: util.NilIfZero(bypassGovernanceRetention),
 	}
 
 	if versionID != "" {
