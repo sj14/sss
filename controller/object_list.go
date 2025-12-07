@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -24,7 +25,7 @@ func (c *Controller) ObjectList(bucket, prefix, delimiter string) error {
 		fmt.Printf("%s %8s  %s\n",
 			obj.LastModified.Local().Format(time.DateTime),
 			humanize.Bytes(uint64(*obj.Size)),
-			*obj.Key,
+			strings.TrimPrefix(*obj.Key, prefix),
 		)
 	}
 
