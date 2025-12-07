@@ -186,6 +186,10 @@ var (
 	argKey = &cli.StringArg{
 		Name: "key",
 	}
+	argConfigPath = &cli.StringArg{
+		Name:      "config",
+		UsageText: "Path to the config",
+	}
 
 	flagConfig = &cli.StringFlag{
 		Name:      "config",
@@ -831,14 +835,12 @@ var (
 			{
 				Name: "put",
 				Arguments: []cli.Argument{
-					&cli.StringArg{
-						Name: "config",
-					},
+					argConfigPath,
 				},
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.BucketObjectLockPut(
-							cmd.StringArg("config"),
+							cmd.StringArg(argConfigPath.Name),
 							cmd.String(flagBucket.Name),
 						)
 					})
@@ -899,6 +901,20 @@ var (
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.BucketVersioningGet(
+							cmd.String(flagBucket.Name),
+						)
+					})
+				},
+			},
+			{
+				Name: "put",
+				Arguments: []cli.Argument{
+					argConfigPath,
+				},
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+						return ctrl.BucketVersioningPut(
+							cmd.StringArg(argConfigPath.Name),
 							cmd.String(flagBucket.Name),
 						)
 					})

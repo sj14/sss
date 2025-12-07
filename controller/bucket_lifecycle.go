@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -34,9 +35,12 @@ func (c *Controller) BucketLifecyclePut(lifecyclePath, bucket string) error {
 		return err
 	}
 
+	dec := json.NewDecoder(bytes.NewBuffer(lBytes))
+	dec.DisallowUnknownFields()
+
 	var lifecycleConfig *types.BucketLifecycleConfiguration
-	if err := json.Unmarshal(lBytes, &lifecycleConfig); err != nil {
-		return fmt.Errorf("failed to unmarshal lifecycle policy: %w", err)
+	if err := dec.Decode(&lifecycleConfig); err != nil {
+		return fmt.Errorf("failed to unmarshal configuration file: %w", err)
 	}
 
 	_, err = c.client.PutBucketLifecycleConfiguration(c.ctx, &s3.PutBucketLifecycleConfigurationInput{

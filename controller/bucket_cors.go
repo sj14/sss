@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -34,9 +35,12 @@ func (c *Controller) BucketCORSPut(corsPath, bucket string) error {
 		return err
 	}
 
+	dec := json.NewDecoder(bytes.NewBuffer(lBytes))
+	dec.DisallowUnknownFields()
+
 	var corsConfig *types.CORSConfiguration
-	if err := json.Unmarshal(lBytes, &corsConfig); err != nil {
-		return fmt.Errorf("failed to unmarshal lifecycle policy: %w", err)
+	if err := dec.Decode(&corsConfig); err != nil {
+		return fmt.Errorf("failed to unmarshal configuration file: %w", err)
 	}
 
 	_, err = c.client.PutBucketCors(c.ctx, &s3.PutBucketCorsInput{
