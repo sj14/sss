@@ -48,8 +48,8 @@ func TestBasic(t *testing.T) {
 	t.Run("list after upload", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "ls")
 		must.NoError(t, err)
+		must.StrContains(t, out, "PREFIX  test/")
 		must.StrContains(t, out, "README.md")
-		must.StrContains(t, out, "test/")
 	})
 
 	t.Run("delete dry-run single", func(t *testing.T) {
@@ -77,7 +77,7 @@ func TestBasic(t *testing.T) {
 	t.Run("list after dry-run delete single", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "ls")
 		must.NoError(t, err)
-		must.StrContains(t, out, "test/")
+		must.StrContains(t, out, "PREFIX  test/")
 		must.StrContains(t, out, "README.md")
 	})
 
@@ -88,24 +88,24 @@ func TestBasic(t *testing.T) {
 		must.StrContains(t, out, "3")
 	})
 
-	t.Run("delete", func(t *testing.T) {
+	t.Run("delete single", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "rm", "README.md")
 		must.NoError(t, err)
 		must.StrContains(t, out, "README.md")
 	})
 
-	t.Run("list after delete", func(t *testing.T) {
+	t.Run("list after delete single", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "ls")
 		must.NoError(t, err)
-		must.StrContains(t, out, "test/")
+		must.StrContains(t, out, "PREFIX  test/")
 		must.StrNotContains(t, out, "README.md")
 	})
 
 	t.Run("delete dir", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "rm", "test/")
 		must.NoError(t, err)
-		must.StrContains(t, out, "2")
-		must.StrContains(t, out, "3")
+		must.StrContains(t, out, "test/2")
+		must.StrContains(t, out, "test/3")
 	})
 
 	t.Run("list after delete dir", func(t *testing.T) {
