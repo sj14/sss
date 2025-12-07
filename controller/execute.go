@@ -10,7 +10,7 @@ import (
 	"os"
 	"slices"
 
-	"github.com/sj14/sss/test/test/util"
+	"github.com/sj14/sss/util"
 )
 
 type ExecuteInput struct {
