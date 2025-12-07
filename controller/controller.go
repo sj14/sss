@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/smithy-go/logging"
@@ -21,69 +20,46 @@ type Controller struct {
 }
 
 type Config struct {
-	Profile   string
-	Endpoint  string
-	Region    string
-	PathStyle bool
-	AccessKey string
-	SecretKey string
-	Verbosity uint8
-	Insecure  bool
-	ReadOnly  bool
+	Profiles map[string]Profile
 }
 
-func New(ctx context.Context, cfg Config) (*Controller, error) {
-	loadOptions := []func(*config.LoadOptions) error{}
+type Profile struct {
+	Endpoint  string `yaml:"endpoint"`
+	Region    string `yaml:"region"`
+	AccessKey string `yaml:"access_key"`
+	SecretKey string `yaml:"secret_key"`
+	PathStyle bool   `yaml:"path_style"`
+	Insecure  bool   `yaml:"insecure"`
+	ReadOnly  bool   `yaml:"read_only"`
+}
 
-	if cfg.Verbosity >= 9 {
-		loadOptions = append(loadOptions,
-			config.WithLogger(logging.NewStandardLogger(os.Stdout)),
-			config.WithClientLogMode(
-				aws.LogRequestWithBody|
-					aws.LogResponseWithBody|
-					aws.LogRetries|
-					aws.LogDeprecatedUsage|
-					aws.LogSigning|
-					aws.LogRequestEventMessage|
-					aws.LogResponseEventMessage,
-			))
-	} else if cfg.Verbosity >= 8 {
-		loadOptions = append(loadOptions,
-			config.WithLogger(logging.NewStandardLogger(os.Stdout)),
-			config.WithClientLogMode(
-				aws.LogRequest|
-					aws.LogResponse|
-					aws.LogRetries,
-			))
-	}
-
-	if cfg.Profile != "" {
-		loadOptions = append(loadOptions, config.WithSharedConfigProfile(cfg.Profile))
-	}
-	if cfg.Region != "" {
-		loadOptions = append(loadOptions, config.WithRegion(cfg.Region))
-	}
-	if cfg.Endpoint != "" {
-		loadOptions = append(loadOptions, config.WithBaseEndpoint(cfg.Endpoint))
-	}
-
-	awsConfig, err := config.LoadDefaultConfig(ctx,
-		loadOptions...,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load configuration: %w", err)
-	}
-
+func New(ctx context.Context, verbosity uint8, cfg Profile) (*Controller, error) {
 	clientOptions := []func(o *s3.Options){
 		func(o *s3.Options) { o.UsePathStyle = cfg.PathStyle },
 	}
 
-	if cfg.AccessKey != "" || cfg.SecretKey != "" {
-		clientOptions = append(clientOptions, func(o *s3.Options) {
-			o.Credentials = aws.NewCredentialsCache(
-				credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, ""),
-			)
-		})
+	awsCfg := aws.Config{
+		Region:       cfg.Region,
+		BaseEndpoint: &cfg.Endpoint,
+		Credentials: aws.NewCredentialsCache(
+			credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, ""),
+		),
+	}
+
+	if verbosity >= 9 {
+		awsCfg.Logger = logging.NewStandardLogger(os.Stdout)
+		awsCfg.ClientLogMode = aws.LogRequestWithBody |
+			aws.LogResponseWithBody |
+			aws.LogRetries |
+			aws.LogDeprecatedUsage |
+			aws.LogSigning |
+			aws.LogRequestEventMessage |
+			aws.LogResponseEventMessage
+	} else if verbosity >= 8 {
+		awsCfg.Logger = logging.NewStandardLogger(os.Stdout)
+		awsCfg.ClientLogMode = aws.LogRequest |
+			aws.LogResponse |
+			aws.LogRetries
 	}
 
 	clientOptions = append(clientOptions, func(o *s3.Options) {
@@ -100,8 +76,8 @@ func New(ctx context.Context, cfg Config) (*Controller, error) {
 
 	return &Controller{
 		ctx:       ctx,
-		verbosity: cfg.Verbosity,
-		client:    s3.NewFromConfig(awsConfig, clientOptions...),
+		verbosity: verbosity,
+		client:    s3.NewFromConfig(awsCfg, clientOptions...),
 	}, nil
 }
 

@@ -9,11 +9,13 @@ sss
 ```
 [--access-key]=[value]
 [--bucket]=[value]
+[--config]=[value]
 [--endpoint]=[value]
 [--help|-h]
 [--insecure]
 [--path-style]
 [--profile]=[value]
+[--read-only]
 [--region]=[value]
 [--secret-key]=[value]
 [--verbosity]=[value]
@@ -31,6 +33,8 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--bucket**="": 
 
+**--config**="":  (default: "~/.config/sss/config.yaml")
+
 **--endpoint**="": 
 
 **--help, -h**: show help
@@ -40,6 +44,8 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 **--path-style**: 
 
 **--profile**="":  (default: "default")
+
+**--read-only**: 
 
 **--region**="": 
 
@@ -52,6 +58,7 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 ## buckets
 
+List Buckets
 
 **--help, -h**: show help
 
@@ -63,6 +70,7 @@ Shows a list of commands or help for one command
 
 ## bucket
 
+Head Bucket
 
 **--help, -h**: show help
 
@@ -72,6 +80,7 @@ Shows a list of commands or help for one command
 
 ## mb
 
+Make Bucket
 
 **--help, -h**: show help
 
@@ -81,6 +90,7 @@ Shows a list of commands or help for one command
 
 ## rb
 
+Remove Bucket
 
 **--help, -h**: show help
 
@@ -90,6 +100,7 @@ Shows a list of commands or help for one command
 
 ## multiparts
 
+Handle Multipart Uploads
 
 **--help, -h**: show help
 
@@ -121,6 +132,7 @@ Shows a list of commands or help for one command
 
 ## parts
 
+Parts from Multipart Uploads
 
 **--help, -h**: show help
 
@@ -143,6 +155,7 @@ Shows a list of commands or help for one command
 
 ## ls
 
+List Objects
 
 **--delimiter**="":  (default: "/")
 
@@ -154,6 +167,7 @@ Shows a list of commands or help for one command
 
 ## cp
 
+Server Side Object Copy
 
 **--dst-bucket**="": 
 
@@ -175,6 +189,7 @@ Shows a list of commands or help for one command
 
 ## put
 
+Upload Object
 
 **--acl**="": e.g. 'public-read'
 
@@ -200,6 +215,7 @@ Shows a list of commands or help for one command
 
 ## rm
 
+Remove Object
 
 **--concurrency**="":  (default: 5)
 
@@ -215,6 +231,7 @@ Shows a list of commands or help for one command
 
 ## get
 
+Download Object
 
 **--concurrency**="":  (default: 5)
 
@@ -246,6 +263,7 @@ Shows a list of commands or help for one command
 
 ## head
 
+Head Object
 
 **--help, -h**: show help
 
@@ -255,6 +273,7 @@ Shows a list of commands or help for one command
 
 ## presign
 
+Create pre-signed URL
 
 **--expires-in**="":  (default: 0s)
 
@@ -284,6 +303,7 @@ Shows a list of commands or help for one command
 
 ## policy
 
+Handle Bucket Policy
 
 **--help, -h**: show help
 
@@ -311,6 +331,7 @@ Shows a list of commands or help for one command
 
 ## cors
 
+Handle Bucket CORS
 
 **--help, -h**: show help
 
@@ -347,6 +368,7 @@ Shows a list of commands or help for one command
 
 ## object-lock
 
+Handle Bucket Object Locking
 
 **--help, -h**: show help
 
@@ -374,6 +396,7 @@ Shows a list of commands or help for one command
 
 ## lifecycle
 
+Handle Bucket Lifecycle
 
 **--help, -h**: show help
 
@@ -410,6 +433,7 @@ Shows a list of commands or help for one command
 
 ## versioning
 
+Handle Bucket Versioning
 
 **--help, -h**: show help
 
@@ -428,6 +452,7 @@ Shows a list of commands or help for one command
 
 ## acl
 
+Handle Object ACL
 
 **--help, -h**: show help
 
@@ -448,6 +473,7 @@ Shows a list of commands or help for one command
 
 ## versions
 
+List Object Versions
 
 **--delimiter**="":  (default: "/")
 
