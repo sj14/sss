@@ -52,3 +52,23 @@ GLOBAL OPTIONS:
    --verbosity uint     (default: 1)
    --help, -h           show help
 ```
+
+## Configuraton
+
+`sss` uses the AWS SDK and the same configuration files and environment variables (e.g. `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) as the AWS CLI.
+
+`~/.aws/config`:
+
+```ini
+[default]
+endpoint_url = https://example.com
+region = earth
+```
+
+`~/.aws/credentials`:
+
+```ini
+[default]
+aws_access_key_id = <CHANGE_ME>
+aws_secret_access_key = <CHANGE_ME>
+```
