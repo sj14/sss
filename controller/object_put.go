@@ -5,6 +5,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -23,6 +24,7 @@ type ObjectPutConfig struct {
 	PartSize          int64
 	ACL               string
 	DryRun            bool
+	Expires           time.Time
 }
 
 func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error {
@@ -90,10 +92,11 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 	pr := progress.NewReader(c.OutWriter, f, uint64(stat.Size()), c.verbosity, key)
 
 	putObjectInput := &s3.PutObjectInput{
-		Bucket: aws.String(cfg.Bucket),
-		Key:    aws.String(filepath.ToSlash(filepath.Clean(key))),
-		Body:   pr,
-		ACL:    types.ObjectCannedACL(cfg.ACL),
+		Bucket:  aws.String(cfg.Bucket),
+		Key:     aws.String(filepath.ToSlash(filepath.Clean(key))),
+		Body:    pr,
+		ACL:     types.ObjectCannedACL(cfg.ACL),
+		Expires: aws.Time(cfg.Expires),
 	}
 
 	if cfg.SSEC.KeyIsSet() {

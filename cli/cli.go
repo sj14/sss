@@ -92,6 +92,14 @@ type flagsSSEC struct {
 	Key  string `name:"sse-c-key" help:"32 bytes key for AES256"`
 }
 
+type flagExpiresIn struct {
+	FlagExpiresIn time.Duration `name:"epxires-in"`
+}
+
+type flagExpires struct {
+	Expires time.Time `name:"expires"`
+}
+
 func isFlagSet(flags []*kong.Flag, name string) bool {
 	for _, f := range flags {
 		if !f.Set {
@@ -373,9 +381,9 @@ func (s BucketPolicyRemove) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type ObjectPresign struct {
-	PresignGet    PresignGet    `cmd:"" name:"get"`
-	PresignPut    PresignPut    `cmd:"" name:"put"`
-	FlagExpiresIn time.Duration `name:"epxires-in"` // flag
+	PresignGet PresignGet `cmd:"" name:"get"`
+	PresignPut PresignPut `cmd:"" name:"put"`
+	flagExpiresIn
 }
 
 type PresignPut struct {
@@ -486,6 +494,7 @@ type ObjectPut struct {
 	FlagConcurrency
 	FlagDryRun
 	flagsSSEC
+	flagExpires
 }
 
 func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
@@ -501,6 +510,7 @@ func (s ObjectPut) Run(cli CLI, ctrl *controller.Controller) error {
 			MaxUploadParts:    s.FlagMaxUploadParts,
 			LeavePartsOnError: s.FlagLeavePartsOnError,
 			ACL:               s.FlagACL,
+			Expires:           s.flagExpires.Expires,
 		},
 	)
 }
