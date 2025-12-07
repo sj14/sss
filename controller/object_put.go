@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -32,20 +33,35 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 	if err != nil {
 		return err
 	}
+
 	if !info.IsDir() {
+		if dest == "" {
+			dest = filepath.Base(filePath)
+		}
+
 		if strings.HasSuffix(dest, "/") {
 			dest = path.Join(dest, filepath.Base(filePath))
 		}
-		return c.objectPut(filePath, dest, cfg)
+
+		f, err := os.Open(filePath)
+		if err != nil {
+			return err
+		}
+
+		return c.objectPut(f, uint64(info.Size()), dest, cfg)
 	}
 
-	// TODO: flatten option which allows storing in the current folder instead of creating the subfolder
+	// TODO: flatten option which allows storing in the current folder instead of creating the subfolder?
 	return filepath.Walk(filePath, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if info.IsDir() {
 			return nil
+		}
+		f, err := os.Open(p)
+		if err != nil {
+			return err
 		}
 
 		// Switch to forward slash even when uploading from Windows.
@@ -58,7 +74,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 			fp            = path.Join(dest, lastDir, trimmedPrefix)
 		)
 
-		err = c.objectPut(p, fp, cfg)
+		err = c.objectPut(f, uint64(info.Size()), fp, cfg)
 		if err != nil {
 			return err
 		}
@@ -67,15 +83,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 	})
 }
 
-func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error {
-	if key == "" {
-		key = filepath.Base(filePath)
-	}
-	f, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-
+func (c *Controller) objectPut(body io.Reader, size uint64, key string, cfg ObjectPutConfig) error {
 	uploader := manager.NewUploader(c.client, func(u *manager.Uploader) {
 		u.Concurrency = cfg.Concurrency
 		u.LeavePartsOnError = cfg.LeavePartsOnError
@@ -84,12 +92,7 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		// u.RequestChecksumCalculation
 	})
 
-	stat, err := f.Stat()
-	if err != nil {
-		return err
-	}
-
-	pr := progress.NewReader(c.OutWriter, f, uint64(stat.Size()), c.verbosity, key)
+	pr := progress.NewReader(c.OutWriter, body, size, c.verbosity, key)
 
 	putObjectInput := &s3.PutObjectInput{
 		Bucket:  aws.String(cfg.Bucket),
@@ -106,14 +109,14 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 	}
 
 	if !cfg.DryRun {
-		_, err = uploader.Upload(c.ctx, putObjectInput)
+		_, err := uploader.Upload(c.ctx, putObjectInput)
 		if err != nil {
 			return err
 		}
 	}
-	// don't put it into a defer after initializing
+	// Don't put it into a defer after initializing
 	// as it would then output the progress even when
-	// the upload was abortet due to an error
+	// the upload was abortet due to an error.
 	pr.Finish()
 
 	return nil
