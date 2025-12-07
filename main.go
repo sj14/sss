@@ -726,6 +726,23 @@ var cmd = &cli.Command{
 			},
 		},
 		{
+			Name:  "size",
+			Usage: "Calculate the bucket size",
+			Arguments: []cli.Argument{
+				argPrefix,
+			},
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
+					return ctrl.BucketSize(
+						cmd.String(flagBucket.Name),
+						cmd.StringArg(argPrefix.Name),
+						cmd.String(flagDelimiter.Name),
+					)
+				})
+			},
+		},
+
+		{
 			Name:  "acl",
 			Usage: "Handle Object ACL",
 			Commands: []*cli.Command{

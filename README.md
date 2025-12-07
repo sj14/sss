@@ -37,6 +37,7 @@ COMMANDS:
    object-lock  Handle Bucket Object Locking
    lifecycle    Handle Bucket Lifecycle
    versioning   Handle Bucket Versioning
+   size         Calculate the bucket size
    acl          Handle Object ACL
    versions     List Object Versions
    help, h      Shows a list of commands or help for one command
@@ -49,7 +50,7 @@ GLOBAL OPTIONS:
    --region string       [$SSS_REGION]
    --path-style          [$SSS_PATH_STYLE]
    --profile string     (default: "default") [$SSS_PROFILE]
-   --bucket string      
+   --bucket string
    --secret-key string   [$SSS_SECRET_KEY]
    --access-key string   [$SSS_ACCESS_KEY]
    --verbosity uint     (default: 1) [$SSS_VERBOSITY]
