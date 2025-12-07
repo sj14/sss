@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	"golang.org/x/sync/errgroup"
 )
 
 func (c *Controller) BucketMultipartUploadsList(bucket, prefix string, asJson bool) error {
@@ -79,9 +80,10 @@ func (c *Controller) BucketMultipartUploadAbort(bucket, key, uploadID string) er
 	return err
 }
 
-// TODO:
-// - add concurrency
-func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool) error {
+func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool, concurrency int) error {
+	eg, _ := errgroup.WithContext(c.ctx)
+	eg.SetLimit(concurrency)
+
 	for upload, err := range c.bucketMultipartUploadsList(bucket, "") {
 		if err != nil {
 			return err
@@ -93,11 +95,10 @@ func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool) e
 			continue
 		}
 
-		err := c.BucketMultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
-		if err != nil {
-			return err
-		}
+		eg.Go(func() error {
+			return c.BucketMultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
+		})
 	}
 
-	return nil
+	return eg.Wait()
 }

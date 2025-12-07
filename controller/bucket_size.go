@@ -18,7 +18,7 @@ func (c *Controller) BucketSize(bucket, prefix string) error {
 		countMultiparts uint64
 	)
 
-	for item, err := range c.objectVersions(bucket, prefix) {
+	for item, err := range c.objectVersions(bucket, prefix, "") {
 		if err != nil {
 			return err
 		}

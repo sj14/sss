@@ -12,10 +12,12 @@ import (
 )
 
 type ObjectDeleteConfig struct {
-	Bucket      string
-	Force       bool
-	Concurrency int
-	DryRun      bool
+	Bucket           string
+	Force            bool
+	Concurrency      int
+	DryRun           bool
+	BypassGovernance bool
+	VersionID        string
 }
 
 func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
@@ -37,7 +39,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 		} else {
 			fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", prefix, humanize.IBytes(uint64(*resp.ContentLength)))
 		}
-		return c.objectDelete(cfg.DryRun, cfg.Bucket, prefix)
+		return c.objectDelete(cfg.DryRun, cfg.BypassGovernance, cfg.Bucket, prefix, cfg.VersionID)
 	}
 
 	// allow deleting the whole bucket
@@ -64,7 +66,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 		if l.Object != nil {
 			eg.Go(func() error {
 				fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
-				err := c.objectDelete(cfg.DryRun, cfg.Bucket, *l.Object.Key)
+				err := c.objectDelete(cfg.DryRun, cfg.BypassGovernance, cfg.Bucket, *l.Object.Key, cfg.VersionID)
 				if err != nil {
 					return err
 				}
@@ -76,14 +78,22 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 	return eg.Wait()
 }
 
-func (c *Controller) objectDelete(dryRun bool, bucket, key string) error {
+func (c *Controller) objectDelete(dryRun, bypassGovernanceRetention bool, bucket, key, versionID string) error {
 	if dryRun {
 		return nil
 	}
-	_, err := c.client.DeleteObject(c.ctx, &s3.DeleteObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(key),
-	})
+
+	input := &s3.DeleteObjectInput{
+		Bucket:                    aws.String(bucket),
+		Key:                       aws.String(key),
+		BypassGovernanceRetention: &bypassGovernanceRetention,
+	}
+
+	if versionID != "" {
+		input.VersionId = &versionID
+	}
+
+	_, err := c.client.DeleteObject(c.ctx, input)
 	if err != nil {
 		return err
 	}
