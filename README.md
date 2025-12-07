@@ -62,25 +62,33 @@ Usage: sss <command> [flags]
 
 Flags:
   -h, --help                 Show context-sensitive help.
-      --config=STRING        ($SSS_CONFIG)
-      --profile="default"    ($SSS_PROFILE)
-      --endpoint=STRING      ($SSS_ENDPOINT)
-      --region=STRING        ($SSS_REGION)
-      --path-style           ($SSS_PATH_STYLE)
-      --access-key=STRING    ($SSS_ACCESS_KEY)
-      --secret-key=STRING    ($SSS_SECRET_KEY)
-      --insecure             ($SSS_INSECURE)
-      --read-only            ($SSS_READ_ONLY)
-      --bandwidth=STRING     ($SSS_BANDWIDTH)
-      --header=HEADER,...    ($SSS_HEADER)
-      --sni=STRING           ($SSS_SNI)
+      --config=STRING        Path to the config file (default:
+                             ~/.config/sss/config.toml) ($SSS_CONFIG).
+      --profile="default"    Profile to use ($SSS_PROFILE).
+      --endpoint=STRING      S3 endpoint URL ($SSS_ENDPOINT).
+      --region=STRING        S3 region ($SSS_REGION).
+      --path-style           Use path style S3 requests ($SSS_PATH_STYLE).
+      --access-key=STRING    S3 access key ($SSS_ACCESS_KEY).
+      --secret-key=STRING    S3 secret key ($SSS_SECRET_KEY).
+      --insecure             Skip TLS verification ($SSS_INSECURE).
+      --read-only            Only allow safe HTTP methods ($SSS_READ_ONLY).
+      --bandwidth=STRING     Limit bandwith per second, e.g. '1 MiB' (always 64
+                             KiB burst) ($SSS_BANDWIDTH).
+      --header=HEADER,...    Add additional HTTP headers (format:
+                             'key1:val1,key2:val2') ($SSS_HEADER).
+      --sni=STRING           TLS Server Name Indication ($SSS_SNI).
 
 Commands:
   profiles [flags]
+    List availale profiles.
 
+  version [flags]
+    Show version information.
+
+Bucket Commands
   buckets [flags]
+    List all buckets.
 
-bucket
   bucket <bucket> mb [flags]
 
   bucket <bucket> hb
@@ -117,14 +125,14 @@ bucket
 
   bucket <bucket> size [<path>]
 
-multiparts
+Multipart Commands
   bucket <bucket> multiparts rm <object> <upload-id>
 
   bucket <bucket> multiparts ls [<prefix>] [flags]
 
   bucket <bucket> multiparts parts ls <object> <upload-id> [flags]
 
-object
+Object Commands
   bucket <bucket> ls [<prefix>] [flags]
 
   bucket <bucket> cp <src-object> <dst-bucket> <dst-object>
