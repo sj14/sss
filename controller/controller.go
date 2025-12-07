@@ -100,7 +100,7 @@ type Transport struct {
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if t.ReadOnly {
 		switch req.Method {
-		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost:
+		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost, http.MethodConnect:
 			// TODO: disable retries
 			return nil, fmt.Errorf("read-only mode: blocked %s %s", req.Method, req.URL)
 		}
