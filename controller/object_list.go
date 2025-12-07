@@ -51,9 +51,8 @@ func (c *Controller) objectList(bucket, prefix, delimiter string) iter.Seq2[List
 		for paginator.HasMorePages() {
 			page, err := paginator.NextPage(c.ctx)
 			if err != nil {
-				if !yield(ListItem{}, err) {
-					return
-				}
+				yield(ListItem{}, err)
+				return
 			}
 
 			for _, p := range page.CommonPrefixes {
