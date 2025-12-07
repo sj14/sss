@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"github.com/goccy/go-yaml"
 	"github.com/sj14/sss/controller"
@@ -139,30 +141,40 @@ func parseSSEC(cmd *cli.Command) util.SSEC {
 	)
 }
 
-func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
+func loadConfig(cmd *cli.Command) (controller.Config, error) {
 	var config controller.Config
 
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		log.Printf("failed to locate home dir: %v\n", err)
-	} else {
-		configPath := cmd.Root().String(flagConfig.Name)
+		return config, err
+	}
 
-		if configPath == "" {
-			configPath = filepath.Join(homeDir, ".config", "sss", "config.yaml")
-		}
+	configPath := cmd.Root().String(flagConfig.Name)
 
-		confBytes, err := os.ReadFile(configPath)
-		if err != nil {
-			log.Printf("config file not loaded: %v\n", err)
-		} else {
-			decoder := yaml.NewDecoder(bytes.NewReader(confBytes), yaml.DisallowUnknownField())
+	if configPath == "" {
+		configPath = filepath.Join(homeDir, ".config", "sss", "config.yaml")
+	}
 
-			err = decoder.Decode(&config)
-			if err != nil {
-				return err
-			}
-		}
+	confBytes, err := os.ReadFile(configPath)
+	if err != nil {
+		return config, err
+	}
+
+	decoder := yaml.NewDecoder(bytes.NewReader(confBytes), yaml.DisallowUnknownField())
+
+	err = decoder.Decode(&config)
+	if err != nil {
+		return config, err
+	}
+
+	return config, nil
+}
+
+func exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
+	config, err := loadConfig(cmd)
+	if err != nil {
+		// do not return an error as the tool can be used wihout a config
+		log.Printf("failed loading config: %v\n", err)
 	}
 
 	profileName := cmd.Root().String(flagProfile.Name)
@@ -226,6 +238,28 @@ var cmd = &cli.Command{
 					return err
 				}
 				return os.WriteFile("DOCS.md", []byte(s), os.ModePerm)
+			},
+		},
+		{
+			Name: "profiles",
+			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+				flagBucket.Required = false
+				return ctx, nil
+			},
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				config, err := loadConfig(cmd)
+				if err != nil {
+					return err
+				}
+
+				keys := slices.Collect(maps.Keys(config.Profiles))
+				slices.Sort(keys)
+
+				for _, key := range keys {
+					fmt.Println(key)
+				}
+
+				return nil
 			},
 		},
 		{
