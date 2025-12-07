@@ -51,14 +51,25 @@ func (p *tracker) progress(now time.Time) {
 	}
 
 	speed := float64(p.done) / totalElapsed
-	percent := float64(p.done) / float64(p.total) * 100
 
-	var remaining time.Duration
-	if speed > 0 {
-		remaining = time.Duration(float64(p.total-p.done)/speed) * time.Second
+	var (
+		total   = "?"
+		percent = ""
+		eta     = ""
+	)
+
+	if p.total > 0 {
+		total = humanize.Bytes(p.total)
+		per := float64(p.done) / float64(p.total) * 100
+		percent = fmt.Sprintf(" (%.0f%%)", per)
+
+		if speed > 0 {
+			remaining := time.Duration(float64(p.total-p.done)/speed) * time.Second
+			eta = fmt.Sprintf("| ETA %v", remaining.Round(time.Second).String())
+		}
 	}
 
-	fmt.Printf("\r%-50s\r%.0f%% of %s | %s/s | ETA %v", "", percent, humanize.Bytes(p.total), humanize.Bytes(uint64(speed)), remaining.Round(time.Second))
+	fmt.Printf("\r%-50s\r%s/%s%s | %s/s %s", "", humanize.Bytes(p.done), total, percent, humanize.Bytes(uint64(speed)), eta)
 }
 
 func (p *tracker) finish() {
@@ -72,5 +83,5 @@ func (p *tracker) finish() {
 	totalTime := time.Since(p.startTime)
 	avgSpeed := float64(p.done) / totalTime.Seconds()
 
-	fmt.Printf("\r%-50v\r%s in %v | %s/s\n", "", humanize.Bytes(p.total), totalTime.Round(time.Second), humanize.Bytes(uint64(avgSpeed)))
+	fmt.Printf("\r%-50v\r%s in %v | %s/s\n", "", humanize.Bytes(p.done), totalTime.Round(time.Second), humanize.Bytes(uint64(avgSpeed)))
 }

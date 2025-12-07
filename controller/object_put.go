@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path"
@@ -92,17 +91,17 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		putObjectInput.SSECustomerAlgorithm = aws.String(cfg.SSEC.Algorithm())
 	}
 
-	resp, err := uploader.Upload(c.ctx, putObjectInput)
+	_, err = uploader.Upload(c.ctx, putObjectInput)
 	if err != nil {
 		return err
 	}
 
-	b, err := json.MarshalIndent(resp, "", "  ")
-	if err != nil {
-		return err
-	}
+	// b, err := json.MarshalIndent(resp, "", "  ")
+	// if err != nil {
+	// 	return err
+	// }
 
-	fmt.Println(string(b))
+	// fmt.Println(string(b))
 
 	return nil
 }
