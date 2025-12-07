@@ -21,6 +21,8 @@ type ObjectDeleteConfig struct {
 	VersionID        string
 }
 
+// TODO:
+// - allow deleting all versions of a specific object or of a specific prefix?
 func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 	if prefix == "" {
 		return errors.New("missing key")

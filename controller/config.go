@@ -20,6 +20,8 @@ func LoadConfig(configPath string) (Config, error) {
 		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
 	}
 
+	// TODO: check file permissions (e.g. is it group readable, similar as ssh is doing)
+
 	md, err := toml.DecodeFile(configPath, &config)
 	if err != nil {
 		return config, err
