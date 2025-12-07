@@ -88,6 +88,15 @@ var (
 	flagPartSize = &cli.Int64Flag{
 		Name: "part-size",
 	}
+	flagObjectKey = &cli.StringFlag{
+		Name: "key",
+	}
+	flagUploadID = &cli.StringFlag{
+		Name: "upload-id",
+	}
+	flagVersionID = &cli.StringFlag{
+		Name: "version-id",
+	}
 )
 
 func parseSSEC(cmd *cli.Command) util.SSEC {
@@ -98,7 +107,8 @@ func parseSSEC(cmd *cli.Command) util.SSEC {
 }
 
 var cmd = &cli.Command{
-	Name: "sss",
+	Name:  "sss",
+	Usage: "CLI S3 client",
 	Flags: []cli.Flag{
 		flagEndpoint,
 		flagInsecure,
@@ -172,12 +182,8 @@ var cmd = &cli.Command{
 		{
 			Name: "parts",
 			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name: "key",
-				},
-				&cli.StringFlag{
-					Name: "upload-id",
-				},
+				flagObjectKey,
+				flagUploadID,
 			},
 			Commands: []*cli.Command{
 				{
@@ -186,8 +192,8 @@ var cmd = &cli.Command{
 						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketPartsList(
 								cmd.String(flagBucket.Name),
-								cmd.String("key"),
-								cmd.String("upload-id"),
+								cmd.String(flagObjectKey.Name),
+								cmd.String(flagUploadID.Name),
 							)
 						})
 					},
@@ -344,11 +350,9 @@ var cmd = &cli.Command{
 				flagSSEcAlgo,
 				flagConcurrency,
 				flagPartSize,
+				flagVersionID,
 				&cli.BoolFlag{
 					Name: "recursive",
-				},
-				&cli.StringFlag{
-					Name: "version-id",
 				},
 				&cli.StringFlag{
 					Name:  "range",
@@ -379,7 +383,7 @@ var cmd = &cli.Command{
 							Bucket:            cmd.String(flagBucket.Name),
 							ObjectKey:         cmd.StringArg("key"),
 							SSEC:              parseSSEC(cmd),
-							VersionID:         cmd.String("version-id"),
+							VersionID:         cmd.String(flagVersionID.Name),
 							Range:             cmd.String("range"),
 							PartNumber:        cmd.Int32("part-number"),
 							Concurrency:       cmd.Int(flagConcurrency.Name),
@@ -510,6 +514,31 @@ var cmd = &cli.Command{
 						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketVersioningGet(
 								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+			},
+		},
+		{
+			Name: "acl",
+			Commands: []*cli.Command{
+				{
+					Name: "get",
+					Arguments: []cli.Argument{
+						&cli.StringArg{
+							Name: "key",
+						},
+					},
+					Flags: []cli.Flag{
+						flagVersionID,
+					},
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.ObjectACLGet(
+								cmd.String(flagBucket.Name),
+								cmd.StringArg("key"),
+								cmd.String(flagVersionID.Name),
 							)
 						})
 					},
