@@ -8,15 +8,6 @@ import (
 )
 
 func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
-	versions, prefixes, err := c.objectVersions(bucket, prefix, delimiter)
-	if err != nil {
-		return err
-	}
-
-	for _, cp := range prefixes {
-		fmt.Printf("%28s  %s\n", "PREFIX", *cp.Prefix)
-	}
-
 	var (
 		sizeCurrent    uint64
 		sizeVersioned  uint64
@@ -27,13 +18,21 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 		countMultiparts uint64
 	)
 
-	for _, ver := range versions {
-		if *ver.IsLatest {
-			sizeCurrent += uint64(*ver.Size)
+	for item, err := range c.objectVersions(bucket, prefix, delimiter) {
+		if err != nil {
+			return err
+		}
+
+		if item.Prefix != nil {
+			fmt.Printf("%28s  %s\n", "PREFIX", *item.Prefix.Prefix)
+		}
+
+		if *item.Versions.IsLatest {
+			sizeCurrent += uint64(*item.Versions.Size)
 			countCurrent++
 			continue
 		}
-		sizeVersioned += uint64(*ver.Size)
+		sizeVersioned += uint64(*item.Versions.Size)
 		countVersioned++
 	}
 

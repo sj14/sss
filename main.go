@@ -88,6 +88,9 @@ var (
 		Name:     "bucket",
 		Required: true,
 	}
+	flagObjectLock = &cli.BoolFlag{
+		Name: "object-lock",
+	}
 	flagPrefix = &cli.StringFlag{
 		Name: "prefix",
 	}
@@ -322,9 +325,15 @@ var cmd = &cli.Command{
 		{
 			Name:  "mb",
 			Usage: "Make Bucket",
+			Flags: []cli.Flag{
+				flagObjectLock,
+			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketCreate(cmd.String(flagBucket.Name))
+					return ctrl.BucketCreate(
+						cmd.String(flagBucket.Name),
+						cmd.Bool(flagObjectLock.Name),
+					)
 				})
 			},
 		},
