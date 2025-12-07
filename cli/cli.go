@@ -555,8 +555,8 @@ func (s ObjectPutRand) Run(cli CLI, ctrl *controller.Controller) error {
 		s.flagCount.Count,
 		controller.ObjectPutConfig{
 			Bucket:            cli.Bucket.BucketArg.BucketName,
-			Concurrency:       cli.Bucket.BucketArg.ObjectPut.FlagConcurrency.Concurrency,
-			DryRun:            cli.Bucket.BucketArg.ObjectPut.FlagDryRun.DryRun,
+			Concurrency:       s.FlagConcurrency.Concurrency,
+			DryRun:            s.FlagDryRun.DryRun,
 			SSEC:              util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 			PartSize:          s.FlagPartSize,
 			MaxUploadParts:    s.FlagMaxUploadParts,

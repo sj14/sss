@@ -4,6 +4,7 @@ import (
 	"io"
 	"math/rand"
 	"path"
+	"strconv"
 	"time"
 
 	"github.com/sj14/sss/util"
@@ -14,7 +15,9 @@ func (c *Controller) ObjectPutRand(dest string, size, count uint64, cfg ObjectPu
 
 	for range count {
 		limit := &io.LimitedReader{R: random, N: int64(size)}
-		objectName := util.RandomString(16, util.LettersLower)
+
+		nameLen := max(3, len(strconv.Itoa(int(count))))
+		objectName := util.RandomString(uint64(nameLen), util.LettersLower)
 		fp := path.Join(dest, objectName)
 
 		err := c.objectPut(limit, size, fp, cfg)
