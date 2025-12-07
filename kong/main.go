@@ -10,7 +10,9 @@ import (
 	"time"
 
 	"github.com/alecthomas/kong"
+	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/controller"
+	"github.com/sj14/sss/util"
 )
 
 // //////// Common
@@ -62,11 +64,24 @@ type FlagVersion struct {
 ////////////
 
 type CLI struct {
+	// Commands
 	Profiles Profiles `cmd:"" name:"profiles"`
 	Buckets  Buckets  `cmd:"" name:"buckets"`
 	Bucket   Bucket   `cmd:"" name:"bucket"`
-	Config   string   // flag
-	Profile  string   `default:"default"`
+
+	// Flags
+	Config    string   `name:"config"`
+	Profile   string   `name:"profile" default:"default"`
+	Endpoint  string   `name:"endpoint"`
+	Region    string   `name:"region"`
+	PathStyle bool     `name:"path-style"`
+	AccessKey string   `name:"access-key"`
+	SecretKey string   `name:"secret-key"`
+	Insecure  bool     `name:"insecure"`
+	ReadOnly  bool     `name:"read-only"`
+	Bandwidth string   `name:"bandwidth"`
+	Header    []string `name:"header"`
+	SNI       string   `name:"sni"`
 }
 
 type Profiles struct{}
@@ -102,6 +117,7 @@ type BucketArg struct {
 	BucketTag        BucketTag        `cmd:"" group:"bucket" name:"tag"`
 	BucketLifecycle  BucketLifecycle  `cmd:"" group:"bucket" name:"lifecycle"`
 	BucketVersioning BucketVersioning `cmd:"" group:"bucket" name:"versioning"`
+	ObjectLock       ObjectLock       `cmd:"" group:"bucket" name:"object-lock"`
 	BucketSize       BucketSize       `cmd:"" group:"bucket" name:"size"`
 	Multiparts       Multiparts       `cmd:"" group:"multiparts" name:"multiparts"`
 	ObjectList       ObjectList       `cmd:"" group:"object" name:"ls" aliases:"list"`
@@ -111,7 +127,6 @@ type BucketArg struct {
 	ObjectGet        ObjectGet        `cmd:"" group:"object" name:"get"`
 	ObcectHead       ObjectHead       `cmd:"" group:"object" name:"head"`
 	ObjectPresign    ObjectPresign    `cmd:"" group:"object" name:"presign"`
-	ObjectLock       ObjectLock       `cmd:"" group:"object" name:"object-lock"`
 	ObjectACL        ObjectACL        `cmd:"" group:"object" name:"acl"`
 	ObjectVersions   ObjectVersions   `cmd:"" group:"object" name:"versions"`
 }
@@ -563,19 +578,34 @@ func main() {
 		os.Exit(1)
 	}
 
-	// util.SetIfNotZero(&profile.Endpoint, cfg.Profile.Endpoint)
-	// util.SetIfNotZero(&profile.Region, cfg.Profile.Region)
-	// util.SetIfNotZero(&profile.PathStyle, cfg.Profile.PathStyle)
-	// util.SetIfNotZero(&profile.AccessKey, cfg.Profile.AccessKey)
-	// util.SetIfNotZero(&profile.SecretKey, cfg.Profile.SecretKey)
-	// util.SetIfNotZero(&profile.Insecure, cfg.Profile.Insecure)
-	// util.SetIfNotZero(&profile.ReadOnly, cfg.Profile.ReadOnly)
-	// util.SetIfNotZero(&profile.SNI, cfg.Profile.SNI)
+	util.SetIfNotZero(&profile.Endpoint, cli.Endpoint)
+	util.SetIfNotZero(&profile.Region, cli.Region)
+	util.SetIfNotZero(&profile.PathStyle, cli.PathStyle)
+	util.SetIfNotZero(&profile.AccessKey, cli.AccessKey)
+	util.SetIfNotZero(&profile.SecretKey, cli.SecretKey)
+	util.SetIfNotZero(&profile.Insecure, cli.Insecure)
+	util.SetIfNotZero(&profile.ReadOnly, cli.ReadOnly)
+	util.SetIfNotZero(&profile.SNI, cli.SNI)
 
-	ctrl, err := controller.New(ctx, os.Stdout, os.Stderr, controller.ControllerConfig{
-		Profile:   profile,
-		Verbosity: 1,
-	})
+	var bandwidth uint64
+	if cli.Bandwidth != "" {
+		bandwidth, err = humanize.ParseBytes(cli.Bandwidth)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	ctrl, err := controller.New(
+		ctx,
+		os.Stdout,
+		os.Stderr,
+		controller.ControllerConfig{
+			Profile:   profile,
+			Verbosity: 1,
+			Headers:   cli.Header,
+			Bandwidth: bandwidth,
+			// DryRun: ,
+		})
 	if err != nil {
 		log.Fatalln(err)
 	}

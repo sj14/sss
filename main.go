@@ -131,7 +131,7 @@ var (
 	flagBandwidth = &cli.StringFlag{
 		Name:    "bandwidth",
 		Aliases: []string{"bw"},
-		Usage:   "Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst)",
+		Usage:   "Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)",
 		Sources: cli.EnvVars("SSS_BANDWIDTH"),
 	}
 	flagProfile = &cli.StringFlag{
