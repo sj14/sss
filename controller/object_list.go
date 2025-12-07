@@ -59,8 +59,8 @@ func (c *Controller) objectList(bucket, prefix string) iter.Seq2[ListItem, error
 	return func(yield func(ListItem, error) bool) {
 		paginator := s3.NewListObjectsV2Paginator(c.client, &s3.ListObjectsV2Input{
 			Bucket:    aws.String(bucket),
-			Delimiter: aws.String("/"),
 			Prefix:    aws.String(prefix),
+			Delimiter: aws.String("/"),
 			MaxKeys:   aws.Int32(100),
 		})
 

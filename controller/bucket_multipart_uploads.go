@@ -54,6 +54,8 @@ func (c *Controller) bucketMultipartUploadsList(bucket, prefix string) iter.Seq2
 				return
 			}
 
+			// TODO: not working correctly. page.CommonPrefixes missing.
+
 			for _, p := range page.Uploads {
 				if !yield(p, nil) {
 					return
