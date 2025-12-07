@@ -441,19 +441,22 @@ var cmd = &cli.Command{
 			Flags: []cli.Flag{
 				&cli.StringFlag{
 					Name:     "src-bucket",
+					Usage:    "Source bucket",
 					Required: true,
 				},
 				&cli.StringFlag{
 					Name:     "src-key",
+					Usage:    "Source key",
 					Required: true,
 				},
 				&cli.StringFlag{
 					Name:     "dst-bucket",
+					Usage:    "Destinaton bucket",
 					Required: true,
 				},
 				&cli.StringFlag{
 					Name:  "dst-key",
-					Usage: "when empty, the src-key will be used",
+					Usage: "Destination key. When empty, the src-key will be used",
 				},
 				flagSSEcKey,
 				flagSSEcAlgo,

@@ -21,6 +21,7 @@ sss
 [--secret-key]=[value]
 [--sni]=[value]
 [--verbosity]=[value]
+[--version|-v]
 ```
 
 **Usage**:
@@ -35,11 +36,11 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--bucket**="": 
 
-**--config**="": ~/.config/sss/config.yaml
+**--config**="": ~/.config/sss/config.toml
 
 **--endpoint**="": 
 
-**--header**="": format: 'key:val'
+**--header**="": format: 'key1:val1,key2:val2'
 
 **--help, -h**: show help
 
@@ -59,11 +60,14 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--verbosity**="":  (default: 1)
 
+**--version, -v**: print the version
+
 
 # COMMANDS
 
 ## profiles
 
+List config profiles
 
 **--help, -h**: show help
 
@@ -99,6 +103,8 @@ Make Bucket
 
 **--help, -h**: show help
 
+**--object-lock**: 
+
 ### help, h
 
 Shows a list of commands or help for one command
@@ -122,7 +128,11 @@ Handle Multipart Uploads
 ### ls
 
 
+**--delimiter**="":  (default: "/")
+
 **--help, -h**: show help
+
+**--prefix**="": 
 
 #### help, h
 
@@ -184,15 +194,15 @@ Shows a list of commands or help for one command
 
 Server Side Object Copy
 
-**--dst-bucket**="": 
+**--dst-bucket**="": Destinaton bucket
 
-**--dst-key**="": when empty, the src-key will be used
+**--dst-key**="": Destination key. When empty, the src-key will be used
 
 **--help, -h**: show help
 
-**--src-bucket**="": 
+**--src-bucket**="": Source bucket
 
-**--src-key**="": 
+**--src-key**="": Source key
 
 **--sse-c-algorithm**="":  (default: "AES256")
 
@@ -468,6 +478,8 @@ Shows a list of commands or help for one command
 ## size
 
 Calculate the bucket size
+
+**--delimiter**="":  (default: "/")
 
 **--help, -h**: show help
 
