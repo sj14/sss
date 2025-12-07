@@ -25,6 +25,8 @@ type ObjectGetConfig struct {
 	IfUnmodifiedSince time.Time
 	Range             string
 	PartNumber        int32
+	Concurrency       int
+	PartSize          int64
 }
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
@@ -103,7 +105,8 @@ func (c *Controller) objectGet(targetDir string, cfg ObjectGetConfig) error {
 	defer file.Close()
 
 	downloader := manager.NewDownloader(c.client, func(d *manager.Downloader) {
-		// d.Concurrency =
+		d.Concurrency = cfg.Concurrency
+		d.PartSize = cfg.PartSize
 	})
 
 	// TODO: represent download ranges

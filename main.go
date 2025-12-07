@@ -85,6 +85,9 @@ var (
 		Name:  "concurrency",
 		Value: 5,
 	}
+	flagPartSize = &cli.Int64Flag{
+		Name: "part-size",
+	}
 )
 
 func parseSSEC(cmd *cli.Command) util.SSEC {
@@ -265,14 +268,13 @@ var cmd = &cli.Command{
 			Flags: []cli.Flag{
 				flagSSEcKey,
 				flagSSEcAlgo,
+				flagPartSize,
+				flagConcurrency,
 				&cli.IntFlag{
 					Name: "leave-parts-on-error",
 				},
 				&cli.IntFlag{
 					Name: "max-parts",
-				},
-				&cli.Int64Flag{
-					Name: "part-size",
 				},
 				&cli.StringFlag{
 					Name:  "target",
@@ -340,6 +342,8 @@ var cmd = &cli.Command{
 			Flags: []cli.Flag{
 				flagSSEcKey,
 				flagSSEcAlgo,
+				flagConcurrency,
+				flagPartSize,
 				&cli.BoolFlag{
 					Name: "recursive",
 				},
@@ -378,6 +382,8 @@ var cmd = &cli.Command{
 							VersionID:         cmd.String("version-id"),
 							Range:             cmd.String("range"),
 							PartNumber:        cmd.Int32("part-number"),
+							Concurrency:       cmd.Int(flagConcurrency.Name),
+							PartSize:          cmd.Int64(flagPartSize.Name),
 							IfMatch:           cmd.String("if-match"),
 							IfNoneMatch:       cmd.String("if-none-match"),
 							IfModifiedSince:   cmd.Timestamp("if-modified-since"),
