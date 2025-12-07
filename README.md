@@ -153,9 +153,9 @@ Notice that the uploaded objects resist in the root of the bucket.
 ##### Upload to a specific path/prefix
 
 ```
-➜ sss --bucket <BUCKET> put test/ --target test/
-1.0 MiB in 1s | 883 KiB/s | test/1MB.bin
-2.0 MiB in 2s | 1.0 MiB/s | test/2MB.bin
+➜ sss --bucket <BUCKET> put test/ test2/
+1.0 MiB in 1s | 883 KiB/s | test2/1MB.bin
+2.0 MiB in 2s | 1.0 MiB/s | test2/2MB.bin
 ```
 
 #### Delete

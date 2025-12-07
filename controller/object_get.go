@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"time"
 	"unicode"
@@ -18,7 +18,6 @@ import (
 
 type ObjectGetConfig struct {
 	Bucket            string
-	ObjectKey         string
 	SSEC              util.SSEC
 	VersionID         string
 	IfMatch           string
@@ -31,23 +30,33 @@ type ObjectGetConfig struct {
 	PartSize          int64
 }
 
-func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
+func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix, delimiter string, cfg ObjectGetConfig) error {
 	// only get single object
-	if !strings.HasSuffix(cfg.ObjectKey, delimiter) {
-		fp := filepath.Join(targetDir, filepath.Base(cfg.ObjectKey))
-		return c.objectGet(fp, cfg)
+	if !strings.HasSuffix(prefix, delimiter) {
+		fp := path.Join(targetDir, path.Base(prefix))
+		return c.objectGet(fp, prefix, cfg)
 	}
 
 	// recursive get
-	for l, err := range c.objectList(cfg.Bucket, cfg.ObjectKey, delimiter) {
+	for l, err := range c.objectList(cfg.Bucket, prefix, delimiter) {
 		if err != nil {
 			return err
 		}
 
-		cfg.ObjectKey = *l.Object.Key
-		fp := filepath.Join(targetDir, filepath.Base(*l.Object.Key))
+		if l.Prefix != nil {
+			err := c.ObjectGet(targetDir, *l.Prefix.Prefix, originalPrefix, delimiter, cfg)
+			if err != nil {
+				return err
+			}
+			continue
+		}
 
-		err = c.objectGet(fp, cfg)
+		lastDir := path.Base(path.Dir(originalPrefix))
+		trimmedPrefix := strings.TrimPrefix(*l.Object.Key, originalPrefix)
+
+		fp := path.Join(targetDir, lastDir, trimmedPrefix)
+
+		err = c.objectGet(fp, *l.Object.Key, cfg)
 		if err != nil {
 			return err
 		}
@@ -56,15 +65,15 @@ func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig)
 	return nil
 }
 
-func (c *Controller) objectGet(targetPath string, cfg ObjectGetConfig) error {
+func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig) error {
 	headObjectInput := &s3.HeadObjectInput{
 		Bucket: aws.String(cfg.Bucket),
-		Key:    aws.String(cfg.ObjectKey),
+		Key:    aws.String(objectKey),
 	}
 
 	getObjectInput := &s3.GetObjectInput{
 		Bucket:            aws.String(cfg.Bucket),
-		Key:               aws.String(cfg.ObjectKey),
+		Key:               aws.String(objectKey),
 		VersionId:         util.NilIfZero(cfg.VersionID),
 		IfMatch:           util.NilIfZero(cfg.IfMatch),
 		IfModifiedSince:   util.NilIfZero(cfg.IfModifiedSince),
@@ -83,8 +92,8 @@ func (c *Controller) objectGet(targetPath string, cfg ObjectGetConfig) error {
 		getObjectInput.SSECustomerAlgorithm = aws.String(cfg.SSEC.Algorithm())
 	}
 
-	// range requests are like "bytes=100-200".
-	// It's easy to miss the "bytes=" part, add it when the flag value starts with a digit
+	// Range requests are like "bytes=100-200".
+	// It's easy to miss the "bytes=" part, add it when the flag value starts with a digit.
 	if cfg.Range != "" && unicode.IsDigit(rune(cfg.Range[0])) {
 		cfg.Range = fmt.Sprintf("bytes=%v", cfg.Range)
 		getObjectInput.Range = &cfg.Range
@@ -101,7 +110,7 @@ func (c *Controller) objectGet(targetPath string, cfg ObjectGetConfig) error {
 	}
 
 	// create the output dir
-	if err := os.MkdirAll(filepath.Dir(targetPath), 0775); err != nil {
+	if err := os.MkdirAll(path.Dir(targetPath), 0775); err != nil {
 		return err
 	}
 
@@ -118,7 +127,7 @@ func (c *Controller) objectGet(targetPath string, cfg ObjectGetConfig) error {
 	})
 
 	// TODO: represent download ranges
-	pw := progress.NewWriter(file, total, c.verbosity, cfg.ObjectKey)
+	pw := progress.NewWriter(file, total, c.verbosity, objectKey)
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)
 	if err != nil {

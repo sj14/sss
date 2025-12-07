@@ -188,6 +188,10 @@ var (
 	argKey = &cli.StringArg{
 		Name: "key",
 	}
+	argDest = &cli.StringArg{
+		Name:      "destination",
+		UsageText: "target key for single file or prefix multiple files",
+	}
 	argConfigPath = &cli.StringArg{
 		Name:      "config",
 		UsageText: "Path to the config",
@@ -568,6 +572,7 @@ var (
 			&cli.StringArg{
 				Name: "path",
 			},
+			argDest,
 		},
 		Flags: []cli.Flag{
 			flagSSEcKey,
@@ -581,10 +586,6 @@ var (
 				Name: "max-parts",
 			},
 			&cli.StringFlag{
-				Name:  "target",
-				Usage: "target key for single file or prefix multiple files",
-			},
-			&cli.StringFlag{
 				Name:  "acl",
 				Usage: "e.g. 'public-read'",
 			},
@@ -593,7 +594,7 @@ var (
 			return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 				return ctrl.ObjectPut(
 					cmd.StringArg("path"),
-					cmd.String("target"),
+					cmd.StringArg(argDest.Name),
 					controller.ObjectPutConfig{
 						Bucket:            cmd.String(flagBucket.Name),
 						SSEC:              parseSSEC(cmd),
@@ -642,12 +643,8 @@ var (
 		Usage:       "Object Download",
 		Description: "Get a single object or add the delimiter (e.g. '/') as path suffix to download recursively.",
 		Arguments: []cli.Argument{
-			&cli.StringArg{
-				Name: "key",
-			},
-			&cli.StringArg{
-				Name: "target",
-			},
+			argKey,
+			argDest,
 		},
 		Flags: []cli.Flag{
 			flagDelimiter,
@@ -666,11 +663,12 @@ var (
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 				return ctrl.ObjectGet(
-					cmd.StringArg("target"),
+					cmd.StringArg(argDest.Name),
+					cmd.StringArg(argKey.Name),
+					cmd.StringArg(argKey.Name),
 					cmd.String(flagDelimiter.Name),
 					controller.ObjectGetConfig{
 						Bucket:            cmd.String(flagBucket.Name),
-						ObjectKey:         cmd.StringArg(argKey.Name),
 						SSEC:              parseSSEC(cmd),
 						VersionID:         cmd.String(flagVersionID.Name),
 						Range:             cmd.String(flagRange.Name),
@@ -727,11 +725,11 @@ var (
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 						return ctrl.ObjectPresignGet(
-							cmd.Duration("expires-in"),
+							cmd.StringArg(argKey.Name),
 							controller.ObjectGetConfig{
-								Bucket:    cmd.String(flagBucket.Name),
-								ObjectKey: cmd.StringArg(argKey.Name),
+								Bucket: cmd.String(flagBucket.Name),
 							},
+							cmd.Duration("expires-in"),
 						)
 					})
 				}},

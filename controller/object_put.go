@@ -23,15 +23,13 @@ type ObjectPutConfig struct {
 	ACL               string
 }
 
-func (c *Controller) ObjectPut(filePath string, target string, cfg ObjectPutConfig) error {
-	// log.Fatalln(filePaths)
-
+func (c *Controller) ObjectPut(filePath string, dest string, cfg ObjectPutConfig) error {
 	info, err := os.Stat(filePath)
 	if err != nil {
 		return err
 	}
 	if !info.IsDir() {
-		return c.objectPut(filePath, target, cfg)
+		return c.objectPut(filePath, path.Join(dest, path.Base(filePath)), cfg)
 	}
 
 	return filepath.Walk(filePath, func(p string, info os.FileInfo, err error) error {
@@ -42,7 +40,7 @@ func (c *Controller) ObjectPut(filePath string, target string, cfg ObjectPutConf
 			return nil
 		}
 
-		err = c.objectPut(p, path.Join(target, path.Base(p)), cfg)
+		err = c.objectPut(p, path.Join(dest, path.Base(p)), cfg)
 		if err != nil {
 			return err
 		}
