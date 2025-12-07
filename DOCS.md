@@ -33,7 +33,7 @@ sss [GLOBAL OPTIONS] [command [COMMAND OPTIONS]] [ARGUMENTS...]
 
 **--bucket**="": 
 
-**--config**="":  (default: "~/.config/sss/config.yaml")
+**--config**="": ~/.config/sss/config.yaml
 
 **--endpoint**="": 
 
