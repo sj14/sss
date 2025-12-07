@@ -247,7 +247,7 @@ type BucketArg struct {
 	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands" name:"cp"`
 	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands" name:"put"`
 	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands" name:"rm"`
-	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands" name:"get"`
+	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands" name:"get" help:"Download files. Requires HeadObject permission."`
 	ObcectHead       ObjectHead       `cmd:"" group:"Object Commands" name:"head"`
 	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands" name:"presign"`
 	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands" name:"acl"`
