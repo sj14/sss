@@ -8,7 +8,8 @@ Yet another S3 client.
 
 ## Usage
 
-For shell completion follow the instructions from `sss complete`.
+For shell completion follow the instructions from `sss complete`. For example, add `source <(sss completion zsh)` to your `~/.zshrc`.
+
 
 ```
 NAME:
@@ -41,14 +42,14 @@ COMMANDS:
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --endpoint string    
-   --insecure           
-   --region string      
-   --path-style         
-   --profile string     
-   --bucket string      
-   --secret-key string  
-   --access-key string  
+   --endpoint string
+   --insecure
+   --region string
+   --path-style
+   --profile string
+   --bucket string
+   --secret-key string
+   --access-key string
    --verbosity uint     (default: 1)
    --help, -h           show help
 ```
