@@ -79,8 +79,8 @@ func main() {
 			cmdObjectGet,
 			cmdObjectPut,
 			cmdObjectRemove,
-			cmdObjectVersions,
 			cmdObjectsCopy,
+			cmdObjectVersions,
 			cmdObjectACL,
 			cmdObjectPresign,
 		},
@@ -383,7 +383,7 @@ var (
 	}
 	cmdBucketTag = &cli.Command{
 		Category: "bucket management",
-		Name:     "tag-bucket",
+		Name:     "tag",
 		Usage:    "Bucket Tagging",
 		Commands: []*cli.Command{
 			{
@@ -944,7 +944,7 @@ var (
 	}
 	cmdObjectACL = &cli.Command{
 		Category: "object management",
-		Name:     "acl-object",
+		Name:     "acl",
 		Usage:    "Object ACL",
 		Commands: []*cli.Command{
 			{

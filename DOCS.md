@@ -177,6 +177,15 @@ Bucket Versioning
 
 Shows a list of commands or help for one command
 
+### put
+
+
+**--help, -h**: show help
+
+#### help, h
+
+Shows a list of commands or help for one command
+
 ### help, h
 
 Shows a list of commands or help for one command
@@ -283,7 +292,7 @@ Shows a list of commands or help for one command
 
 Shows a list of commands or help for one command
 
-## tag-bucket
+## tag
 
 Bucket Tagging
 
@@ -457,18 +466,6 @@ Object Remove
 
 Shows a list of commands or help for one command
 
-## versions
-
-Object Versions
-
-**--delimiter**="":  (default: "/")
-
-**--help, -h**: show help
-
-### help, h
-
-Shows a list of commands or help for one command
-
 ## cp
 
 Object Server Side Copy
@@ -491,7 +488,19 @@ Object Server Side Copy
 
 Shows a list of commands or help for one command
 
-## acl-object
+## versions
+
+Object Versions
+
+**--delimiter**="":  (default: "/")
+
+**--help, -h**: show help
+
+### help, h
+
+Shows a list of commands or help for one command
+
+## acl
 
 Object ACL
 

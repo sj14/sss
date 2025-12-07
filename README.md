@@ -56,22 +56,22 @@ COMMANDS:
      object-lock  Bucket Object Locking
      lifecycle    Bucket Lifecycle
      cors         Bucket CORS
-     tag-bucket   Bucket Tagging
+     tag          Bucket Tagging
 
    multipart management:
      multiparts  Multipart Uploads
      parts       Multipart Parts
 
    object management:
-     ls          Object List
-     head        Object Head
-     get         Object Download
-     put         Object Upload
-     rm          Object Remove
-     versions    Object Versions
-     cp          Object Server Side Copy
-     acl-object  Object ACL
-     presign     Object pre-signed URL
+     ls        Object List
+     head      Object Head
+     get       Object Download
+     put       Object Upload
+     rm        Object Remove
+     cp        Object Server Side Copy
+     versions  Object Versions
+     acl       Object ACL
+     presign   Object pre-signed URL
 
 GLOBAL OPTIONS:
    --config string                      ~/.config/sss/config.toml [$SSS_CONFIG]
