@@ -18,10 +18,7 @@ func main() {
 	}
 }
 
-func Exec(cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
+func Exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Controller) error) error {
 	ctrl, err := controller.New(ctx, controller.Config{
 		Profile:   cmd.Root().String(flagProfile.Name),
 		Endpoint:  cmd.Root().String(flagEndpoint.Name),
@@ -130,7 +127,7 @@ var cmd = &cli.Command{
 				return ctx, nil
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketList(cmd.String("prefix"))
 				})
 			},
@@ -138,7 +135,7 @@ var cmd = &cli.Command{
 		{
 			Name: "bucket",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketHead(cmd.String(flagBucket.Name))
 				})
 			},
@@ -146,7 +143,7 @@ var cmd = &cli.Command{
 		{
 			Name: "mb",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketCreate(cmd.String(flagBucket.Name))
 				})
 			},
@@ -154,7 +151,7 @@ var cmd = &cli.Command{
 		{
 			Name: "rb",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.BucketDelete(cmd.String(flagBucket.Name))
 				})
 			},
@@ -165,7 +162,7 @@ var cmd = &cli.Command{
 				{
 					Name: "ls",
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketMultipartUploadsList(cmd.String(flagBucket.Name))
 						})
 					},
@@ -186,7 +183,7 @@ var cmd = &cli.Command{
 				{
 					Name: "ls",
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketPartsList(
 								cmd.String(flagBucket.Name),
 								cmd.String("key"),
@@ -208,7 +205,7 @@ var cmd = &cli.Command{
 				flagDelimiter,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectList(
 						cmd.String(flagBucket.Name),
 						cmd.StringArg("prefix"),
@@ -249,7 +246,7 @@ var cmd = &cli.Command{
 				flagSSEcAlgo,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectCopy(
 						controller.ObjectCopyConfig{
 							SrcBucket: cmd.String("src-bucket"),
@@ -289,7 +286,7 @@ var cmd = &cli.Command{
 				},
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectPut(
 						cmd.StringArg("path"),
 						cmd.String("target"),
@@ -319,7 +316,7 @@ var cmd = &cli.Command{
 				flagConcurrency,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectDelete(
 						cmd.StringArg("key"),
 						controller.ObjectDeleteConfig{
@@ -374,7 +371,7 @@ var cmd = &cli.Command{
 				},
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectGet(
 						cmd.StringArg("target"),
 						cmd.String(flagDelimiter.Name),
@@ -404,7 +401,7 @@ var cmd = &cli.Command{
 				},
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectHead(
 						cmd.String(flagBucket.Name),
 						cmd.StringArg("key"),
@@ -429,7 +426,7 @@ var cmd = &cli.Command{
 				},
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(cmd, func(ctrl *controller.Controller) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectPresign(
 						cmd.Duration("expires-in"),
 						controller.ObjectPresignConfig{
@@ -448,7 +445,7 @@ var cmd = &cli.Command{
 				{
 					Name: "get",
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketPolicyGet(
 								cmd.String(flagBucket.Name),
 							)
@@ -463,7 +460,7 @@ var cmd = &cli.Command{
 						},
 					},
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketPolicyPut(
 								cmd.StringArg("policy"),
 								cmd.String(flagBucket.Name),
@@ -479,7 +476,7 @@ var cmd = &cli.Command{
 				{
 					Name: "get",
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketLifecycleGet(
 								cmd.String(flagBucket.Name),
 							)
@@ -494,7 +491,7 @@ var cmd = &cli.Command{
 						},
 					},
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketLifecyclePut(
 								cmd.StringArg("lifecycle"),
 								cmd.String(flagBucket.Name),
@@ -510,7 +507,7 @@ var cmd = &cli.Command{
 				{
 					Name: "get",
 					Action: func(ctx context.Context, cmd *cli.Command) error {
-						return Exec(cmd, func(ctrl *controller.Controller) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.BucketVersioningGet(
 								cmd.String(flagBucket.Name),
 							)
