@@ -29,6 +29,7 @@ type ObjectGetConfig struct {
 	PartNumber        int32
 	Concurrency       int
 	PartSize          int64
+	DryRun            bool
 }
 
 func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix, delimiter string, cfg ObjectGetConfig) error {
@@ -116,6 +117,14 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 		}
 	}
 
+	// TODO: represent download ranges
+	if cfg.DryRun {
+		var file = &os.File{}
+		pw := progress.NewWriter(file, total, c.verbosity, targetPath)
+		pw.Finish()
+		return nil
+	}
+
 	// create the output dir
 	if err := os.MkdirAll(filepath.Dir(targetPath), 0775); err != nil {
 		return err
@@ -133,7 +142,6 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 		d.PartSize = cfg.PartSize
 	})
 
-	// TODO: represent download ranges
 	pw := progress.NewWriter(file, total, c.verbosity, targetPath)
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)

@@ -857,6 +857,7 @@ The following flags are supported:
 
 | Name                        | Description                              | Type   | Default value | Environment variables |
 |-----------------------------|------------------------------------------|--------|:-------------:|:---------------------:|
+| `--dry-run`                 |                                          | bool   |    `false`    |        *none*         |
 | `--delimiter="…"`           |                                          | string |     `"/"`     |        *none*         |
 | `--sse-c-key="…"`           | 32 bytes key                             | string |               |        *none*         |
 | `--sse-c-algorithm="…"`     |                                          | string |  `"AES256"`   |        *none*         |
@@ -895,6 +896,7 @@ The following flags are supported:
 
 | Name                         | Description        | Type   | Default value | Environment variables |
 |------------------------------|--------------------|--------|:-------------:|:---------------------:|
+| `--dry-run`                  |                    | bool   |    `false`    |        *none*         |
 | `--sse-c-key="…"`            | 32 bytes key       | string |               |        *none*         |
 | `--sse-c-algorithm="…"`      |                    | string |  `"AES256"`   |        *none*         |
 | `--part-size="…"`            |                    | int    |      `0`      |        *none*         |

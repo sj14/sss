@@ -22,6 +22,7 @@ type ObjectPutConfig struct {
 	MaxUploadParts    int32
 	PartSize          int64
 	ACL               string
+	DryRun            bool
 }
 
 func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error {
@@ -92,11 +93,12 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		putObjectInput.SSECustomerAlgorithm = aws.String(cfg.SSEC.Algorithm())
 	}
 
-	_, err = uploader.Upload(c.ctx, putObjectInput)
-	if err != nil {
-		return err
+	if !cfg.DryRun {
+		_, err = uploader.Upload(c.ctx, putObjectInput)
+		if err != nil {
+			return err
+		}
 	}
-
 	// don't put it into a defer after initializing
 	// as it would then output the progress even when
 	// the upload was abortet due to an error
