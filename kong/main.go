@@ -15,7 +15,95 @@ import (
 	"github.com/sj14/sss/util"
 )
 
-// //////// Common
+func main() {
+	cli := CLI{}
+
+	kctx := kong.Parse(&cli)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	config, err := controller.LoadConfig(cli.Config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	profile, ok := config.Profiles[cli.Profile]
+	if !ok && cli.Profile != "default" {
+		fmt.Printf("profile %q not found, available profiles:\n", cli.Profile)
+
+		keys := slices.Collect(maps.Keys(config.Profiles))
+		slices.Sort(keys)
+
+		for _, key := range keys {
+			fmt.Println(key)
+		}
+
+		os.Exit(1)
+	}
+
+	util.SetIfNotZero(&profile.Endpoint, cli.Endpoint)
+	util.SetIfNotZero(&profile.Region, cli.Region)
+	util.SetIfNotZero(&profile.PathStyle, cli.PathStyle)
+	util.SetIfNotZero(&profile.AccessKey, cli.AccessKey)
+	util.SetIfNotZero(&profile.SecretKey, cli.SecretKey)
+	util.SetIfNotZero(&profile.Insecure, cli.Insecure)
+	util.SetIfNotZero(&profile.ReadOnly, cli.ReadOnly)
+	util.SetIfNotZero(&profile.SNI, cli.SNI)
+
+	var bandwidth uint64
+	if cli.Bandwidth != "" {
+		bandwidth, err = humanize.ParseBytes(cli.Bandwidth)
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
+
+	ctrl, err := controller.New(
+		ctx,
+		controller.ControllerConfig{
+			OutWriter: os.Stdout,
+			ErrWriter: os.Stderr,
+			Profile:   profile,
+			Verbosity: 1,
+			Headers:   cli.Header,
+			Bandwidth: bandwidth,
+			// DryRun:    cli.Dry,
+		})
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = kctx.Run(cli, ctrl, config)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+type CLI struct {
+	// Commands
+	Profiles Profiles `cmd:"" name:"profiles"`
+	Buckets  Buckets  `cmd:"" name:"buckets"`
+	Bucket   Bucket   `cmd:"" name:"bucket"`
+
+	// Flags
+	Config    string   `name:"config"`
+	Profile   string   `name:"profile" default:"default"`
+	Endpoint  string   `name:"endpoint"`
+	Region    string   `name:"region"`
+	PathStyle bool     `name:"path-style"`
+	AccessKey string   `name:"access-key"`
+	SecretKey string   `name:"secret-key"`
+	Insecure  bool     `name:"insecure"`
+	ReadOnly  bool     `name:"read-only"`
+	Bandwidth string   `name:"bandwidth"`
+	Header    []string `name:"header"`
+	SNI       string   `name:"sni"`
+}
 
 type ArgPath struct {
 	Path string `arg:"" name:"path"`
@@ -59,29 +147,6 @@ type FlagForce struct {
 
 type FlagVersion struct {
 	Version string `name:"versin"`
-}
-
-////////////
-
-type CLI struct {
-	// Commands
-	Profiles Profiles `cmd:"" name:"profiles"`
-	Buckets  Buckets  `cmd:"" name:"buckets"`
-	Bucket   Bucket   `cmd:"" name:"bucket"`
-
-	// Flags
-	Config    string   `name:"config"`
-	Profile   string   `name:"profile" default:"default"`
-	Endpoint  string   `name:"endpoint"`
-	Region    string   `name:"region"`
-	PathStyle bool     `name:"path-style"`
-	AccessKey string   `name:"access-key"`
-	SecretKey string   `name:"secret-key"`
-	Insecure  bool     `name:"insecure"`
-	ReadOnly  bool     `name:"read-only"`
-	Bandwidth string   `name:"bandwidth"`
-	Header    []string `name:"header"`
-	SNI       string   `name:"sni"`
 }
 
 type Profiles struct{}
@@ -549,73 +614,4 @@ func (s PartsList) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.UploadID,
 		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.AsJson,
 	)
-}
-
-func main() {
-	cli := CLI{}
-
-	kctx := kong.Parse(&cli)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	config, err := controller.LoadConfig(cli.Config)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	profile, ok := config.Profiles[cli.Profile]
-	if !ok && cli.Profile != "default" {
-		fmt.Printf("profile %q not found, available profiles:\n", cli.Profile)
-
-		keys := slices.Collect(maps.Keys(config.Profiles))
-		slices.Sort(keys)
-
-		for _, key := range keys {
-			fmt.Println(key)
-		}
-
-		os.Exit(1)
-	}
-
-	util.SetIfNotZero(&profile.Endpoint, cli.Endpoint)
-	util.SetIfNotZero(&profile.Region, cli.Region)
-	util.SetIfNotZero(&profile.PathStyle, cli.PathStyle)
-	util.SetIfNotZero(&profile.AccessKey, cli.AccessKey)
-	util.SetIfNotZero(&profile.SecretKey, cli.SecretKey)
-	util.SetIfNotZero(&profile.Insecure, cli.Insecure)
-	util.SetIfNotZero(&profile.ReadOnly, cli.ReadOnly)
-	util.SetIfNotZero(&profile.SNI, cli.SNI)
-
-	var bandwidth uint64
-	if cli.Bandwidth != "" {
-		bandwidth, err = humanize.ParseBytes(cli.Bandwidth)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}
-
-	ctrl, err := controller.New(
-		ctx,
-		os.Stdout,
-		os.Stderr,
-		controller.ControllerConfig{
-			Profile:   profile,
-			Verbosity: 1,
-			Headers:   cli.Header,
-			Bandwidth: bandwidth,
-			// DryRun:    cli.Dry,
-		})
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	err = kctx.Run(cli, ctrl, config)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	if err != nil {
-		log.Fatalln(err)
-	}
 }

@@ -33,9 +33,9 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 			Key:    aws.String(prefix),
 		})
 		if err != nil {
-			fmt.Fprintf(c.stdoutWriter, "failed to head object, continuing: %v\n", err)
+			fmt.Fprintf(c.OutWriter, "failed to head object, continuing: %v\n", err)
 		} else {
-			fmt.Fprintf(c.stdoutWriter, "deleting %s (%s)\n", prefix, humanize.IBytes(uint64(*resp.ContentLength)))
+			fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", prefix, humanize.IBytes(uint64(*resp.ContentLength)))
 		}
 		return c.objectDelete(cfg.DryRun, cfg.Bucket, prefix)
 	}
@@ -63,7 +63,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 
 		if l.Object != nil {
 			eg.Go(func() error {
-				fmt.Fprintf(c.stdoutWriter, "deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
+				fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *l.Object.Key, humanize.IBytes(uint64(*l.Object.Size)))
 				err := c.objectDelete(cfg.DryRun, cfg.Bucket, *l.Object.Key)
 				if err != nil {
 					return err

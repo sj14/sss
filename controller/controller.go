@@ -18,14 +18,16 @@ import (
 )
 
 type Controller struct {
-	ctx          context.Context
-	stdoutWriter io.Writer
-	stdErrWriter io.Writer
-	client       *s3.Client
-	verbosity    uint8
+	ctx       context.Context
+	OutWriter io.Writer
+	ErrWriter io.Writer
+	client    *s3.Client
+	verbosity uint8
 }
 
 type ControllerConfig struct {
+	OutWriter io.Writer
+	ErrWriter io.Writer
 	Profile   Profile
 	Verbosity uint8
 	Headers   []string
@@ -48,9 +50,9 @@ type Profile struct {
 	SNI       string `toml:"sni"`
 }
 
-func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg ControllerConfig) (*Controller, error) {
+func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 	if cfg.Verbosity > 0 && cfg.Profile.ReadOnly {
-		fmt.Fprintln(stdoutWriter, "> read-only mode <")
+		fmt.Fprintln(cfg.OutWriter, "> read-only mode <")
 	}
 
 	if cfg.DryRun {
@@ -58,7 +60,7 @@ func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg Controll
 		cfg.Profile.ReadOnly = true
 
 		if cfg.Verbosity > 0 {
-			fmt.Fprintln(stdoutWriter, "> dry-run mode <")
+			fmt.Fprintln(cfg.OutWriter, "> dry-run mode <")
 		}
 	}
 
@@ -126,11 +128,11 @@ func New(ctx context.Context, stdoutWriter, stdErrWriter io.Writer, cfg Controll
 	})
 
 	return &Controller{
-		ctx:          ctx,
-		stdoutWriter: stdoutWriter,
-		stdErrWriter: stdErrWriter,
-		verbosity:    cfg.Verbosity,
-		client:       s3.NewFromConfig(awsCfg, clientOptions...),
+		ctx:       ctx,
+		OutWriter: cfg.OutWriter,
+		ErrWriter: cfg.ErrWriter,
+		verbosity: cfg.Verbosity,
+		client:    s3.NewFromConfig(awsCfg, clientOptions...),
 	}, nil
 }
 
