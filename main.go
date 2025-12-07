@@ -9,6 +9,7 @@ import (
 
 	"github.com/sj14/sss/controller"
 	"github.com/sj14/sss/util"
+	docs "github.com/urfave/cli-docs/v3"
 	"github.com/urfave/cli/v3"
 )
 
@@ -150,6 +151,21 @@ var cmd = &cli.Command{
 		flagVerbosity,
 	},
 	Commands: []*cli.Command{
+		{
+			Name:   "docs",
+			Hidden: true,
+			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
+				flagBucket.Required = false
+				return ctx, nil
+			},
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				s, err := docs.ToMarkdown(cmd.Root())
+				if err != nil {
+					return err
+				}
+				return os.WriteFile("DOCS.md", []byte(s), os.ModePerm)
+			},
+		},
 		{
 			Name: "buckets",
 			Flags: []cli.Flag{
@@ -436,32 +452,31 @@ var cmd = &cli.Command{
 		},
 		{
 			Name: "presign",
-			Arguments: []cli.Argument{
-				argKey,
-			},
 			Flags: []cli.Flag{
 				&cli.DurationFlag{
 					Name: "expires-in",
 				},
-				&cli.StringFlag{
-					Name:  "method",
-					Value: "get",
-				},
 			},
-			Action: func(ctx context.Context, cmd *cli.Command) error {
-				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.ObjectPresign(
-						cmd.Duration("expires-in"),
-						controller.ObjectPresignConfig{
-							Method: cmd.String("method"),
-							ObjectGetConfig: controller.ObjectGetConfig{
-								Bucket:    cmd.String(flagBucket.Name),
-								ObjectKey: cmd.StringArg(argKey.Name),
-							},
-						},
-					)
-				})
-			}},
+			Commands: []*cli.Command{
+				{
+					Name: "get",
+					Arguments: []cli.Argument{
+						argKey,
+					},
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.ObjectPresignGet(
+								cmd.Duration("expires-in"),
+								controller.ObjectGetConfig{
+									Bucket:    cmd.String(flagBucket.Name),
+									ObjectKey: cmd.StringArg(argKey.Name),
+								},
+							)
+						})
+					}},
+			},
+		},
+
 		{
 			Name: "policy",
 			Commands: []*cli.Command{
