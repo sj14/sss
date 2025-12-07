@@ -32,7 +32,6 @@ type ObjectGetConfig struct {
 }
 
 func (c *Controller) ObjectGet(targetDir, delimiter string, cfg ObjectGetConfig) error {
-	fmt.Printf("key: %q delimiter: %q\n", cfg.ObjectKey, delimiter)
 	// only get single object
 	if !strings.HasSuffix(cfg.ObjectKey, delimiter) {
 		fp := filepath.Join(targetDir, filepath.Base(cfg.ObjectKey))
