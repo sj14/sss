@@ -22,7 +22,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 	if prefix == "" {
 		return errors.New("missing key")
 	}
-	if prefix == "/" && !cfg.Force {
+	if prefix == "/" && !cfg.Force && !cfg.DryRun {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 

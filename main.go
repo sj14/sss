@@ -232,6 +232,7 @@ type BucketArg struct {
 	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands" name:"tag"`
 	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands" name:"lifecycle"`
 	BucketVersioning BucketVersioning `cmd:"" group:"Bucket Commands" name:"versioning"`
+	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands" name:"cleanup"`
 	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands" name:"object-lock"`
 	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands" name:"size"`
 	Multiparts       Multiparts       `cmd:"" group:"Multipart Commands" name:"multiparts"`
@@ -244,6 +245,50 @@ type BucketArg struct {
 	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands" name:"presign"`
 	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands" name:"acl"`
 	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands" name:"versions"`
+}
+
+type BucketCleanup struct {
+	FlagConcurrency
+	FlagForce
+	FlagDryRun
+	FlagObjects    bool `name:"all-objects" help:"Removes all objects from a bucket"`
+	FlagMultiparts bool `name:"all-multiparts" help:"Removes all multipart uploads from a bucket"`
+}
+
+func (s BucketCleanup) Run(cli CLI, ctrl *controller.Controller) error {
+	if !s.FlagForce.Force && !s.DryRun {
+		return fmt.Errorf("--force flag required")
+	}
+
+	if !s.FlagObjects && !s.FlagMultiparts {
+		return fmt.Errorf("at least one of --all-objects or --all-multiparts needs to be set")
+	}
+
+	if s.FlagObjects {
+		fmt.Fprintln(ctrl.OutWriter, "> deleting all objects <")
+		err := ctrl.ObjectDelete("/", controller.ObjectDeleteConfig{
+			Bucket:      cli.Bucket.BucketArg.BucketName,
+			Force:       s.Force,
+			Concurrency: s.Concurrency,
+			DryRun:      s.DryRun,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	if s.FlagMultiparts {
+		fmt.Fprintln(ctrl.OutWriter, "> deleting all multipart uploads <")
+		err := ctrl.BucketMultipartUploadAbortAll(
+			cli.Bucket.BucketArg.BucketName,
+			s.DryRun,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type ObjectVersions struct {

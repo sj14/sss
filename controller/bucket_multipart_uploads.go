@@ -78,3 +78,26 @@ func (c *Controller) BucketMultipartUploadAbort(bucket, key, uploadID string) er
 
 	return err
 }
+
+// TODO:
+// - add concurrency
+func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool) error {
+	for upload, err := range c.bucketMultipartUploadsList(bucket, "") {
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *upload.Key, *upload.UploadId)
+
+		if !dryRun {
+			continue
+		}
+
+		err := c.BucketMultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
