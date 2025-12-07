@@ -4,6 +4,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
@@ -40,7 +41,12 @@ func (c *Controller) ObjectPut(filePath string, dest string, cfg ObjectPutConfig
 			return nil
 		}
 
-		err = c.objectPut(p, path.Join(dest, path.Base(p)), cfg)
+		lastDir := path.Base(path.Dir(filePath))
+		trimmedPrefix := strings.TrimPrefix(p, filePath)
+
+		fp := path.Join(dest, lastDir, trimmedPrefix)
+
+		err = c.objectPut(p, fp, cfg)
 		if err != nil {
 			return err
 		}

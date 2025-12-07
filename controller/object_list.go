@@ -13,14 +13,21 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectList(bucket, prefix, delimiter string, asJson bool) error {
+func (c *Controller) ObjectList(bucket, prefix, originalPrefix, delimiter string, recursive, asJson bool) error {
 	for l, err := range c.objectList(bucket, prefix, delimiter) {
 		if err != nil {
 			return err
 		}
 
 		if l.Prefix != nil {
-			fmt.Printf("%28s  %s\n", "PREFIX", *l.Prefix.Prefix)
+			if recursive {
+				err := c.ObjectList(bucket, *l.Prefix.Prefix, originalPrefix, delimiter, recursive, asJson)
+				if err != nil {
+					return err
+				}
+			} else {
+				fmt.Printf("%28s  %s\n", "PREFIX", *l.Prefix.Prefix)
+			}
 		}
 
 		if l.Object != nil {
@@ -35,7 +42,7 @@ func (c *Controller) ObjectList(bucket, prefix, delimiter string, asJson bool) e
 			fmt.Printf("%s %8s  %s\n",
 				l.Object.LastModified.Local().Format(time.DateTime),
 				humanize.IBytes(uint64(*l.Object.Size)),
-				strings.TrimPrefix(*l.Object.Key, prefix),
+				strings.TrimPrefix(*l.Object.Key, originalPrefix),
 			)
 		}
 	}
