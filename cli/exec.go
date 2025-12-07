@@ -32,7 +32,7 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, version string) e
 	}
 
 	profile, ok := config.Profiles[cli.Profile]
-	if !ok && cli.Config != "" {
+	if !ok && (cli.Config != "" || cli.Profile != "default") {
 		fmt.Fprintf(errWriter, "available profiles:\n")
 
 		keys := slices.Collect(maps.Keys(config.Profiles))
