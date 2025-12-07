@@ -579,7 +579,19 @@ func (s BucketTagGet) Run(cli CLI, ctrl *controller.Controller) error {
 type Multiparts struct {
 	MultipartRemove MultipartRemove `cmd:"" name:"rm"`
 	MultipartList   MultipartList   `cmd:"" name:"ls"`
+	MultipartCreate MultipartCreate `cmd:"" name:"create"`
 	MultipartParts  MultipartParts  `cmd:"" name:"parts"`
+}
+
+type MultipartCreate struct {
+	ArgPrefix
+}
+
+func (s MultipartCreate) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketMultipartUploadCreate(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgPrefix.Prefix,
+	)
 }
 
 type MultipartList struct {

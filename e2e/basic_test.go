@@ -52,6 +52,14 @@ func TestBasic(t *testing.T) {
 		must.StrContains(t, out, "README.md")
 	})
 
+	t.Run("list after upload recursive", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "ls", "-r")
+		must.NoError(t, err)
+		must.StrContains(t, out, "test/2")
+		must.StrContains(t, out, "test/3")
+		must.StrContains(t, out, "README.md")
+	})
+
 	t.Run("delete dry-run single", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "rm", "README.md", "--dry-run")
 		must.NoError(t, err)

@@ -194,6 +194,21 @@ The forward slash (`/`) is the only supported delimiter.
 100 MiB in 11s | 9.0 MiB/s | 100MB.bin
 ```
 
+##### Download a single object with different name
+
+```
+➜ test sss bucket <BUCKET> get 1MB.bin yolo
+1.0 MiB in  0s |  19 MiB/s | yolo
+```
+
+##### Download a single object into a directory
+
+```
+➜ sss bucket test get 1MB.bin test/
+1.0 MiB in  0s |  19 MiB/s | test/1MB.bin
+```
+
+
 ##### Download directory/prefix
 
 Only works when the end of the prefix is `/`.
@@ -226,7 +241,6 @@ Only works when the end of the prefix is `/`.
 ➜ sss bucket simon-crasher put ~/Downloads/1MB.bin yolo/
 1.0 MiB in  1s | 1.6 MiB/s | yolo/1MB.bin
 ```
-
 
 ##### Upload a directory:
 

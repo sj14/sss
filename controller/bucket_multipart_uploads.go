@@ -12,6 +12,21 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+func (c *Controller) BucketMultipartUploadCreate(bucket, key string) error {
+	if key == "" {
+		return fmt.Errorf("empty key")
+	}
+
+	resp, err := c.client.CreateMultipartUpload(c.ctx, &s3.CreateMultipartUploadInput{
+		Bucket: &bucket,
+		Key:    &key,
+	})
+
+	fmt.Fprintf(c.OutWriter, "%s\n", *resp.UploadId)
+
+	return err
+}
+
 func (c *Controller) BucketMultipartUploadsList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
 	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, "/") {
 		if err != nil {
