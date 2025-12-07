@@ -309,7 +309,7 @@ var cmd = &cli.Command{
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-					return ctrl.BucketList(cmd.String("prefix"))
+					return ctrl.BucketList(cmd.String(flagPrefix.Name))
 				})
 			},
 		},
