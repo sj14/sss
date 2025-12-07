@@ -173,10 +173,9 @@ $ docs [GLOBAL FLAGS] size [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name              | Description | Type   | Default value | Environment variables |
-|-------------------|-------------|--------|:-------------:|:---------------------:|
-| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
-| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `size help` subcommand (aliases: `h`)
 
@@ -682,11 +681,10 @@ $ docs [GLOBAL FLAGS] multiparts ls [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name              | Description | Type   | Default value | Environment variables |
-|-------------------|-------------|--------|:-------------:|:---------------------:|
-| `--prefix="…"`    |             | string |               |        *none*         |
-| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
-| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type   | Default value | Environment variables |
+|-----------------|-------------|--------|:-------------:|:---------------------:|
+| `--prefix="…"`  |             | string |               |        *none*         |
+| `--help` (`-h`) | show help   | bool   |    `false`    |        *none*         |
 
 ### `multiparts ls help` subcommand (aliases: `h`)
 
@@ -798,12 +796,11 @@ $ docs [GLOBAL FLAGS] ls [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name                 | Description | Type   | Default value | Environment variables |
-|----------------------|-------------|--------|:-------------:|:---------------------:|
-| `--delimiter="…"`    |             | string |     `"/"`     |        *none*         |
-| `--recursive` (`-r`) |             | bool   |    `false`    |        *none*         |
-| `--json`             |             | bool   |    `false`    |        *none*         |
-| `--help` (`-h`)      | show help   | bool   |    `false`    |        *none*         |
+| Name                 | Description | Type | Default value | Environment variables |
+|----------------------|-------------|------|:-------------:|:---------------------:|
+| `--recursive` (`-r`) |             | bool |    `false`    |        *none*         |
+| `--json`             |             | bool |    `false`    |        *none*         |
+| `--help` (`-h`)      | show help   | bool |    `false`    |        *none*         |
 
 ### `ls help` subcommand (aliases: `h`)
 
@@ -845,7 +842,7 @@ $ docs [GLOBAL FLAGS] head help [command]
 
 Object Download.
 
-Get a single object or add the delimiter (e.g. '/') as path suffix to download recursively.
+Get a single object or add '/' as path suffix to download recursively.
 
 Usage:
 
@@ -858,7 +855,6 @@ The following flags are supported:
 | Name                        | Description                              | Type   | Default value | Environment variables |
 |-----------------------------|------------------------------------------|--------|:-------------:|:---------------------:|
 | `--dry-run`                 |                                          | bool   |    `false`    |        *none*         |
-| `--delimiter="…"`           |                                          | string |     `"/"`     |        *none*         |
 | `--sse-c-key="…"`           | 32 bytes key                             | string |               |        *none*         |
 | `--sse-c-algorithm="…"`     |                                          | string |  `"AES256"`   |        *none*         |
 | `--concurrency="…"`         |                                          | int    |      `5`      |        *none*         |
@@ -920,7 +916,7 @@ $ docs [GLOBAL FLAGS] put help [command]
 
 Object Remove.
 
-Remove a single object or add the delimiter (e.g. '/') as path suffix to remove recursively.
+Remove a single object or add '/' as path suffix to remove recursively.
 
 Usage:
 
@@ -930,13 +926,12 @@ $ docs [GLOBAL FLAGS] rm [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name                | Description | Type   | Default value | Environment variables |
-|---------------------|-------------|--------|:-------------:|:---------------------:|
-| `--delimiter="…"`   |             | string |     `"/"`     |        *none*         |
-| `--force` (`-f`)    |             | bool   |    `false`    |        *none*         |
-| `--concurrency="…"` |             | int    |      `5`      |        *none*         |
-| `--dry-run`         |             | bool   |    `false`    |        *none*         |
-| `--help` (`-h`)     | show help   | bool   |    `false`    |        *none*         |
+| Name                | Description | Type | Default value | Environment variables |
+|---------------------|-------------|------|:-------------:|:---------------------:|
+| `--force` (`-f`)    |             | bool |    `false`    |        *none*         |
+| `--concurrency="…"` |             | int  |      `5`      |        *none*         |
+| `--dry-run`         |             | bool |    `false`    |        *none*         |
+| `--help` (`-h`)     | show help   | bool |    `false`    |        *none*         |
 
 ### `rm help` subcommand (aliases: `h`)
 
@@ -989,11 +984,10 @@ $ docs [GLOBAL FLAGS] versions [COMMAND FLAGS] [ARGUMENTS...]
 
 The following flags are supported:
 
-| Name              | Description | Type   | Default value | Environment variables |
-|-------------------|-------------|--------|:-------------:|:---------------------:|
-| `--delimiter="…"` |             | string |     `"/"`     |        *none*         |
-| `--json`          |             | bool   |    `false`    |        *none*         |
-| `--help` (`-h`)   | show help   | bool   |    `false`    |        *none*         |
+| Name            | Description | Type | Default value | Environment variables |
+|-----------------|-------------|------|:-------------:|:---------------------:|
+| `--json`        |             | bool |    `false`    |        *none*         |
+| `--help` (`-h`) | show help   | bool |    `false`    |        *none*         |
 
 ### `versions help` subcommand (aliases: `h`)
 

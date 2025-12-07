@@ -7,7 +7,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
+func (c *Controller) BucketSize(bucket, prefix string) error {
 	var (
 		sizeCurrent    uint64
 		sizeVersioned  uint64
@@ -18,7 +18,7 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 		countMultiparts uint64
 	)
 
-	for item, err := range c.objectVersions(bucket, prefix, delimiter) {
+	for item, err := range c.objectVersions(bucket, prefix) {
 		if err != nil {
 			return err
 		}
@@ -40,7 +40,7 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 	fmt.Printf("current: %v (%d)", humanize.IBytes(sizeCurrent), countCurrent)
 	fmt.Printf(" | versions: %v (%d)", humanize.IBytes(sizeVersioned), countVersioned)
 
-	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, delimiter) {
+	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix) {
 		if err != nil {
 			return err
 		}

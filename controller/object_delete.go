@@ -14,19 +14,18 @@ import (
 
 type ObjectDeleteConfig struct {
 	Bucket      string
-	Delimiter   string
 	Force       bool
 	Concurrency int
 	DryRun      bool
 }
 
 func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
-	if prefix == cfg.Delimiter && !cfg.Force {
+	if prefix == "/" && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 
 	// only delete single object
-	if !strings.HasSuffix(prefix, cfg.Delimiter) {
+	if !strings.HasSuffix(prefix, "/") {
 		resp, err := c.client.HeadObject(c.ctx, &s3.HeadObjectInput{
 			Bucket: aws.String(cfg.Bucket),
 			Key:    aws.String(prefix),
@@ -40,7 +39,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 	}
 
 	// allow deleting the whole bucket
-	if prefix == cfg.Delimiter {
+	if prefix == "/" {
 		prefix = ""
 	}
 
@@ -48,7 +47,7 @@ func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(cfg.Concurrency)
 
-	for l, err := range c.objectList(cfg.Bucket, prefix, cfg.Delimiter) {
+	for l, err := range c.objectList(cfg.Bucket, prefix) {
 		if err != nil {
 			return err
 		}

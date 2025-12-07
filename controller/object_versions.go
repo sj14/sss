@@ -13,8 +13,8 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectVersions(bucket, prefix, delimiter string, asJson bool) error {
-	for v, err := range c.objectVersions(bucket, prefix, delimiter) {
+func (c *Controller) ObjectVersions(bucket, prefix string, asJson bool) error {
+	for v, err := range c.objectVersions(bucket, prefix) {
 		if err != nil {
 			return err
 		}
@@ -49,11 +49,11 @@ type VersionsItem struct {
 	Prefix   *types.CommonPrefix
 }
 
-func (c *Controller) objectVersions(bucket, prefix, delimiter string) iter.Seq2[VersionsItem, error] {
+func (c *Controller) objectVersions(bucket, prefix string) iter.Seq2[VersionsItem, error] {
 	return func(yield func(VersionsItem, error) bool) {
 		paginator := s3.NewListObjectVersionsPaginator(c.client, &s3.ListObjectVersionsInput{
 			Bucket:    aws.String(bucket),
-			Delimiter: aws.String(delimiter),
+			Delimiter: aws.String("/"),
 			Prefix:    aws.String(prefix),
 			MaxKeys:   aws.Int32(100),
 		})
