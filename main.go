@@ -485,5 +485,20 @@ var cmd = &cli.Command{
 				},
 			},
 		},
+		{
+			Name: "versioning",
+			Commands: []*cli.Command{
+				{
+					Name: "get",
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketVersioningGet(
+								cmd.String(flagBucket.Name),
+							)
+						})
+					},
+				},
+			},
+		},
 	},
 }
