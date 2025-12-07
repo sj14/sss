@@ -31,11 +31,10 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 		return err
 	}
 	if !info.IsDir() {
-		key := dest
 		if strings.HasSuffix(dest, "/") {
-			key = path.Join(dest, filepath.Base(filePath))
+			dest = path.Join(dest, filepath.Base(filePath))
 		}
-		return c.objectPut(filePath, key, cfg)
+		return c.objectPut(filePath, dest, cfg)
 	}
 
 	// TODO: flatten option which allows storing in the current folder instead of creating the subfolder

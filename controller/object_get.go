@@ -32,15 +32,22 @@ type ObjectGetConfig struct {
 	Force             bool
 }
 
-func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg ObjectGetConfig) error {
+func (c *Controller) ObjectGet(dest, prefix, originalPrefix string, cfg ObjectGetConfig) error {
 	if prefix == "" {
 		return errors.New("missing key")
 	}
 
 	// only get single object
 	if !strings.HasSuffix(prefix, "/") {
-		fp := filepath.Join(targetDir, filepath.Base(prefix))
-		return c.objectGet(fp, prefix, cfg)
+		if strings.HasSuffix(dest, "/") {
+			dest = filepath.Join(dest, filepath.Base(prefix))
+		}
+
+		if dest == "" {
+			dest = prefix
+		}
+
+		return c.objectGet(dest, prefix, cfg)
 	}
 
 	// allow downloading the whole bucket
@@ -56,7 +63,7 @@ func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg Obj
 		}
 
 		for _, l := range l.CommonPrefixes {
-			err := c.ObjectGet(targetDir, *l.Prefix, originalPrefix, cfg)
+			err := c.ObjectGet(dest, *l.Prefix, originalPrefix, cfg)
 			if err != nil {
 				return err
 			}
@@ -67,7 +74,7 @@ func (c *Controller) ObjectGet(targetDir, prefix, originalPrefix string, cfg Obj
 			lastDir := filepath.Base(filepath.Dir(originalPrefix))
 			trimmedPrefix := strings.TrimPrefix(*l.Key, originalPrefix)
 
-			fp := filepath.Join(targetDir, lastDir, trimmedPrefix)
+			fp := filepath.Join(dest, lastDir, trimmedPrefix)
 
 			err = c.objectGet(fp, *l.Key, cfg)
 			if err != nil {
