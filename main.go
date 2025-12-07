@@ -196,7 +196,9 @@ var (
 		Name:      "config",
 		UsageText: "Path to the config",
 	}
+)
 
+var (
 	flagConfig = &cli.StringFlag{
 		Name:      "config",
 		Usage:     "~/.config/sss/config.toml",
@@ -210,6 +212,7 @@ var (
 	}
 	flagBandwidth = &cli.StringFlag{
 		Name:    "bandwidth",
+		Aliases: []string{"bw"},
 		Usage:   "Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst)",
 		Sources: cli.EnvVars("SSS_BANDWIDTH"),
 	}
@@ -285,7 +288,8 @@ var (
 		Name: "json",
 	}
 	flagForce = &cli.BoolFlag{
-		Name: "force",
+		Name:    "force",
+		Aliases: []string{"f"},
 	}
 	flagConcurrency = &cli.IntFlag{
 		Name:  "concurrency",
@@ -308,7 +312,7 @@ var (
 	}
 	flagRange = &cli.StringFlag{
 		Name:  "range",
-		Usage: "bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes",
+		Usage: "'bytes=0-500' to get the first 501 bytes",
 	}
 	flagPartNumber = &cli.Int32Flag{
 		Name: "part-number",
