@@ -20,30 +20,35 @@ type ObjectDeleteConfig struct {
 	DryRun      bool
 }
 
-func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
-	if key == "" && !cfg.Force {
+func (c *Controller) ObjectDelete(prefix string, cfg ObjectDeleteConfig) error {
+	if prefix == cfg.Delimiter && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 
 	// only delete single object
-	if !strings.HasSuffix(key, cfg.Delimiter) {
+	if !strings.HasSuffix(prefix, cfg.Delimiter) {
 		resp, err := c.client.HeadObject(c.ctx, &s3.HeadObjectInput{
 			Bucket: aws.String(cfg.Bucket),
-			Key:    aws.String(key),
+			Key:    aws.String(prefix),
 		})
 		if err != nil {
 			log.Printf("failed to head object, continuing: %v\n", err)
 		} else {
-			fmt.Printf("deleting %s (%s)\n", key, humanize.IBytes(uint64(*resp.ContentLength)))
+			fmt.Printf("deleting %s (%s)\n", prefix, humanize.IBytes(uint64(*resp.ContentLength)))
 		}
-		return c.objectDelete(cfg.DryRun, cfg.Bucket, key)
+		return c.objectDelete(cfg.DryRun, cfg.Bucket, prefix)
+	}
+
+	// allow deleting the whole bucket
+	if prefix == cfg.Delimiter {
+		prefix = ""
 	}
 
 	// recrusive deletion
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(cfg.Concurrency)
 
-	for l, err := range c.objectList(cfg.Bucket, key, cfg.Delimiter) {
+	for l, err := range c.objectList(cfg.Bucket, prefix, cfg.Delimiter) {
 		if err != nil {
 			return err
 		}

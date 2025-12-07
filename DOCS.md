@@ -25,7 +25,7 @@ Global flags:
 | `--bandwidth="…"` (`--bw`) | Limit bandwith per second, e.g. '1 MiB' (always 128 KiB burst) | string |               |    `SSS_BANDWIDTH`    |
 | `--sni="…"`                |                                                                | string |               |       `SSS_SNI`       |
 | `--header="…"`             | format: 'key1:val1,key2:val2'                                  | string |               |        *none*         |
-| `--verbosity="…"` (`-v`)   |                                                                | uint   |      `1`      |    `SSS_VERBOSITY`    |
+| `--verbosity="…"`          |                                                                | uint   |      `1`      |    `SSS_VERBOSITY`    |
 | `--help` (`-h`)            | show help                                                      | bool   |    `false`    |        *none*         |
 | `--version` (`-v`)         | print the version                                              | bool   |    `false`    |        *none*         |
 

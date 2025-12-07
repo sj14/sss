@@ -24,7 +24,7 @@ type ObjectPutConfig struct {
 	ACL               string
 }
 
-func (c *Controller) ObjectPut(filePath string, dest string, cfg ObjectPutConfig) error {
+func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error {
 	info, err := os.Stat(filePath)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (c *Controller) ObjectPut(filePath string, dest string, cfg ObjectPutConfig
 			return nil
 		}
 
-		lastDir := path.Base(path.Dir(filePath))
+		lastDir := path.Base(filePath)
 		trimmedPrefix := strings.TrimPrefix(p, filePath)
 
 		fp := path.Join(dest, lastDir, trimmedPrefix)
