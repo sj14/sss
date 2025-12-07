@@ -36,6 +36,13 @@ func Exec(ctx context.Context, cmd *cli.Command, fn func(ctrl *controller.Contro
 }
 
 var (
+	argPrefix = &cli.StringArg{
+		Name: "prefix",
+	}
+	argKey = &cli.StringArg{
+		Name: "key",
+	}
+
 	flagVerbosity = &cli.Uint8Flag{
 		Name:  "verbosity",
 		Value: 1,
@@ -65,6 +72,9 @@ var (
 	flagBucket = &cli.StringFlag{
 		Name:     "bucket",
 		Required: true,
+	}
+	flagPrefix = &cli.StringFlag{
+		Name: "prefix",
 	}
 	flagSSEcKey = &cli.StringFlag{
 		Name:  "sse-c-key",
@@ -97,6 +107,25 @@ var (
 	flagVersionID = &cli.StringFlag{
 		Name: "version-id",
 	}
+	flagRange = &cli.StringFlag{
+		Name:  "range",
+		Usage: "bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes",
+	}
+	flagPartNumber = &cli.Int32Flag{
+		Name: "part-number",
+	}
+	flagIfMatch = &cli.StringFlag{
+		Name: "if-match",
+	}
+	flagIfNoneMatch = &cli.StringFlag{
+		Name: "if-none-match",
+	}
+	flagIfModifiedSince = &cli.TimestampFlag{
+		Name: "if-modified-since",
+	}
+	flagIfUnmodifiedSince = &cli.TimestampFlag{
+		Name: "if-unmodified-since",
+	}
 )
 
 func parseSSEC(cmd *cli.Command) util.SSEC {
@@ -124,9 +153,7 @@ var cmd = &cli.Command{
 		{
 			Name: "buckets",
 			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name: "prefix",
-				},
+				flagPrefix,
 			},
 			Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
 				flagBucket.Required = false
@@ -219,9 +246,7 @@ var cmd = &cli.Command{
 		{
 			Name: "ls",
 			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "prefix",
-				},
+				argPrefix,
 			},
 			Flags: []cli.Flag{
 				flagDelimiter,
@@ -230,7 +255,7 @@ var cmd = &cli.Command{
 				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectList(
 						cmd.String(flagBucket.Name),
-						cmd.StringArg("prefix"),
+						cmd.StringArg(argPrefix.Name),
 						cmd.String(flagDelimiter.Name),
 					)
 				})
@@ -328,9 +353,7 @@ var cmd = &cli.Command{
 		{
 			Name: "rm",
 			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "key",
-				},
+				argKey,
 			},
 			Flags: []cli.Flag{
 				flagDelimiter,
@@ -367,25 +390,12 @@ var cmd = &cli.Command{
 				flagConcurrency,
 				flagPartSize,
 				flagVersionID,
-				&cli.StringFlag{
-					Name:  "range",
-					Usage: "bytes=BeginByte-EndByte, e.g. 'bytes=0-500' to get the first 501 bytes",
-				},
-				&cli.Int32Flag{
-					Name: "part-number",
-				},
-				&cli.StringFlag{
-					Name: "if-match",
-				},
-				&cli.StringFlag{
-					Name: "if-none-match",
-				},
-				&cli.TimestampFlag{
-					Name: "if-modified-since",
-				},
-				&cli.TimestampFlag{
-					Name: "if-unmodified-since",
-				},
+				flagRange,
+				flagPartNumber,
+				flagIfMatch,
+				flagIfNoneMatch,
+				flagIfModifiedSince,
+				flagIfUnmodifiedSince,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
@@ -394,17 +404,17 @@ var cmd = &cli.Command{
 						cmd.String(flagDelimiter.Name),
 						controller.ObjectGetConfig{
 							Bucket:            cmd.String(flagBucket.Name),
-							ObjectKey:         cmd.StringArg("key"),
+							ObjectKey:         cmd.StringArg(argKey.Name),
 							SSEC:              parseSSEC(cmd),
 							VersionID:         cmd.String(flagVersionID.Name),
-							Range:             cmd.String("range"),
-							PartNumber:        cmd.Int32("part-number"),
+							Range:             cmd.String(flagRange.Name),
+							PartNumber:        cmd.Int32(flagPartNumber.Name),
 							Concurrency:       cmd.Int(flagConcurrency.Name),
 							PartSize:          cmd.Int64(flagPartSize.Name),
-							IfMatch:           cmd.String("if-match"),
-							IfNoneMatch:       cmd.String("if-none-match"),
-							IfModifiedSince:   cmd.Timestamp("if-modified-since"),
-							IfUnmodifiedSince: cmd.Timestamp("if-unmodified-since"),
+							IfMatch:           cmd.String(flagIfMatch.Name),
+							IfNoneMatch:       cmd.String(flagIfNoneMatch.Name),
+							IfModifiedSince:   cmd.Timestamp(flagIfModifiedSince.Name),
+							IfUnmodifiedSince: cmd.Timestamp(flagIfUnmodifiedSince.Name),
 						},
 					)
 				})
@@ -413,15 +423,13 @@ var cmd = &cli.Command{
 		{
 			Name: "head",
 			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "key",
-				},
+				argKey,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 					return ctrl.ObjectHead(
 						cmd.String(flagBucket.Name),
-						cmd.StringArg("key"),
+						cmd.StringArg(argKey.Name),
 					)
 				})
 			},
@@ -429,9 +437,7 @@ var cmd = &cli.Command{
 		{
 			Name: "presign",
 			Arguments: []cli.Argument{
-				&cli.StringArg{
-					Name: "key",
-				},
+				argKey,
 			},
 			Flags: []cli.Flag{
 				&cli.DurationFlag{
@@ -450,7 +456,7 @@ var cmd = &cli.Command{
 							Method: cmd.String("method"),
 							ObjectGetConfig: controller.ObjectGetConfig{
 								Bucket:    cmd.String(flagBucket.Name),
-								ObjectKey: cmd.StringArg("key"),
+								ObjectKey: cmd.StringArg(argKey.Name),
 							},
 						},
 					)
@@ -539,9 +545,7 @@ var cmd = &cli.Command{
 				{
 					Name: "get",
 					Arguments: []cli.Argument{
-						&cli.StringArg{
-							Name: "key",
-						},
+						argKey,
 					},
 					Flags: []cli.Flag{
 						flagVersionID,
@@ -550,7 +554,7 @@ var cmd = &cli.Command{
 						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
 							return ctrl.ObjectACLGet(
 								cmd.String(flagBucket.Name),
-								cmd.StringArg("key"),
+								cmd.StringArg(argKey.Name),
 								cmd.String(flagVersionID.Name),
 							)
 						})
