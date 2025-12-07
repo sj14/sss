@@ -158,6 +158,19 @@ The forward slash (`/`) is the only supported delimiter.
 
 ### Examples
 
+Instead of using `sss bucket <BUCKET>` you can also use the shorter variant `sss b <BUCKET>`.
+
+#### List Buckets
+
+```
+➜ sss buckets
+2025-11-07 12:54:43 <bucket-a>
+2024-12-19 09:16:14 <bucket-b>
+2025-11-20 14:49:38 <bucket-c>
+```
+
+Or use `sss ls` as the shorter alternative.
+
 #### List objects
 
 ##### List bucket root
