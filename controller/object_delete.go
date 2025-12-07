@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -17,13 +18,23 @@ type ObjectDeleteConfig struct {
 	Concurrency int
 }
 
-func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
+func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) (err error) {
 	if key == "" && !cfg.Force {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(cfg.Concurrency)
+
+	defer func() {
+		// make sure to wait even when we return early somwhere
+		e := eg.Wait()
+		if err == nil {
+			err = e
+		} else {
+			log.Println(e)
+		}
+	}()
 
 	for l, err := range c.objectList(cfg.Bucket, key, cfg.Delimiter) {
 		if err != nil {
@@ -46,6 +57,16 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
 				}
 				return nil
 			})
+
+			exactMatch := key == *l.Object.Key
+			if exactMatch {
+				// Single file deletiong, mimicing "normal" behaviour.
+				// e.g. ls => "file", "file1"
+				// Without this check, "file1" would also be deleted
+				// when only "file" is requested.
+				// As an alternative, add a -recursive flag or similar.
+				break
+			}
 		}
 	}
 
