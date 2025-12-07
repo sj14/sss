@@ -191,11 +191,11 @@ func TestSubdir(t *testing.T) {
 		must.StrContains(t, string(out), "yolo/test/util/zero.go")
 	})
 
-	t.Run("download subdir 2 (dry-run)", func(t *testing.T) {
-		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "get", "test/util/", "yolo", "-dry-run")
+	t.Run("download subdir 2", func(t *testing.T) {
+		cmd := exec.Command("go", "run", "main.go", "-bucket", bucketName, "get", "test/util/", "test/yolo", "-dry-run")
 		out, err := cmd.CombinedOutput()
 		must.NoError(t, err)
-		must.StrContains(t, string(out), "yolo/util/progress/reader.go")
-		must.StrContains(t, string(out), "yolo/util/zero.go")
+		must.StrContains(t, string(out), "test/yolo/util/progress/reader.go")
+		must.StrContains(t, string(out), "test/yolo/util/zero.go")
 	})
 }
