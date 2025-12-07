@@ -674,5 +674,23 @@ var cmd = &cli.Command{
 				},
 			},
 		},
+		{
+			Name: "versions",
+			Arguments: []cli.Argument{
+				argPrefix,
+			},
+			Flags: []cli.Flag{
+				flagDelimiter,
+			},
+			Action: func(ctx context.Context, cmd *cli.Command) error {
+				return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+					return ctrl.ObjectVersions(
+						cmd.String(flagBucket.Name),
+						cmd.StringArg(argPrefix.Name),
+						cmd.String(flagDelimiter.Name),
+					)
+				})
+			},
+		},
 	},
 }
