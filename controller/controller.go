@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -12,12 +13,21 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/smithy-go/logging"
+	"github.com/sj14/sss/util/ratelimiter"
+	"golang.org/x/time/rate"
 )
 
 type Controller struct {
 	ctx       context.Context
 	client    *s3.Client
 	verbosity uint8
+}
+
+type ControllerConfig struct {
+	Verbosity uint8
+	Headers   []string
+	Profile   Profile
+	Bandwidth uint64
 }
 
 type Config struct {
@@ -35,20 +45,20 @@ type Profile struct {
 	SNI       string `toml:"sni"`
 }
 
-func New(ctx context.Context, verbosity uint8, headers []string, cfg Profile) (*Controller, error) {
+func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 	clientOptions := []func(o *s3.Options){
-		func(o *s3.Options) { o.UsePathStyle = cfg.PathStyle },
+		func(o *s3.Options) { o.UsePathStyle = cfg.Profile.PathStyle },
 	}
 
 	awsCfg := aws.Config{
-		Region:       cfg.Region,
-		BaseEndpoint: &cfg.Endpoint,
+		Region:       cfg.Profile.Region,
+		BaseEndpoint: &cfg.Profile.Endpoint,
 		Credentials: aws.NewCredentialsCache(
-			credentials.NewStaticCredentialsProvider(cfg.AccessKey, cfg.SecretKey, ""),
+			credentials.NewStaticCredentialsProvider(cfg.Profile.AccessKey, cfg.Profile.SecretKey, ""),
 		),
 	}
 
-	if verbosity >= 9 {
+	if cfg.Verbosity >= 9 {
 		awsCfg.Logger = logging.NewStandardLogger(os.Stdout)
 		awsCfg.ClientLogMode = aws.LogRequestWithBody |
 			aws.LogResponseWithBody |
@@ -57,7 +67,7 @@ func New(ctx context.Context, verbosity uint8, headers []string, cfg Profile) (*
 			aws.LogSigning |
 			aws.LogRequestEventMessage |
 			aws.LogResponseEventMessage
-	} else if verbosity >= 8 {
+	} else if cfg.Verbosity >= 8 {
 		awsCfg.Logger = logging.NewStandardLogger(os.Stdout)
 		awsCfg.ClientLogMode = aws.LogRequest |
 			aws.LogResponse |
@@ -65,39 +75,57 @@ func New(ctx context.Context, verbosity uint8, headers []string, cfg Profile) (*
 	}
 
 	clientOptions = append(clientOptions, func(o *s3.Options) {
-		transport := &Transport{
-			Base:     http.DefaultTransport,
-			Insecure: cfg.Insecure,
-			ReadOnly: cfg.ReadOnly,
-			SNI:      cfg.SNI,
-			Headers:  headers,
+		baseTransport := http.DefaultTransport.(*http.Transport).Clone()
+
+		if baseTransport.TLSClientConfig == nil {
+			baseTransport.TLSClientConfig = &tls.Config{}
+		}
+
+		if cfg.Profile.Insecure {
+			baseTransport.TLSClientConfig.InsecureSkipVerify = true
+		}
+
+		if cfg.Profile.SNI != "" {
+			baseTransport.TLSClientConfig.ServerName = cfg.Profile.SNI
+		}
+
+		transportWrapper := &TransportWrapper{
+			Base:     baseTransport,
+			ReadOnly: cfg.Profile.ReadOnly,
+			Headers:  cfg.Headers,
+		}
+
+		if cfg.Bandwidth > 0 {
+			transportWrapper.Limiter = rate.NewLimiter(
+				rate.Limit(cfg.Bandwidth),
+				128*1024, // add a small burst, otherwise it seems to be buggy
+			)
 		}
 
 		o.HTTPClient = &http.Client{
-			Transport: transport,
+			Transport: transportWrapper,
 		}
 	})
 
-	if verbosity > 0 && cfg.ReadOnly {
+	if cfg.Verbosity > 0 && cfg.Profile.ReadOnly {
 		fmt.Println("> read-only mode <")
 	}
 
 	return &Controller{
 		ctx:       ctx,
-		verbosity: verbosity,
+		verbosity: cfg.Verbosity,
 		client:    s3.NewFromConfig(awsCfg, clientOptions...),
 	}, nil
 }
 
-type Transport struct {
+type TransportWrapper struct {
 	Base     http.RoundTripper
 	ReadOnly bool
-	Insecure bool
-	SNI      string
 	Headers  []string
+	Limiter  *rate.Limiter
 }
 
-func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
+func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if t.ReadOnly {
 		switch req.Method {
 		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost, http.MethodConnect:
@@ -105,30 +133,6 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 			return nil, fmt.Errorf("read-only mode: blocked %s %s", req.Method, req.URL)
 		}
 	}
-
-	if t.Base == nil {
-		t.Base = http.DefaultTransport
-	}
-
-	tr, ok := t.Base.(*http.Transport)
-	if !ok {
-		return nil, fmt.Errorf("failed to create HTTP transport")
-	}
-
-	transport := tr.Clone()
-	if transport.TLSClientConfig == nil {
-		transport.TLSClientConfig = &tls.Config{}
-	}
-
-	if t.Insecure {
-		transport.TLSClientConfig.InsecureSkipVerify = true
-	}
-
-	if t.SNI != "" {
-		transport.TLSClientConfig.ServerName = t.SNI
-	}
-
-	t.Base = transport
 
 	for _, header := range t.Headers {
 		s := strings.Split(header, ":")
@@ -139,5 +143,18 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 		req.Header.Set(s[0], s[1])
 	}
 
-	return t.Base.RoundTrip(req)
+	if req.Body != nil && t.Limiter != nil {
+		req.Body = io.NopCloser(ratelimiter.NewReader(req.Body, t.Limiter))
+	}
+
+	resp, err := t.Base.RoundTrip(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Body != nil && t.Limiter != nil {
+		resp.Body = io.NopCloser(ratelimiter.NewReader(resp.Body, t.Limiter))
+	}
+
+	return resp, nil
 }
