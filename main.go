@@ -352,9 +352,17 @@ var cmd = &cli.Command{
 			Commands: []*cli.Command{
 				{
 					Name: "ls",
+					Flags: []cli.Flag{
+						flagPrefix,
+						flagDelimiter,
+					},
 					Action: func(ctx context.Context, cmd *cli.Command) error {
 						return exec(ctx, cmd, func(ctrl *controller.Controller) error {
-							return ctrl.BucketMultipartUploadsList(cmd.String(flagBucket.Name))
+							return ctrl.BucketMultipartUploadsList(
+								cmd.String(flagBucket.Name),
+								cmd.String(flagPrefix.Name),
+								cmd.String(flagDelimiter.Name),
+							)
 						})
 					},
 				},
@@ -812,6 +820,9 @@ var cmd = &cli.Command{
 			Usage: "Calculate the bucket size",
 			Arguments: []cli.Argument{
 				argPrefix,
+			},
+			Flags: []cli.Flag{
+				flagDelimiter,
 			},
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return exec(ctx, cmd, func(ctrl *controller.Controller) error {

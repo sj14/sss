@@ -23,8 +23,8 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 			return err
 		}
 
-		if item.Prefix != nil {
-			fmt.Printf("%28s  %s\n", "PREFIX", *item.Prefix.Prefix)
+		if item.Versions == nil {
+			continue
 		}
 
 		if *item.Versions.IsLatest {
@@ -32,6 +32,7 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 			countCurrent++
 			continue
 		}
+
 		sizeVersioned += uint64(*item.Versions.Size)
 		countVersioned++
 	}
@@ -39,12 +40,11 @@ func (c *Controller) BucketSize(bucket, prefix, delimiter string) error {
 	fmt.Printf("current: %v (%d)", humanize.Bytes(sizeCurrent), countCurrent)
 	fmt.Printf(" | versions: %v (%d)", humanize.Bytes(sizeVersioned), countVersioned)
 
-	uploads, err := c.bucketMultipartUploadsList(bucket)
-	if err != nil {
-		return err
-	}
+	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, delimiter) {
+		if err != nil {
+			return err
+		}
 
-	for _, upload := range uploads {
 		parts, err := c.bucketPartsList(bucket, *upload.Key, *upload.UploadId)
 		if err != nil {
 			log.Println(err)

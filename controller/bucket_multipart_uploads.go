@@ -3,19 +3,19 @@ package controller
 import (
 	"encoding/json"
 	"fmt"
+	"iter"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
-func (c *Controller) BucketMultipartUploadsList(bucket string) error {
-	uploads, err := c.bucketMultipartUploadsList(bucket)
-	if err != nil {
-		return err
-	}
+func (c *Controller) BucketMultipartUploadsList(bucket, prefix, delimiter string) error {
+	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, delimiter) {
+		if err != nil {
+			return err
+		}
 
-	for _, upload := range uploads {
 		b, err := json.MarshalIndent(upload, "", "  ")
 		if err != nil {
 			return err
@@ -23,25 +23,34 @@ func (c *Controller) BucketMultipartUploadsList(bucket string) error {
 
 		fmt.Println(string(b))
 	}
+
 	return nil
 }
 
-func (c *Controller) bucketMultipartUploadsList(bucket string) ([]types.MultipartUpload, error) {
-	paginator := s3.NewListMultipartUploadsPaginator(c.client, &s3.ListMultipartUploadsInput{
-		Bucket: aws.String(bucket),
-	})
+func (c *Controller) bucketMultipartUploadsList(bucket, prefix, delimiter string) iter.Seq2[types.MultipartUpload, error] {
+	return func(yield func(types.MultipartUpload, error) bool) {
+		paginator := s3.NewListMultipartUploadsPaginator(c.client, &s3.ListMultipartUploadsInput{
+			Bucket:     aws.String(bucket),
+			Prefix:     &prefix,
+			Delimiter:  &delimiter,
+			MaxUploads: aws.Int32(100),
+		})
 
-	var result []types.MultipartUpload
-	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(c.ctx)
-		if err != nil {
-			return nil, err
+		for paginator.HasMorePages() {
+			page, err := paginator.NextPage(c.ctx)
+			if err != nil {
+				if !yield(types.MultipartUpload{}, err) {
+					return
+				}
+			}
+
+			for _, p := range page.Uploads {
+				if !yield(p, nil) {
+					return
+				}
+			}
 		}
-
-		result = append(result, page.Uploads...)
 	}
-
-	return result, nil
 }
 
 func (c *Controller) BucketMultipartUploadAbort(bucket, key, uploadID string) error {
