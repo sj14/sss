@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/dustin/go-humanize"
 )
 
@@ -19,20 +18,20 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 			return err
 		}
 
-		if l.Prefix != nil {
+		for _, prefix := range l.CommonPrefixes {
 			if recursive {
-				err := c.ObjectList(bucket, *l.Prefix.Prefix, originalPrefix, recursive, asJson)
+				err := c.ObjectList(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
 				if err != nil {
 					return err
 				}
 			} else {
-				fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *l.Prefix.Prefix)
+				fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *prefix.Prefix)
 			}
 		}
 
-		if l.Object != nil {
+		for _, object := range l.Contents {
 			if asJson {
-				b, err := json.MarshalIndent(l.Object, "", "  ")
+				b, err := json.MarshalIndent(l, "", "  ")
 				if err != nil {
 					return err
 				}
@@ -40,9 +39,9 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 				continue
 			}
 			fmt.Fprintf(c.OutWriter, "%s %8s  %s\n",
-				l.Object.LastModified.Local().Format(time.DateTime),
-				humanize.IBytes(uint64(*l.Object.Size)),
-				strings.TrimPrefix(*l.Object.Key, originalPrefix),
+				object.LastModified.Local().Format(time.DateTime),
+				humanize.IBytes(uint64(*object.Size)),
+				strings.TrimPrefix(*object.Key, originalPrefix),
 			)
 		}
 	}
@@ -50,13 +49,8 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 	return nil
 }
 
-type ListItem struct {
-	Object *types.Object
-	Prefix *types.CommonPrefix
-}
-
-func (c *Controller) objectList(bucket, prefix string) iter.Seq2[ListItem, error] {
-	return func(yield func(ListItem, error) bool) {
+func (c *Controller) objectList(bucket, prefix string) iter.Seq2[*s3.ListObjectsV2Output, error] {
+	return func(yield func(*s3.ListObjectsV2Output, error) bool) {
 		paginator := s3.NewListObjectsV2Paginator(c.client, &s3.ListObjectsV2Input{
 			Bucket:    aws.String(bucket),
 			Prefix:    aws.String(prefix),
@@ -66,21 +60,8 @@ func (c *Controller) objectList(bucket, prefix string) iter.Seq2[ListItem, error
 
 		for paginator.HasMorePages() {
 			page, err := paginator.NextPage(c.ctx)
-			if err != nil {
-				yield(ListItem{}, err)
+			if !yield(page, err) {
 				return
-			}
-
-			for _, p := range page.CommonPrefixes {
-				if !yield(ListItem{Prefix: &p}, nil) {
-					return
-				}
-			}
-
-			for _, o := range page.Contents {
-				if !yield(ListItem{Object: &o}, nil) {
-					return
-				}
 			}
 		}
 	}
