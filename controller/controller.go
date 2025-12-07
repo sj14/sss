@@ -7,12 +7,13 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/smithy-go/logging"
+	"github.com/aws/smithy-go/middleware"
+	smithyhttp "github.com/aws/smithy-go/transport/http"
 	"github.com/sj14/sss/util/ratelimiter"
 	"golang.org/x/time/rate"
 )
@@ -30,7 +31,8 @@ type ControllerConfig struct {
 	ErrWriter io.Writer
 	Profile   Profile
 	Verbosity uint8
-	Headers   []string
+	Headers   map[string]string
+	Params    map[string]string
 	Bandwidth uint64
 	DryRun    bool
 }
@@ -66,6 +68,38 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 
 	clientOptions := []func(o *s3.Options){
 		func(o *s3.Options) { o.UsePathStyle = cfg.Profile.PathStyle },
+		func(o *s3.Options) {
+			if len(cfg.Headers) == 0 {
+				return
+			}
+			o.APIOptions = append(o.APIOptions,
+				func(stack *middleware.Stack) error {
+					return stack.Serialize.Insert(
+						&AddHeadersMiddleware{
+							Headers: cfg.Headers,
+						},
+						"OperationSerializer",
+						middleware.Before,
+					)
+				},
+			)
+		},
+		func(o *s3.Options) {
+			if len(cfg.Params) == 0 {
+				return
+			}
+			o.APIOptions = append(o.APIOptions,
+				func(stack *middleware.Stack) error {
+					return stack.Serialize.Insert(
+						&AddParamsMiddleware{
+							Params: cfg.Params,
+						},
+						"OperationSerializer",
+						middleware.Before,
+					)
+				},
+			)
+		},
 	}
 
 	awsCfg := aws.Config{
@@ -112,7 +146,6 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 		transportWrapper := &TransportWrapper{
 			Base:     baseTransport,
 			ReadOnly: cfg.Profile.ReadOnly,
-			Headers:  cfg.Headers,
 		}
 
 		if cfg.Bandwidth > 0 {
@@ -139,7 +172,6 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 type TransportWrapper struct {
 	Base     http.RoundTripper
 	ReadOnly bool
-	Headers  []string
 	Limiter  *rate.Limiter
 }
 
@@ -150,15 +182,6 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 		default:
 			return nil, fmt.Errorf("blocked by read-only mode")
 		}
-	}
-
-	for _, header := range t.Headers {
-		s := strings.Split(header, ":")
-		if len(s) != 2 {
-			return nil, fmt.Errorf("failed to parse header, needs to be <val1:key1[,val2:key2]> :%q", header)
-		}
-
-		req.Header.Set(s[0], s[1])
 	}
 
 	if req.Body != nil && t.Limiter != nil {
@@ -175,4 +198,56 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 	}
 
 	return resp, nil
+}
+
+type AddHeadersMiddleware struct {
+	Headers map[string]string
+}
+
+func (m *AddHeadersMiddleware) ID() string {
+	return "AddCustomHTTPHeaders"
+}
+
+func (m *AddHeadersMiddleware) HandleSerialize(
+	ctx context.Context,
+	in middleware.SerializeInput,
+	next middleware.SerializeHandler,
+) (
+	middleware.SerializeOutput,
+	middleware.Metadata,
+	error,
+) {
+	if req, ok := in.Request.(*smithyhttp.Request); ok {
+		for k, v := range m.Headers {
+			req.Header.Set(k, v)
+		}
+	}
+	return next.HandleSerialize(ctx, in)
+}
+
+type AddParamsMiddleware struct {
+	Params map[string]string
+}
+
+func (m *AddParamsMiddleware) ID() string {
+	return "AddCustomURLParameter"
+}
+
+func (m *AddParamsMiddleware) HandleSerialize(
+	ctx context.Context,
+	in middleware.SerializeInput,
+	next middleware.SerializeHandler,
+) (
+	middleware.SerializeOutput,
+	middleware.Metadata,
+	error,
+) {
+	if req, ok := in.Request.(*smithyhttp.Request); ok {
+		q := req.URL.Query()
+		for k, v := range m.Params {
+			q.Set(k, v)
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+	return next.HandleSerialize(ctx, in)
 }
