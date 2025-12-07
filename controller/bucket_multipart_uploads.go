@@ -30,3 +30,13 @@ func (c *Controller) BucketMultipartUploadsList(bucket string) error {
 
 	return nil
 }
+
+func (c *Controller) BucketMultipartUploadAbort(bucket, key, uploadID string) error {
+	_, err := c.client.AbortMultipartUpload(c.ctx, &s3.AbortMultipartUploadInput{
+		Bucket:   &bucket,
+		Key:      &key,
+		UploadId: &uploadID,
+	})
+
+	return err
+}

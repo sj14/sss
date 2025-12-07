@@ -177,6 +177,22 @@ var cmd = &cli.Command{
 						})
 					},
 				},
+				{
+					Name: "rm",
+					Flags: []cli.Flag{
+						flagObjectKey,
+						flagUploadID,
+					},
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.BucketMultipartUploadAbort(
+								cmd.String(flagBucket.Name),
+								cmd.String(flagObjectKey.Name),
+								cmd.String(flagUploadID.Name),
+							)
+						})
+					},
+				},
 			},
 		},
 		{
