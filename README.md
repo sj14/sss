@@ -6,6 +6,34 @@ Yet another S3 client.
 
 [DOCS.md](DOCS.md) contains a generated documentation.
 
+## Installation
+
+### Binaries
+
+Binaries are available for all major platforms. See the [releases](https://github.com/sj14/sss/releases) page.
+
+### Container
+
+```bash
+docker run ghcr.io/sj14/sss
+```
+
+### Homebrew
+
+Using the [Homebrew](https://brew.sh/) package manager for macOS:
+
+``` text
+brew install sj14/tap/sss
+```
+
+### Go
+
+It's also possible to install via `go install`:
+
+```console
+go install github.com/sj14/sss@latest
+```
+
 ## Config File
 
 `~/.config/sss/config.toml`:
