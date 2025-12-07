@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"iter"
 	"strings"
 	"time"
 
@@ -12,48 +13,60 @@ import (
 )
 
 func (c *Controller) ObjectList(bucket, prefix, delimiter string) error {
-	objects, prefixes, err := c.objectList(bucket, prefix, delimiter)
-	if err != nil {
-		return err
-	}
+	for l, err := range c.objectList(bucket, prefix, delimiter) {
+		if err != nil {
+			return err
+		}
 
-	for _, cp := range prefixes {
-		fmt.Printf("%28s  %s\n", "PREFIX", *cp.Prefix)
-	}
+		if l.Prefix != nil {
+			fmt.Printf("%28s  %s\n", "PREFIX", *l.Prefix.Prefix)
+		}
 
-	for _, obj := range objects {
-		fmt.Printf("%s %8s  %s\n",
-			obj.LastModified.Local().Format(time.DateTime),
-			humanize.Bytes(uint64(*obj.Size)),
-			strings.TrimPrefix(*obj.Key, prefix),
-		)
+		if l.Object != nil {
+			fmt.Printf("%s %8s  %s\n",
+				l.Object.LastModified.Local().Format(time.DateTime),
+				humanize.Bytes(uint64(*l.Object.Size)),
+				strings.TrimPrefix(*l.Object.Key, prefix),
+			)
+		}
 	}
 
 	return nil
 }
 
-func (c *Controller) objectList(bucket, prefix, delimiter string) ([]types.Object, []types.CommonPrefix, error) {
-	if bucket == "" {
-		return nil, nil, fmt.Errorf("missing bucket")
-	}
+type ListItem struct {
+	Object *types.Object
+	Prefix *types.CommonPrefix
+}
 
-	paginator := s3.NewListObjectsV2Paginator(c.client, &s3.ListObjectsV2Input{
-		Bucket:    aws.String(bucket),
-		Delimiter: aws.String(delimiter),
-		Prefix:    aws.String(prefix),
-	})
+func (c *Controller) objectList(bucket, prefix, delimiter string) iter.Seq2[ListItem, error] {
+	return func(yield func(ListItem, error) bool) {
+		paginator := s3.NewListObjectsV2Paginator(c.client, &s3.ListObjectsV2Input{
+			Bucket:    aws.String(bucket),
+			Delimiter: aws.String(delimiter),
+			Prefix:    aws.String(prefix),
+			MaxKeys:   aws.Int32(100),
+		})
 
-	var objects []types.Object
-	var prefixes []types.CommonPrefix
-	for paginator.HasMorePages() {
-		page, err := paginator.NextPage(c.ctx)
-		if err != nil {
-			return nil, nil, err
+		for paginator.HasMorePages() {
+			page, err := paginator.NextPage(c.ctx)
+			if err != nil {
+				if !yield(ListItem{}, err) {
+					return
+				}
+			}
+
+			for _, p := range page.CommonPrefixes {
+				if !yield(ListItem{Prefix: &p}, nil) {
+					return
+				}
+			}
+
+			for _, o := range page.Contents {
+				if !yield(ListItem{Object: &o}, nil) {
+					return
+				}
+			}
 		}
-
-		prefixes = append(prefixes, page.CommonPrefixes...)
-		objects = append(objects, page.Contents...)
 	}
-
-	return objects, prefixes, nil
 }

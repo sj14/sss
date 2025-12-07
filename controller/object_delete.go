@@ -22,30 +22,31 @@ func (c *Controller) ObjectDelete(key string, cfg ObjectDeleteConfig) error {
 		return errors.New("use -force flag to empty the whole bucket")
 	}
 
-	objects, prefixes, err := c.objectList(cfg.Bucket, key, cfg.Delimiter)
-	if err != nil {
-		return err
-	}
-
-	for _, prefix := range prefixes {
-		err := c.ObjectDelete(*prefix.Prefix, cfg)
-		if err != nil {
-			return err
-		}
-	}
-
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(cfg.Concurrency)
 
-	for _, object := range objects {
-		eg.Go(func() error {
-			fmt.Printf("deleting %s (%s)\n", *object.Key, humanize.Bytes(uint64(*object.Size)))
-			err := c.objectDelete(cfg.Bucket, *object.Key)
+	for l, err := range c.objectList(cfg.Bucket, key, cfg.Delimiter) {
+		if err != nil {
+			return err
+		}
+
+		if l.Prefix != nil {
+			err := c.ObjectDelete(*l.Prefix.Prefix, cfg)
 			if err != nil {
 				return err
 			}
-			return nil
-		})
+		}
+
+		if l.Object != nil {
+			eg.Go(func() error {
+				fmt.Printf("deleting %s (%s)\n", *l.Object.Key, humanize.Bytes(uint64(*l.Object.Size)))
+				err := c.objectDelete(cfg.Bucket, *l.Object.Key)
+				if err != nil {
+					return err
+				}
+				return nil
+			})
+		}
 	}
 
 	return eg.Wait()
