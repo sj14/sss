@@ -318,7 +318,7 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name:  "bucket",
+			Name:  "head-bucket",
 			Usage: "Head Bucket",
 			Action: func(ctx context.Context, cmd *cli.Command) error {
 				return exec(ctx, cmd, func(ctrl *controller.Controller) error {
@@ -595,7 +595,7 @@ var cmd = &cli.Command{
 			},
 		},
 		{
-			Name:  "head",
+			Name:  "head-object",
 			Usage: "Head Object",
 			Arguments: []cli.Argument{
 				argKey,
@@ -843,7 +843,7 @@ var cmd = &cli.Command{
 		},
 
 		{
-			Name:  "acl",
+			Name:  "object-acl",
 			Usage: "Handle Object ACL",
 			Commands: []*cli.Command{
 				{
