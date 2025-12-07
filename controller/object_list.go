@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"iter"
 	"strings"
@@ -12,7 +13,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectList(bucket, prefix, delimiter string) error {
+func (c *Controller) ObjectList(bucket, prefix, delimiter string, asJson bool) error {
 	for l, err := range c.objectList(bucket, prefix, delimiter) {
 		if err != nil {
 			return err
@@ -23,6 +24,14 @@ func (c *Controller) ObjectList(bucket, prefix, delimiter string) error {
 		}
 
 		if l.Object != nil {
+			if asJson {
+				b, err := json.MarshalIndent(l.Object, "", "  ")
+				if err != nil {
+					return err
+				}
+				fmt.Println(string(b))
+				continue
+			}
 			fmt.Printf("%s %8s  %s\n",
 				l.Object.LastModified.Local().Format(time.DateTime),
 				humanize.IBytes(uint64(*l.Object.Size)),
