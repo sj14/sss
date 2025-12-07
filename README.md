@@ -68,4 +68,6 @@ profiles:
     region: earth
     access_key: <CHANGE_ME>
     secret_key: <CHANGE_ME>
+  # path_style: true
+  # read_only: true
 ```
