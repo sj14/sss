@@ -13,6 +13,7 @@ type tracker struct {
 	verbosity   uint8
 	total       uint64
 	done        uint64
+	lastLineLen int
 	lastTime    time.Time
 	startTime   time.Time
 	updateEvery time.Duration
@@ -71,7 +72,10 @@ func (p *tracker) progress(now time.Time) {
 		}
 	}
 
-	fmt.Printf("\r%-80s\r%s/%s%s | %s/s %s | %s", "", humanize.IBytes(p.done), total, percent, humanize.IBytes(uint64(speed)), eta, p.key)
+	fmt.Printf("\r%-*s\r", p.lastLineLen, "") // clear terminal line
+	out := fmt.Sprintf("%s/%s%s | %s/s %s | %s", humanize.IBytes(p.done), total, percent, humanize.IBytes(uint64(speed)), eta, p.key)
+	fmt.Print(out)
+	p.lastLineLen = len([]rune(out))
 }
 
 func (p *tracker) finish() {
@@ -85,5 +89,8 @@ func (p *tracker) finish() {
 	totalTime := time.Since(p.startTime)
 	avgSpeed := float64(p.done) / totalTime.Seconds()
 
-	fmt.Printf("\r%-80v\r%s in %v | %s/s | %s\n", "", humanize.IBytes(p.done), totalTime.Round(time.Second), humanize.IBytes(uint64(avgSpeed)), p.key)
+	fmt.Printf("\r%-*s\r", p.lastLineLen, "") // clear terminal line
+	out := fmt.Sprintf("%s in %v | %s/s | %s\n", humanize.IBytes(p.done), totalTime.Round(time.Second), humanize.IBytes(uint64(avgSpeed)), p.key)
+	fmt.Print(out)
+	p.lastLineLen = len([]rune(out))
 }
