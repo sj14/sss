@@ -532,32 +532,18 @@ var (
 		Category: "object management",
 		Name:     "cp",
 		Usage:    "Object Server Side Copy",
-		Before: func(ctx context.Context, c *cli.Command) (context.Context, error) {
-			flagBucket.Required = false
-			if flagBucket.IsSet() && flagVerbosity.Value > 0 {
-				fmt.Println("> ignoring -bucket flag <")
-			}
-			return ctx, nil
+		Arguments: []cli.Argument{
+			&cli.StringArg{
+				Name: "src-key",
+			},
+			&cli.StringArg{
+				Name: "dst-key",
+			},
 		},
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "src-bucket",
-				Usage:    "Source bucket",
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:     "src-key",
-				Usage:    "Source key",
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:     "dst-bucket",
-				Usage:    "Destinaton bucket",
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:  "dst-key",
-				Usage: "Destination key. When empty, the src-key will be used",
+				Name:  "dst-bucket",
+				Usage: "Destination bucket. When empty, the src-bucket will be used",
 			},
 			flagSSEcKey,
 			flagSSEcAlgo,
@@ -566,10 +552,10 @@ var (
 			return execute(ctx, cmd, func(ctrl *controller.Controller) error {
 				return ctrl.ObjectCopy(
 					controller.ObjectCopyConfig{
-						SrcBucket: cmd.String("src-bucket"),
-						SrcKey:    cmd.String("src-key"),
+						SrcBucket: cmd.String(flagBucket.Name),
+						SrcKey:    cmd.StringArg(argKey.Name),
 						DstBucket: cmd.String("dst-bucket"),
-						DstKey:    cmd.String("dst-key"),
+						DstKey:    cmd.StringArg("dst-key"),
 						SSEC:      parseSSEC(cmd),
 					})
 			})
