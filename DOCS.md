@@ -458,6 +458,8 @@ Object Remove
 
 **--delimiter**="":  (default: "/")
 
+**--dry-run**: 
+
 **--force**: 
 
 **--help, -h**: show help
