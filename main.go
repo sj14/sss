@@ -474,9 +474,24 @@ var cmd = &cli.Command{
 							)
 						})
 					}},
+				{
+					Name: "put",
+					Arguments: []cli.Argument{
+						argKey,
+					},
+					Action: func(ctx context.Context, cmd *cli.Command) error {
+						return Exec(ctx, cmd, func(ctrl *controller.Controller) error {
+							return ctrl.ObjectPresignPut(
+								cmd.Duration("expires-in"),
+								cmd.StringArg(argKey.Name),
+								controller.ObjectPutConfig{
+									Bucket: cmd.String(flagBucket.Name),
+								},
+							)
+						})
+					}},
 			},
 		},
-
 		{
 			Name: "policy",
 			Commands: []*cli.Command{

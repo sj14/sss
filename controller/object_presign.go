@@ -25,20 +25,20 @@ func (c *Controller) ObjectPresignGet(expiration time.Duration, cfg ObjectGetCon
 	return nil
 }
 
-// func (c *Controller) objectPresignPut(expiration time.Duration, cfg ObjectPutConfig) error {
-// 	presigner := s3.NewPresignClient(c.client)
+func (c *Controller) ObjectPresignPut(expiration time.Duration, key string, cfg ObjectPutConfig) error {
+	presigner := s3.NewPresignClient(c.client)
 
-// 	req, err := presigner.PresignPutObject(c.ctx, &s3.PutObjectInput{
-// 		Bucket: &cfg.Bucket,
-// 		Key:    &cfg.ObjectKey,
-// 		// IfMatch: ,
-// 		// SSECustomerAlgorithm: ,
-// 	}, s3.WithPresignExpires(expiration),
-// 	)
-// 	if err != nil {
-// 		return err
-// 	}
+	req, err := presigner.PresignPutObject(c.ctx, &s3.PutObjectInput{
+		Bucket: &cfg.Bucket,
+		Key:    &key,
+		// IfMatch: ,
+		// SSECustomerAlgorithm: ,
+	}, s3.WithPresignExpires(expiration),
+	)
+	if err != nil {
+		return err
+	}
 
-// 	fmt.Printf("%s\n", req.URL)
-// 	return nil
-// }
+	fmt.Printf("%s\n", req.URL)
+	return nil
+}
