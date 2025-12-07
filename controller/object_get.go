@@ -120,12 +120,13 @@ func (c *Controller) objectGet(targetPath string, cfg ObjectGetConfig) error {
 
 	// TODO: represent download ranges
 	pw := progress.NewWriter(file, total, c.verbosity, cfg.ObjectKey)
-	defer pw.Finish()
 
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)
 	if err != nil {
 		return err
 	}
+
+	pw.Finish()
 
 	return nil
 }

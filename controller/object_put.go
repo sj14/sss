@@ -74,7 +74,6 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 	}
 
 	pr := progress.NewReader(f, uint64(stat.Size()), c.verbosity, key)
-	defer pr.Finish()
 
 	putObjectInput := &s3.PutObjectInput{
 		Bucket: aws.String(cfg.Bucket),
@@ -94,12 +93,10 @@ func (c *Controller) objectPut(filePath, key string, cfg ObjectPutConfig) error 
 		return err
 	}
 
-	// b, err := json.MarshalIndent(resp, "", "  ")
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fmt.Println(string(b))
+	// don't put it into a defer after initializing
+	// as it would then output the progress even when
+	// the upload was abortet due to an error
+	pr.Finish()
 
 	return nil
 }

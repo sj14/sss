@@ -141,7 +141,7 @@ func (t *TransportWrapper) RoundTrip(req *http.Request) (*http.Response, error) 
 	if t.ReadOnly {
 		switch req.Method {
 		case http.MethodDelete, http.MethodPatch, http.MethodPut, http.MethodPost, http.MethodConnect:
-			return nil, fmt.Errorf("read-only mode: blocked %s %s", req.Method, req.URL)
+			return nil, fmt.Errorf("blocked by read-only mode")
 		}
 	}
 
