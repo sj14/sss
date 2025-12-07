@@ -4,7 +4,7 @@ Yet another S3 client.
 
 ## Documentation
 
-[DOCS.md](DOCS.md) contains the generated documentation.
+[DOCS.md](DOCS.md) contains a generated documentation.
 
 ## Config File
 

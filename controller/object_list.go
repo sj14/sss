@@ -25,7 +25,7 @@ func (c *Controller) ObjectList(bucket, prefix, delimiter string) error {
 		if l.Object != nil {
 			fmt.Printf("%s %8s  %s\n",
 				l.Object.LastModified.Local().Format(time.DateTime),
-				humanize.Bytes(uint64(*l.Object.Size)),
+				humanize.IBytes(uint64(*l.Object.Size)),
 				strings.TrimPrefix(*l.Object.Key, prefix),
 			)
 		}

@@ -8,18 +8,20 @@ import (
 )
 
 type LimitReader struct {
-	r io.Reader
-	l *rate.Limiter
+	ctx     context.Context
+	reader  io.Reader
+	limiter *rate.Limiter
 }
 
-func NewReader(r io.Reader, l *rate.Limiter) *LimitReader {
+func NewReader(ctx context.Context, r io.Reader, l *rate.Limiter) *LimitReader {
 	return &LimitReader{
-		r: r,
-		l: l,
+		ctx:     ctx,
+		reader:  r,
+		limiter: l,
 	}
 }
 
-func (rr *LimitReader) Read(p []byte) (int, error) {
-	_ = rr.l.WaitN(context.Background(), len(p))
-	return rr.r.Read(p)
+func (lr *LimitReader) Read(p []byte) (int, error) {
+	_ = lr.limiter.WaitN(lr.ctx, len(p))
+	return lr.reader.Read(p)
 }
