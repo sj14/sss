@@ -101,7 +101,7 @@ func (p *tracker) finish() {
 	}
 
 	fmt.Fprintf(p.outputWriter, "\r%-*s\r", p.lastLineLen, "") // clear terminal line
-	out := fmt.Sprintf("%7s in %3s | %7s/s | %s\n", humanize.IBytes(p.done), totalTimeStr, humanize.IBytes(uint64(avgSpeed)), p.key)
+	out := fmt.Sprintf("%7s in %3s | %8s/s | %s\n", humanize.IBytes(p.done), totalTimeStr, humanize.IBytes(uint64(avgSpeed)), p.key)
 	fmt.Fprint(p.outputWriter, out)
 	p.lastLineLen = len([]rune(out))
 }
