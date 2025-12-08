@@ -8,18 +8,18 @@ Yet another S3 client.
 
 Binaries are available for all major platforms. See the [releases](https://github.com/sj14/sss/releases) page.
 
-### Container
-
-```bash
-docker pull ghcr.io/sj14/sss
-```
-
 ### Homebrew
 
 Using the [Homebrew](https://brew.sh/) package manager for macOS:
 
 ``` text
 brew install sj14/tap/sss
+```
+
+### Container
+
+```bash
+docker pull ghcr.io/sj14/sss
 ```
 
 ### Go
@@ -283,14 +283,16 @@ Only works when the end of the prefix is `/`.
 ##### Upload a single object with different name:
 
 ```
-➜ sss bucket simon-crasher put ~/Downloads/1MB.bin yolo
+➜ sss bucket <bucket> put ~/Downloads/1MB.bin yolo
 1.0 MiB in  1s | 1.6 MiB/s | yolo
 ```
 
 ##### Upload a single object into a directory/prefix:
 
+Only works when the end of the prefix is `/`.
+
 ```
-➜ sss bucket simon-crasher put ~/Downloads/1MB.bin yolo/
+➜ sss bucket <bucket> put ~/Downloads/1MB.bin yolo/
 1.0 MiB in  1s | 1.6 MiB/s | yolo/1MB.bin
 ```
 
