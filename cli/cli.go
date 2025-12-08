@@ -14,26 +14,26 @@ import (
 
 type CLI struct {
 	// Commands
-	Profiles Profiles `cmd:"" name:"profiles" aliases:"p"  help:"List availale profiles."`
+	Profiles Profiles `cmd:"" name:"profiles" aliases:"p"                          help:"List availale profiles."`
 	Buckets  Buckets  `cmd:"" name:"buckets"  aliases:"ls" group:"Bucket Commands" help:"List all buckets."`
-	Bucket   Bucket   `cmd:"" name:"bucket"   aliases:"b"  help:"Manage bucket and objects."`
-	Version  Version  `cmd:"" name:"version"  help:"Show version information."`
+	Bucket   Bucket   `cmd:"" name:"bucket"   aliases:"b"                          help:"Manage bucket and objects."`
+	Version  Version  `cmd:"" name:"version"                                       help:"Show version information."`
 
 	// Flags
-	Config    string            `name:"config"    short:"c"         help:"Path to the config file (default: ~/.config/sss/config.toml)."`
+	Config    string            `name:"config"    short:"c"                   help:"Path to the config file (default: ~/.config/sss/config.toml)."`
 	Profile   string            `name:"profile"   short:"p" default:"default" help:"Profile to use." `
 	Verbosity uint8             `name:"verbosity" short:"v" default:"1"       help:"Verbose output"`
-	Endpoint  string            `name:"endpoint"                     help:"S3 endpoint URL."`
-	Region    string            `name:"region"                       help:"S3 region."`
-	PathStyle bool              `name:"path-style"                   help:"Use path style S3 requests."`
-	AccessKey string            `name:"access-key"                   help:"S3 access key."`
-	SecretKey string            `name:"secret-key"                   help:"S3 secret key."`
-	Insecure  bool              `name:"insecure"                     help:"Skip TLS verification."`
-	ReadOnly  bool              `name:"read-only"                    help:"Only allow safe HTTP methods."`
-	Bandwidth string            `name:"bandwidth"                    help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
-	Headers   map[string]string `name:"header"                       help:"Set HTTP headers (format: 'key1=val1;key2=val2')."`
-	Params    map[string]string `name:"param"                        help:"Set URL parameters (format: 'key1=val1;key2=val2')."`
-	SNI       string            `name:"sni"                          help:"TLS Server Name Indication."`
+	Endpoint  string            `name:"endpoint"                              help:"S3 endpoint URL."`
+	Region    string            `name:"region"                                help:"S3 region."`
+	PathStyle bool              `name:"path-style"                            help:"Use path style S3 requests."`
+	AccessKey string            `name:"access-key"                            help:"S3 access key."`
+	SecretKey string            `name:"secret-key"                            help:"S3 secret key."`
+	Insecure  bool              `name:"insecure"                              help:"Skip TLS verification."`
+	ReadOnly  bool              `name:"read-only"                             help:"Only allow safe HTTP methods."`
+	Bandwidth string            `name:"bandwidth"                             help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
+	Headers   map[string]string `name:"header"                                help:"Set HTTP headers (format: 'key1=val1;key2=val2')."`
+	Params    map[string]string `name:"param"                                 help:"Set URL parameters (format: 'key1=val1;key2=val2')."`
+	SNI       string            `name:"sni"                                   help:"TLS Server Name Indication."`
 }
 
 type ArgPath struct {
@@ -159,28 +159,28 @@ type Bucket struct {
 type BucketArg struct {
 	BucketName string `arg:"" name:"bucket"`
 
-	BucketCreate     BucketCreate     `cmd:"" group:"Bucket Commands" name:"mb"`
-	BucketHead       BucketHead       `cmd:"" group:"Bucket Commands" name:"hb"`
-	BucketRemove     BucketRemove     `cmd:"" group:"Bucket Commands" name:"rb"`
-	BucketPolicy     BucketPolicy     `cmd:"" group:"Bucket Commands" name:"policy"`
-	BucketCors       BucketCors       `cmd:"" group:"Bucket Commands" name:"cors"`
-	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands" name:"tag"`
-	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands" name:"lifecycle" aliases:"lc"`
-	BucketVersioning BucketVersioning `cmd:"" group:"Bucket Commands" name:"versioning"`
-	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands" name:"cleanup"`
-	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands" name:"object-lock" aliases:"ol"`
-	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands" name:"size"`
-	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart" aliases:"mp"`
-	ObjectList       ObjectList       `cmd:"" group:"Object Commands" name:"ls"`
-	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands" name:"cp"`
-	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands" name:"put"`
-	ObjectPutRand    ObjectPutRand    `cmd:"" group:"Object Commands" name:"put-rand"`
-	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands" name:"rm"`
-	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands" name:"get" help:"Download files. Requires HeadObject permission."`
-	ObcectHead       ObjectHead       `cmd:"" group:"Object Commands" name:"head"`
-	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands" name:"presign"`
-	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands" name:"acl"`
-	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands" name:"versions"`
+	BucketCreate     BucketCreate     `cmd:"" group:"Bucket Commands"    name:"mb"                         help:"Make/create bucket."`
+	BucketHead       BucketHead       `cmd:"" group:"Bucket Commands"    name:"hb"                         help:"Head bucket lists bucket information."`
+	BucketRemove     BucketRemove     `cmd:"" group:"Bucket Commands"    name:"rb"                         help:"Remove/delete bucket."`
+	BucketPolicy     BucketPolicy     `cmd:"" group:"Bucket Commands"    name:"policy"                     help:"Manage bucket policy."`
+	BucketCors       BucketCors       `cmd:"" group:"Bucket Commands"    name:"cors"                       help:"Manage CORS policy."`
+	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands"    name:"tag"                        help:"Manage bucket tags."`
+	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands"    name:"lifecycle"   aliases:"lc"   help:"Manage lifecycle policy."`
+	BucketVersioning BucketVersioning `cmd:"" group:"Bucket Commands"    name:"versioning"                 help:"Manage bucket versioning."`
+	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands"    name:"cleanup"                    help:"Remove all objects versions and multiparts from the bucket."`
+	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands"    name:"object-lock" aliases:"ol"   help:"Manage bucket object-locking."`
+	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands"    name:"size"                       help:"Calculate bucket size (resource heavy!)"`
+	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart"   aliases:"mp"   help:"Manage multipart uploads."`
+	ObjectList       ObjectList       `cmd:"" group:"Object Commands"    name:"ls"                         help:"List objects."`
+	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands"    name:"cp"                         help:"Server-side copy."`
+	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands"    name:"put"                        help:"Upload object(s)."`
+	ObjectPutRand    ObjectPutRand    `cmd:"" group:"Object Commands"    name:"put-rand"                   help:"Upload random object(s)."`
+	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands"    name:"rm"                         help:"Remove object."`
+	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands"    name:"get"                        help:"Download object(s). Requires HeadObject permission."`
+	ObcectHead       ObjectHead       `cmd:"" group:"Object Commands"    name:"head"                       help:"Head Object Liss object information."`
+	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands"    name:"versions"                   help:"List object versions"`
+	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands"    name:"presign"                    help:"Create pre-signed URLs."`
+	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands"    name:"acl"                        help:"Manage object ACLs."`
 }
 
 type BucketCleanup struct {
@@ -220,7 +220,7 @@ func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type ObjectACL struct {
-	ObjectACLGet ObjectACLGet `cmd:"" name:"get"`
+	ObjectACLGet ObjectACLGet `cmd:"" name:"get" help:"Get object ACL."`
 }
 
 type ObjectACLGet struct {
@@ -248,8 +248,8 @@ func (s BucketSize) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketVersioning struct {
-	BucketVersioningGet BucketVersioningGet `cmd:"" name:"get"`
-	BucketVersioningPut BucketVersioningPut `cmd:"" name:"put"`
+	BucketVersioningGet BucketVersioningGet `cmd:"" name:"get" help:"Get bucket versioning config."`
+	BucketVersioningPut BucketVersioningPut `cmd:"" name:"put" help:"Put bucket versioning config."`
 }
 
 type BucketVersioningGet struct{}
@@ -272,9 +272,9 @@ func (s BucketVersioningPut) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketLifecycle struct {
-	BucketLifecycleGet    BucketLifecycleGet    `cmd:"" name:"get"`
-	BucketLifecyclePut    BucketLifecyclePut    `cmd:"" name:"put"`
-	BucketLifecycleDelete BucketLifecycleDelete `cmd:"" name:"rm"`
+	BucketLifecycleGet    BucketLifecycleGet    `cmd:"" name:"get" help:"Get lifecycle policy."`
+	BucketLifecyclePut    BucketLifecyclePut    `cmd:"" name:"put" help:"Put lifecycle policy."`
+	BucketLifecycleDelete BucketLifecycleDelete `cmd:"" name:"rm"  help:"Delte lifecycle policy."`
 }
 
 type BucketLifecycleGet struct{}
@@ -305,8 +305,8 @@ func (s BucketLifecycleDelete) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type ObjectLock struct {
-	ObjectLockGet ObjectLockGet `cmd:"" name:"get"`
-	ObjectLockPut ObjectLockPut `cmd:"" name:"put"`
+	ObjectLockGet ObjectLockGet `cmd:"" name:"get" help:"Get object-lock config."`
+	ObjectLockPut ObjectLockPut `cmd:"" name:"put" help:"Put object-lock config."`
 }
 
 type ObjectLockGet struct{}
@@ -329,9 +329,9 @@ func (s ObjectLockPut) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketCors struct {
-	BucketCorsGet    BucketCorsGet    `cmd:"" name:"get"`
-	BucketCorsPut    BucketCorsPut    `cmd:"" name:"put"`
-	BucketCorsRemove BucketCorsRemove `cmd:"" name:"rm"`
+	BucketCorsGet    BucketCorsGet    `cmd:"" name:"get" help:"Get CORS policy."`
+	BucketCorsPut    BucketCorsPut    `cmd:"" name:"put" help:"Put CORS policy."`
+	BucketCorsRemove BucketCorsRemove `cmd:"" name:"rm"  help:"Delete CORS policy."`
 }
 
 type BucketCorsRemove struct{}
@@ -362,9 +362,9 @@ func (s BucketCorsGet) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketPolicy struct {
-	BucketPolicyGet    BucketPolicyGet    `cmd:"" name:"get"`
-	BucketPolicyPut    BucketPolicyPut    `cmd:"" name:"put"`
-	BucketPolicyRemove BucketPolicyRemove `cmd:"" name:"rm"`
+	BucketPolicyGet    BucketPolicyGet    `cmd:"" name:"get" help:"Get lifecycle policy."`
+	BucketPolicyPut    BucketPolicyPut    `cmd:"" name:"put" help:"Put lifecycle policy."`
+	BucketPolicyRemove BucketPolicyRemove `cmd:"" name:"rm"  help:"Delete lifecycle policy."`
 }
 
 type BucketPolicyPut struct {
@@ -395,8 +395,8 @@ func (s BucketPolicyRemove) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type ObjectPresign struct {
-	PresignGet PresignGet `cmd:"" name:"get"`
-	PresignPut PresignPut `cmd:"" name:"put"`
+	PresignGet PresignGet `cmd:"" name:"get" help:"Create pre-signed URL for GET request."`
+	PresignPut PresignPut `cmd:"" name:"put" help:"Create pre-signed URL for PUT request."`
 	flagExpiresIn
 }
 
@@ -629,7 +629,7 @@ func (s ObjectList) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketTag struct {
-	BucketTagGet BucketTagGet `cmd:"" name:"get"`
+	BucketTagGet BucketTagGet `cmd:"" name:"get" help:"Get bucket tag."`
 }
 
 type BucketTagGet struct{}
@@ -639,10 +639,10 @@ func (s BucketTagGet) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type Multipart struct {
-	MultipartRemove MultipartRemove `cmd:"" name:"rm"`
-	MultipartList   MultipartList   `cmd:"" name:"ls"`
-	MultipartCreate MultipartCreate `cmd:"" name:"create"`
-	MultipartParts  MultipartParts  `cmd:"" name:"parts"`
+	MultipartRemove MultipartRemove `cmd:"" name:"rm"     help:"Delete multipart upload."`
+	MultipartList   MultipartList   `cmd:"" name:"ls"     help:"List multipart uploads."`
+	MultipartCreate MultipartCreate `cmd:"" name:"create" help:"Create multipart upload."`
+	MultipartParts  MultipartParts  `cmd:"" name:"parts"  help:"Manage parts."`
 }
 
 type MultipartCreate struct {
@@ -687,7 +687,7 @@ func (s MultipartRemove) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type MultipartParts struct {
-	PartsList PartsList `cmd:"" name:"ls"`
+	PartsList PartsList `cmd:"" name:"ls" help:"List parts."`
 }
 
 type PartsList struct {

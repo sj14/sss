@@ -57,97 +57,136 @@ read_only  = true
 Usage: sss <command> [flags]
 
 Flags:
-  -h, --help                 Show context-sensitive help.
-      --config=STRING        Path to the config file (default:
-                             ~/.config/sss/config.toml) ($SSS_CONFIG).
-      --profile="default"    Profile to use ($SSS_PROFILE).
-      --endpoint=STRING      S3 endpoint URL ($SSS_ENDPOINT).
-      --region=STRING        S3 region ($SSS_REGION).
-      --path-style           Use path style S3 requests ($SSS_PATH_STYLE).
-      --access-key=STRING    S3 access key ($SSS_ACCESS_KEY).
-      --secret-key=STRING    S3 secret key ($SSS_SECRET_KEY).
-      --insecure             Skip TLS verification ($SSS_INSECURE).
-      --read-only            Only allow safe HTTP methods ($SSS_READ_ONLY).
-      --bandwidth=STRING     Limit bandwith per second, e.g. '1 MiB' (always 64
-                             KiB burst) ($SSS_BANDWIDTH).
-      --header=HEADER,...    Add additional HTTP headers (format:
-                             'key1:val1,key2:val2') ($SSS_HEADER).
-      --sni=STRING           TLS Server Name Indication ($SSS_SNI).
+  -h, --help                    Show context-sensitive help.
+  -c, --config=STRING           Path to the config file (default: ~/.config/sss/config.toml) ($SSS_CONFIG).
+  -p, --profile="default"       Profile to use ($SSS_PROFILE).
+  -v, --verbosity=1             Verbose output ($SSS_VERBOSITY)
+      --endpoint=STRING         S3 endpoint URL ($SSS_ENDPOINT).
+      --region=STRING           S3 region ($SSS_REGION).
+      --path-style              Use path style S3 requests ($SSS_PATH_STYLE).
+      --access-key=STRING       S3 access key ($SSS_ACCESS_KEY).
+      --secret-key=STRING       S3 secret key ($SSS_SECRET_KEY).
+      --insecure                Skip TLS verification ($SSS_INSECURE).
+      --read-only               Only allow safe HTTP methods ($SSS_READ_ONLY).
+      --bandwidth=STRING        Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst) ($SSS_BANDWIDTH).
+      --header=KEY=VALUE;...    Set HTTP headers (format: 'key1=val1;key2=val2') ($SSS_HEADER).
+      --param=KEY=VALUE;...     Set URL parameters (format: 'key1=val1;key2=val2') ($SSS_PARAM).
+      --sni=STRING              TLS Server Name Indication ($SSS_SNI).
 
 Commands:
-  profiles [flags]
+  profiles (p) [flags]
     List availale profiles.
 
   version [flags]
     Show version information.
 
 Bucket Commands
-  buckets [flags]
+  buckets (ls) [flags]
     List all buckets.
 
-  bucket <bucket> mb [flags]
+  bucket (b) <bucket> mb [flags]
+    Make/create bucket.
 
-  bucket <bucket> hb
+  bucket (b) <bucket> hb
+    Head bucket lists bucket information.
 
-  bucket <bucket> rb [flags]
+  bucket (b) <bucket> rb [flags]
+    Remove/delete bucket.
 
-  bucket <bucket> policy get
+  bucket (b) <bucket> policy get
+    Get lifecycle policy.
 
-  bucket <bucket> policy put <path>
+  bucket (b) <bucket> policy put <path>
+    Put lifecycle policy.
 
-  bucket <bucket> policy rm
+  bucket (b) <bucket> policy rm
+    Delete lifecycle policy.
 
-  bucket <bucket> cors get
+  bucket (b) <bucket> cors get
+    Get CORS policy.
 
-  bucket <bucket> cors put <path>
+  bucket (b) <bucket> cors put <path>
+    Put CORS policy.
 
-  bucket <bucket> cors rm
+  bucket (b) <bucket> cors rm
+    Delete CORS policy.
 
-  bucket <bucket> tag get
+  bucket (b) <bucket> tag get
+    Get bucket tag.
 
-  bucket <bucket> lifecycle get
+  bucket (b) <bucket> lifecycle (lc) get
+    Get lifecycle policy.
 
-  bucket <bucket> lifecycle put <path>
+  bucket (b) <bucket> lifecycle (lc) put <path>
+    Put lifecycle policy.
 
-  bucket <bucket> lifecycle rm
+  bucket (b) <bucket> lifecycle (lc) rm
+    Delte lifecycle policy.
 
-  bucket <bucket> versioning get
+  bucket (b) <bucket> versioning get
+    Get bucket versioning config.
 
-  bucket <bucket> versioning put <path>
+  bucket (b) <bucket> versioning put <path>
+    Put bucket versioning config.
 
-  bucket <bucket> object-lock get
+  bucket (b) <bucket> cleanup [flags]
+    Remove all objects versions and multiparts from the bucket.
 
-  bucket <bucket> object-lock put <path>
+  bucket (b) <bucket> object-lock (ol) get
+    Get object-lock config.
 
-  bucket <bucket> size [<path>]
+  bucket (b) <bucket> object-lock (ol) put <path>
+    Put object-lock config.
+
+  bucket (b) <bucket> size [<path>]
+    Calculate bucket size (resource heavy!)
 
 Multipart Commands
-  bucket <bucket> multiparts rm <object> <upload-id>
+  bucket (b) <bucket> multipart (mp) rm <object> <upload-id>
+    Delete multipart upload.
 
-  bucket <bucket> multiparts ls [<prefix>] [flags]
+  bucket (b) <bucket> multipart (mp) ls [<prefix>] [flags]
+    List multipart uploads.
 
-  bucket <bucket> multiparts parts ls <object> <upload-id> [flags]
+  bucket (b) <bucket> multipart (mp) create [<prefix>]
+    Create multipart upload.
+
+  bucket (b) <bucket> multipart (mp) parts ls <object> <upload-id> [flags]
+    List parts.
 
 Object Commands
-  bucket <bucket> ls [<prefix>] [flags]
+  bucket (b) <bucket> ls [<prefix>] [flags]
+    List objects.
 
-  bucket <bucket> cp <src-object> <dst-bucket> <dst-object>
+  bucket (b) <bucket> cp <src-object> <dst-bucket> <dst-object> [flags]
+    Server-side copy.
 
-  bucket <bucket> put <path> [<destination>] [flags]
+  bucket (b) <bucket> put <path> [<destination>] [flags]
+    Upload object(s).
 
-  bucket <bucket> rm <object> [flags]
+  bucket (b) <bucket> put-rand [flags]
+    Upload random object(s).
 
-  bucket <bucket> get <object> [<destination>] [flags]
+  bucket (b) <bucket> rm <object> [flags]
+    Remove object.
 
-  bucket <bucket> head <object>
+  bucket (b) <bucket> get <object> [<destination>] [flags]
+    Download object(s). Requires HeadObject permission.
 
-  bucket <bucket> presign get <object> [flags]
+  bucket (b) <bucket> head <object> [flags]
+    Head Object Liss object information.
 
-  bucket <bucket> presign put <object> [flags]
+  bucket (b) <bucket> versions [<path>] [flags]
+    List object versions
 
-  bucket <bucket> acl get <object> [flags]
+  bucket (b) <bucket> presign get <object> [flags]
+    Create pre-signed URL for GET request.
 
-  bucket <bucket> versions [<path>] [flags]
+  bucket (b) <bucket> presign put <object> [flags]
+    Create pre-signed URL for PUT request.
+
+  bucket (b) <bucket> acl get <object> [flags]
+    Get object ACL.
 
 Run "sss <command> --help" for more information on a command.
 ```
