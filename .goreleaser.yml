@@ -14,18 +14,18 @@ builds:
       - darwin
       - windows
 archives:
-  - format: binary
+  - formats: [binary]
 checksum:
   name_template: "checksums.txt"
 snapshot:
   version_template: "{{ .Tag }}-next-{{.Commit}}"
-brews:
+homebrew_casks:
   - name: sss
     skip_upload: auto
     repository:
       owner: sj14
       name: homebrew-tap
-    description: "S3 clietn"
+    description: "S3 client"
 release:
   github:
     owner: sj14
