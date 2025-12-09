@@ -22,14 +22,14 @@ type CLI struct {
 	// Flags
 	Config    string            `name:"config"    short:"c"                   help:"Path to the config file (default: ~/.config/sss/config.toml)."`
 	Profile   string            `name:"profile"   short:"p" default:"default" help:"Profile to use." `
-	Verbosity uint8             `name:"verbosity" short:"v" default:"1"       help:"Verbose output"`
+	Verbosity uint8             `name:"verbosity" short:"v" default:"1"       help:"Output verbosity (0=disable; 1=default; 8=header; 9=body)."`
 	Endpoint  string            `name:"endpoint"                              help:"S3 endpoint URL."`
 	Region    string            `name:"region"                                help:"S3 region."`
 	PathStyle bool              `name:"path-style"                            help:"Use path style S3 requests."`
 	AccessKey string            `name:"access-key"                            help:"S3 access key."`
 	SecretKey string            `name:"secret-key"                            help:"S3 secret key."`
 	Insecure  bool              `name:"insecure"                              help:"Skip TLS verification."`
-	ReadOnly  bool              `name:"read-only"                             help:"Only allow safe HTTP methods."`
+	ReadOnly  bool              `name:"read-only"                             help:"Only allow safe HTTP methods (HEAD, GET, OPTIONS)."`
 	Bandwidth string            `name:"bandwidth"                             help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
 	Headers   map[string]string `name:"header"                                help:"Set HTTP headers (format: 'key1=val1;key2=val2')."`
 	Params    map[string]string `name:"param"                                 help:"Set URL parameters (format: 'key1=val1;key2=val2')."`

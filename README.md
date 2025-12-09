@@ -60,14 +60,14 @@ Flags:
   -h, --help                    Show context-sensitive help.
   -c, --config=STRING           Path to the config file (default: ~/.config/sss/config.toml) ($SSS_CONFIG).
   -p, --profile="default"       Profile to use ($SSS_PROFILE).
-  -v, --verbosity=1             Verbose output ($SSS_VERBOSITY)
+  -v, --verbosity=1             Output verbosity (0=disable; 1=default; 8=header; 9=body) ($SSS_VERBOSITY).
       --endpoint=STRING         S3 endpoint URL ($SSS_ENDPOINT).
       --region=STRING           S3 region ($SSS_REGION).
       --path-style              Use path style S3 requests ($SSS_PATH_STYLE).
       --access-key=STRING       S3 access key ($SSS_ACCESS_KEY).
       --secret-key=STRING       S3 secret key ($SSS_SECRET_KEY).
       --insecure                Skip TLS verification ($SSS_INSECURE).
-      --read-only               Only allow safe HTTP methods ($SSS_READ_ONLY).
+      --read-only               Only allow safe HTTP methods (HEAD, GET, OPTIONS) ($SSS_READ_ONLY).
       --bandwidth=STRING        Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst) ($SSS_BANDWIDTH).
       --header=KEY=VALUE;...    Set HTTP headers (format: 'key1=val1;key2=val2') ($SSS_HEADER).
       --param=KEY=VALUE;...     Set URL parameters (format: 'key1=val1;key2=val2') ($SSS_PARAM).
