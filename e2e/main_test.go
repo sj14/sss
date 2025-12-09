@@ -34,7 +34,7 @@ func run(ctx context.Context, args ...string) (string, error) {
 
 	runMutex.Lock()
 	os.Args = append([]string{"sss", "--config=config.toml", "--profile=localstack"}, args...)
-	err := cli.Exec(ctx, writer, writer, "e2e test")
+	err := cli.Exec(ctx, writer, writer, util.BuildInfo{Version: "e2e-test"})
 	runMutex.Unlock()
 
 	return writer.sb.String(), err

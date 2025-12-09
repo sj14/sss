@@ -13,10 +13,10 @@ import (
 	"github.com/sj14/sss/util"
 )
 
-func Exec(ctx context.Context, outWriter, errWriter io.Writer, version string) error {
+func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.BuildInfo) error {
 	cli := CLI{
 		Version: Version{
-			version: version,
+			info: buildInfo,
 		},
 	}
 
@@ -75,6 +75,7 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, version string) e
 			Params:    cli.Params,
 			Bandwidth: bandwidth,
 			DryRun:    dryRun,
+			BuildInfo: buildInfo,
 		})
 	if err != nil {
 		return err

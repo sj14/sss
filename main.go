@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/sj14/sss/cli"
+	"github.com/sj14/sss/util"
 )
 
 var (
@@ -20,7 +20,11 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	ver := fmt.Sprintf("version: %s | commit: %s | date: %s", version, commit, date)
+	ver := util.BuildInfo{
+		Version: version,
+		Commit:  commit,
+		Date:    date,
+	}
 
 	if err := cli.Exec(
 		ctx,

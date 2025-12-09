@@ -9,11 +9,13 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/middleware"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/smithy-go/logging"
-	"github.com/aws/smithy-go/middleware"
+	smithymiddleware "github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
+	"github.com/sj14/sss/util"
 	"github.com/sj14/sss/util/ratelimiter"
 	"golang.org/x/time/rate"
 )
@@ -35,6 +37,7 @@ type ControllerConfig struct {
 	Params    map[string]string
 	Bandwidth uint64
 	DryRun    bool
+	BuildInfo util.BuildInfo
 }
 
 type Config struct {
@@ -69,17 +72,22 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 	clientOptions := []func(o *s3.Options){
 		func(o *s3.Options) { o.UsePathStyle = cfg.Profile.PathStyle },
 		func(o *s3.Options) {
+			o.APIOptions = append(o.APIOptions,
+				middleware.AddUserAgentKeyValue("sss", cfg.BuildInfo.Version),
+			)
+		},
+		func(o *s3.Options) {
 			if len(cfg.Headers) == 0 {
 				return
 			}
 			o.APIOptions = append(o.APIOptions,
-				func(stack *middleware.Stack) error {
+				func(stack *smithymiddleware.Stack) error {
 					return stack.Serialize.Insert(
 						&AddHeadersMiddleware{
 							Headers: cfg.Headers,
 						},
 						"OperationSerializer",
-						middleware.Before,
+						smithymiddleware.Before,
 					)
 				},
 			)
@@ -89,13 +97,13 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 				return
 			}
 			o.APIOptions = append(o.APIOptions,
-				func(stack *middleware.Stack) error {
+				func(stack *smithymiddleware.Stack) error {
 					return stack.Serialize.Insert(
 						&AddParamsMiddleware{
 							Params: cfg.Params,
 						},
 						"OperationSerializer",
-						middleware.Before,
+						smithymiddleware.Before,
 					)
 				},
 			)
@@ -210,11 +218,11 @@ func (m *AddHeadersMiddleware) ID() string {
 
 func (m *AddHeadersMiddleware) HandleSerialize(
 	ctx context.Context,
-	in middleware.SerializeInput,
-	next middleware.SerializeHandler,
+	in smithymiddleware.SerializeInput,
+	next smithymiddleware.SerializeHandler,
 ) (
-	middleware.SerializeOutput,
-	middleware.Metadata,
+	smithymiddleware.SerializeOutput,
+	smithymiddleware.Metadata,
 	error,
 ) {
 	if req, ok := in.Request.(*smithyhttp.Request); ok {
@@ -235,11 +243,11 @@ func (m *AddParamsMiddleware) ID() string {
 
 func (m *AddParamsMiddleware) HandleSerialize(
 	ctx context.Context,
-	in middleware.SerializeInput,
-	next middleware.SerializeHandler,
+	in smithymiddleware.SerializeInput,
+	next smithymiddleware.SerializeHandler,
 ) (
-	middleware.SerializeOutput,
-	middleware.Metadata,
+	smithymiddleware.SerializeOutput,
+	smithymiddleware.Metadata,
 	error,
 ) {
 	if req, ok := in.Request.(*smithyhttp.Request); ok {

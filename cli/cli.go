@@ -138,11 +138,11 @@ func (s Profiles) Run(cli CLI, ctrl *controller.Controller, config controller.Co
 }
 
 type Version struct {
-	version string
+	info util.BuildInfo
 }
 
 func (s Version) Run(cli CLI, ctrl *controller.Controller, config controller.Config) error {
-	fmt.Fprintln(ctrl.OutWriter, s.version)
+	fmt.Fprintln(ctrl.OutWriter, s.info.String())
 	return nil
 }
 
