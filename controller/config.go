@@ -18,6 +18,15 @@ func LoadConfig(configPath string) (Config, error) {
 
 	if configPath == "" {
 		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
+
+		// prevent failing when the default config does not exist
+		_, err := os.Stat(configPath)
+		if os.IsNotExist(err) {
+			return config, nil
+		}
+		if err != nil {
+			return config, err
+		}
 	}
 
 	// TODO: check file permissions (e.g. is it group readable, similar as ssh is doing)
