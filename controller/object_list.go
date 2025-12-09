@@ -31,7 +31,7 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 
 		for _, object := range l.Contents {
 			if asJson {
-				b, err := json.MarshalIndent(object, "", "  ")
+				b, err := json.Marshal(object)
 				if err != nil {
 					return err
 				}

@@ -31,7 +31,7 @@ func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recur
 
 		for _, v := range resp.Versions {
 			if asJson {
-				b, err := json.MarshalIndent(v, "", "  ")
+				b, err := json.Marshal(v)
 				if err != nil {
 					return err
 				}

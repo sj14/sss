@@ -61,7 +61,7 @@ type FlagRecursive struct {
 }
 
 type FlagJson struct {
-	AsJson bool `name:"json" short:"j"`
+	AsJson bool `name:"json" short:"j" help:"Output as JSON or JSONL."`
 }
 
 type FlagConcurrency struct {

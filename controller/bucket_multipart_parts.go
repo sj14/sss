@@ -26,7 +26,7 @@ func (c *Controller) BucketPartsList(bucket, key, uploadID string, asJson bool) 
 		}
 
 		if asJson {
-			b, err := json.MarshalIndent(part, "", "  ")
+			b, err := json.Marshal(part)
 			if err != nil {
 				return err
 			}
