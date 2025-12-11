@@ -1,6 +1,17 @@
 # sss
 
-Yet another S3 client.
+`sss` is yet another S3 client. I respect all the existing clients and `sss` certainly has its own shortcomings, but some reasons for starting the project:
+
+- Having a single deployable binary.
+- A CLI and config which can handle non-AWS S3 use-cases well ([compare](https://github.com/aws/aws-cli/issues/4215)).
+- Get somewhat meaningful errors instead of `'NoneType' is not iterable`.
+- Having a read-only mode (allowing only [safe](https://httpwg.org/specs/rfc9110.html#safe.methods) HTTP methods).
+- Having the S3 feature set I need.
+- Be able to limit the bandwidth.
+- Ergonomic usage, e.g. `<bucket> get <object> --sse-c-key=<key>` ([compare](https://docs.min.io/enterprise/aistor-object-store/reference/cli/mc-put/#--enc-c)).
+- Hard to misuse (no local file management like `mc cp /mydata/ alias-typo/mybucket/mydata`).
+- Writing the bucket name before the operation to switch the operation quickly, e.g. `<bucket> policy get` and `<bucket> policy rm`.
+
 
 ## Installation
 
