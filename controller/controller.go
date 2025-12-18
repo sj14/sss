@@ -117,9 +117,13 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 	awsCfg := aws.Config{
 		Region:       cfg.Profile.Region,
 		BaseEndpoint: &cfg.Profile.Endpoint,
-		Credentials: aws.NewCredentialsCache(
+	}
+
+	// anonymous access by default
+	if cfg.Profile.AccessKey != "" || cfg.Profile.SecretKey != "" {
+		awsCfg.Credentials = aws.NewCredentialsCache(
 			credentials.NewStaticCredentialsProvider(cfg.Profile.AccessKey, cfg.Profile.SecretKey, ""),
-		),
+		)
 	}
 
 	if cfg.Profile.ReadOnly {
