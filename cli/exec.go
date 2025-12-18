@@ -53,6 +53,7 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.Bu
 	util.SetIfNotZero(&profile.Insecure, cli.Insecure)
 	util.SetIfNotZero(&profile.ReadOnly, cli.ReadOnly)
 	util.SetIfNotZero(&profile.SNI, cli.SNI)
+	util.SetIfNotZero(&profile.Network, cli.Network)
 
 	var bandwidth uint64
 	if cli.Bandwidth != "" {

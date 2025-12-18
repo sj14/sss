@@ -57,6 +57,7 @@ endpoint = "https://mars.example.com"
 region = "mars"
 access_key = "<CHANGE_ME>"
 secret_key = "<CHANGE_ME>"
+network    = "tcp6"
 path_style = true
 insecure   = true
 read_only  = true
@@ -79,6 +80,7 @@ Flags:
       --secret-key=STRING       S3 secret key ($SSS_SECRET_KEY).
       --insecure                Skip TLS verification ($SSS_INSECURE).
       --read-only               Only allow safe HTTP methods (HEAD, GET, OPTIONS) ($SSS_READ_ONLY).
+      --network="tcp"           force IPv4/6 with 'tcp4' or 'tcp6' ($SSS_NETWORK)
       --bandwidth=STRING        Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst) ($SSS_BANDWIDTH).
       --header=KEY=VALUE;...    Set HTTP headers (format: 'key1=val1;key2=val2') ($SSS_HEADER).
       --param=KEY=VALUE;...     Set URL parameters (format: 'key1=val1;key2=val2') ($SSS_PARAM).

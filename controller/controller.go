@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 
@@ -53,6 +54,7 @@ type Profile struct {
 	Insecure  bool   `toml:"insecure"`
 	ReadOnly  bool   `toml:"read_only"`
 	SNI       string `toml:"sni"`
+	Network   string `toml:"network"`
 }
 
 func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
@@ -149,6 +151,11 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 		}
 		if cfg.Profile.SNI != "" {
 			baseTransport.TLSClientConfig.ServerName = cfg.Profile.SNI
+		}
+
+		baseTransport.DialContext = func(ctx context.Context, _, addr string) (net.Conn, error) {
+			dialer := net.Dialer{}
+			return dialer.DialContext(ctx, cfg.Profile.Network, addr)
 		}
 
 		transportWrapper := &TransportWrapper{

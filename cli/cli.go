@@ -30,6 +30,7 @@ type CLI struct {
 	SecretKey string            `name:"secret-key"                            help:"S3 secret key."`
 	Insecure  bool              `name:"insecure"                              help:"Skip TLS verification."`
 	ReadOnly  bool              `name:"read-only"                             help:"Only allow safe HTTP methods (HEAD, GET, OPTIONS)."`
+	Network   string            `name:"network"             default:"tcp"     help:"force IPv4/6 with 'tcp4' or 'tcp6'"`
 	Bandwidth string            `name:"bandwidth"                             help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
 	Headers   map[string]string `name:"header"                                help:"Set HTTP headers (format: 'key1=val1;key2=val2')."`
 	Params    map[string]string `name:"param"                                 help:"Set URL parameters (format: 'key1=val1;key2=val2')."`
