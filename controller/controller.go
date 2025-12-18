@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/aws/smithy-go/logging"
 	smithymiddleware "github.com/aws/smithy-go/middleware"
 	smithyhttp "github.com/aws/smithy-go/transport/http"
+	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/util"
 	"github.com/sj14/sss/util/ratelimiter"
 	"golang.org/x/time/rate"
@@ -36,7 +38,6 @@ type ControllerConfig struct {
 	Verbosity uint8
 	Headers   map[string]string
 	Params    map[string]string
-	Bandwidth uint64
 	DryRun    bool
 	BuildInfo util.BuildInfo
 }
@@ -55,6 +56,7 @@ type Profile struct {
 	ReadOnly  bool   `toml:"read_only"`
 	SNI       string `toml:"sni"`
 	Network   string `toml:"network"`
+	Bandwidth string `toml:"bandwidth"`
 }
 
 func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
@@ -163,9 +165,14 @@ func New(ctx context.Context, cfg ControllerConfig) (*Controller, error) {
 			ReadOnly: cfg.Profile.ReadOnly,
 		}
 
-		if cfg.Bandwidth > 0 {
+		if cfg.Profile.Bandwidth != "" {
+			bandwidth, err := humanize.ParseBytes(cfg.Profile.Bandwidth)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
 			transportWrapper.Limiter = rate.NewLimiter(
-				rate.Limit(cfg.Bandwidth),
+				rate.Limit(bandwidth),
 				64*1024, // add a small burst, otherwise it might fail
 			)
 		}

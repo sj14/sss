@@ -57,10 +57,11 @@ endpoint = "https://mars.example.com"
 region = "mars"
 access_key = "<CHANGE_ME>"
 secret_key = "<CHANGE_ME>"
-network    = "tcp6"
 path_style = true
 insecure   = true
 read_only  = true
+network    = "tcp6"
+bandwidth  = "128 MiB"
 ```
 
 ## Usage

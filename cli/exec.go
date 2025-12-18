@@ -8,7 +8,6 @@ import (
 	"slices"
 
 	"github.com/alecthomas/kong"
-	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/controller"
 	"github.com/sj14/sss/util"
 )
@@ -54,14 +53,7 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.Bu
 	util.SetIfNotZero(&profile.ReadOnly, cli.ReadOnly)
 	util.SetIfNotZero(&profile.SNI, cli.SNI)
 	util.SetIfNotZero(&profile.Network, cli.Network)
-
-	var bandwidth uint64
-	if cli.Bandwidth != "" {
-		bandwidth, err = humanize.ParseBytes(cli.Bandwidth)
-		if err != nil {
-			return err
-		}
-	}
+	util.SetIfNotZero(&profile.Bandwidth, cli.Bandwidth)
 
 	dryRun := isFlagSet(kctx.Selected().Flags, "dry-run")
 
@@ -74,7 +66,6 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.Bu
 			Verbosity: cli.Verbosity,
 			Headers:   cli.Headers,
 			Params:    cli.Params,
-			Bandwidth: bandwidth,
 			DryRun:    dryRun,
 			BuildInfo: buildInfo,
 		})
