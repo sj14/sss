@@ -69,6 +69,51 @@ bandwidth  = "128 MiB"
 ```
 Usage: sss <command> [flags]
 
+Commands:
+  profiles (p)    List availale profiles.
+  version         Show version information.
+
+Bucket Commands
+  buckets (ls)                                List all buckets.
+  bucket (b) <bucket> mb                      Make/create bucket.
+  bucket (b) <bucket> hb                      Head bucket lists bucket information.
+  bucket (b) <bucket> rb                      Remove/delete bucket.
+  bucket (b) <bucket> policy get              Get lifecycle policy.
+  bucket (b) <bucket> policy put              Put lifecycle policy.
+  bucket (b) <bucket> policy rm               Delete lifecycle policy.
+  bucket (b) <bucket> cors get                Get CORS policy.
+  bucket (b) <bucket> cors put                Put CORS policy.
+  bucket (b) <bucket> cors rm                 Delete CORS policy.
+  bucket (b) <bucket> tag get                 Get bucket tag.
+  bucket (b) <bucket> lifecycle (lc) get      Get lifecycle policy.
+  bucket (b) <bucket> lifecycle (lc) put      Put lifecycle policy.
+  bucket (b) <bucket> lifecycle (lc) rm       Delte lifecycle policy.
+  bucket (b) <bucket> versioning get          Get bucket versioning config.
+  bucket (b) <bucket> versioning put          Put bucket versioning config.
+  bucket (b) <bucket> cleanup                 Remove all objects versions and multiparts from the bucket.
+  bucket (b) <bucket> object-lock (ol) get    Get object-lock config.
+  bucket (b) <bucket> object-lock (ol) put    Put object-lock config.
+  bucket (b) <bucket> size                    Calculate bucket size (resource heavy!)
+
+Multipart Commands
+  bucket (b) <bucket> multipart (mp) rm          Delete multipart upload.
+  bucket (b) <bucket> multipart (mp) ls          List multipart uploads.
+  bucket (b) <bucket> multipart (mp) create      Create multipart upload.
+  bucket (b) <bucket> multipart (mp) parts ls    List parts.
+
+Object Commands
+  bucket (b) <bucket> ls             List objects.
+  bucket (b) <bucket> cp             Server-side copy.
+  bucket (b) <bucket> put            Upload object(s).
+  bucket (b) <bucket> put-rand       Upload random object(s).
+  bucket (b) <bucket> rm             Remove object.
+  bucket (b) <bucket> get            Download object(s). Requires HeadObject permission.
+  bucket (b) <bucket> head           Head Object Liss object information.
+  bucket (b) <bucket> versions       List object versions
+  bucket (b) <bucket> presign get    Create pre-signed URL for GET request.
+  bucket (b) <bucket> presign put    Create pre-signed URL for PUT request.
+  bucket (b) <bucket> acl get        Get object ACL.
+
 Flags:
   -h, --help                    Show context-sensitive help.
   -c, --config=STRING           Path to the config file (default: ~/.config/sss/config.toml) ($SSS_CONFIG).
@@ -81,126 +126,11 @@ Flags:
       --secret-key=STRING       S3 secret key ($SSS_SECRET_KEY).
       --insecure                Skip TLS verification ($SSS_INSECURE).
       --read-only               Only allow safe HTTP methods (HEAD, GET, OPTIONS) ($SSS_READ_ONLY).
-      --network="tcp"           force IPv4/6 with 'tcp4' or 'tcp6' ($SSS_NETWORK)
+      --network="tcp"           Force IPv4/6 with 'tcp4' or 'tcp6' ($SSS_NETWORK).
       --bandwidth=STRING        Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst) ($SSS_BANDWIDTH).
       --header=KEY=VALUE;...    Set HTTP headers (format: 'key1=val1;key2=val2') ($SSS_HEADER).
       --param=KEY=VALUE;...     Set URL parameters (format: 'key1=val1;key2=val2') ($SSS_PARAM).
       --sni=STRING              TLS Server Name Indication ($SSS_SNI).
-
-Commands:
-  profiles (p) [flags]
-    List availale profiles.
-
-  version [flags]
-    Show version information.
-
-Bucket Commands
-  buckets (ls) [flags]
-    List all buckets.
-
-  bucket (b) <bucket> mb [flags]
-    Make/create bucket.
-
-  bucket (b) <bucket> hb
-    Head bucket lists bucket information.
-
-  bucket (b) <bucket> rb [flags]
-    Remove/delete bucket.
-
-  bucket (b) <bucket> policy get
-    Get lifecycle policy.
-
-  bucket (b) <bucket> policy put <path>
-    Put lifecycle policy.
-
-  bucket (b) <bucket> policy rm
-    Delete lifecycle policy.
-
-  bucket (b) <bucket> cors get
-    Get CORS policy.
-
-  bucket (b) <bucket> cors put <path>
-    Put CORS policy.
-
-  bucket (b) <bucket> cors rm
-    Delete CORS policy.
-
-  bucket (b) <bucket> tag get
-    Get bucket tag.
-
-  bucket (b) <bucket> lifecycle (lc) get
-    Get lifecycle policy.
-
-  bucket (b) <bucket> lifecycle (lc) put <path>
-    Put lifecycle policy.
-
-  bucket (b) <bucket> lifecycle (lc) rm
-    Delte lifecycle policy.
-
-  bucket (b) <bucket> versioning get
-    Get bucket versioning config.
-
-  bucket (b) <bucket> versioning put <path>
-    Put bucket versioning config.
-
-  bucket (b) <bucket> cleanup [flags]
-    Remove all objects versions and multiparts from the bucket.
-
-  bucket (b) <bucket> object-lock (ol) get
-    Get object-lock config.
-
-  bucket (b) <bucket> object-lock (ol) put <path>
-    Put object-lock config.
-
-  bucket (b) <bucket> size [<path>]
-    Calculate bucket size (resource heavy!)
-
-Multipart Commands
-  bucket (b) <bucket> multipart (mp) rm <object> <upload-id>
-    Delete multipart upload.
-
-  bucket (b) <bucket> multipart (mp) ls [<prefix>] [flags]
-    List multipart uploads.
-
-  bucket (b) <bucket> multipart (mp) create [<prefix>]
-    Create multipart upload.
-
-  bucket (b) <bucket> multipart (mp) parts ls <object> <upload-id> [flags]
-    List parts.
-
-Object Commands
-  bucket (b) <bucket> ls [<prefix>] [flags]
-    List objects.
-
-  bucket (b) <bucket> cp <src-object> <dst-bucket> <dst-object> [flags]
-    Server-side copy.
-
-  bucket (b) <bucket> put <path> [<destination>] [flags]
-    Upload object(s).
-
-  bucket (b) <bucket> put-rand [flags]
-    Upload random object(s).
-
-  bucket (b) <bucket> rm <object> [flags]
-    Remove object.
-
-  bucket (b) <bucket> get <object> [<destination>] [flags]
-    Download object(s). Requires HeadObject permission.
-
-  bucket (b) <bucket> head <object> [flags]
-    Head Object Liss object information.
-
-  bucket (b) <bucket> versions [<path>] [flags]
-    List object versions
-
-  bucket (b) <bucket> presign get <object> [flags]
-    Create pre-signed URL for GET request.
-
-  bucket (b) <bucket> presign put <object> [flags]
-    Create pre-signed URL for PUT request.
-
-  bucket (b) <bucket> acl get <object> [flags]
-    Get object ACL.
 
 Run "sss <command> --help" for more information on a command.
 ```

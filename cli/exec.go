@@ -23,6 +23,10 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.Bu
 		&cli,
 		kong.Name("sss"),
 		kong.DefaultEnvars("SSS"),
+		kong.ConfigureHelp(kong.HelpOptions{
+			FlagsLast: true,
+			Compact:   true,
+		}),
 	)
 
 	config, err := controller.LoadConfig(cli.Config)
