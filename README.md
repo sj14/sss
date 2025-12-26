@@ -69,7 +69,7 @@ bandwidth  = "128 MiB"
 ```
 Usage: sss <command> [flags]
 
-Commands:
+Generic Commands
   profiles (p)    List availale profiles.
   version         Show version information.
 

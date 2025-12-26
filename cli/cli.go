@@ -14,10 +14,10 @@ import (
 
 type CLI struct {
 	// Commands
-	Profiles Profiles `cmd:"" name:"profiles" aliases:"p"                          help:"List availale profiles."`
-	Buckets  Buckets  `cmd:"" name:"buckets"  aliases:"ls" group:"Bucket Commands" help:"List all buckets."`
-	Bucket   Bucket   `cmd:"" name:"bucket"   aliases:"b"                          help:"Manage bucket and objects."`
-	Version  Version  `cmd:"" name:"version"                                       help:"Show version information."`
+	Profiles Profiles `cmd:"" name:"profiles" aliases:"p"  group:"Generic Commands" help:"List availale profiles."`
+	Buckets  Buckets  `cmd:"" name:"buckets"  aliases:"ls" group:"Bucket Commands"  help:"List all buckets."`
+	Bucket   Bucket   `cmd:"" name:"bucket"   aliases:"b"  group:"Bucket Commands"  help:"Manage bucket and objects."`
+	Version  Version  `cmd:"" name:"version"               group:"Generic Commands" help:"Show version information."`
 
 	// Flags
 	Config    string            `name:"config"    short:"c"                   help:"Path to the config file (default: ~/.config/sss/config.toml)."`
