@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/alecthomas/kong"
 	"github.com/dustin/go-humanize"
 	"github.com/sj14/sss/controller"
@@ -14,27 +15,27 @@ import (
 
 type CLI struct {
 	// Commands
-	Profiles Profiles `cmd:"" name:"profiles" aliases:"p"  group:"Generic Commands" help:"List availale profiles."`
-	Buckets  Buckets  `cmd:"" name:"buckets"  aliases:"ls" group:"Bucket Commands"  help:"List all buckets."`
-	Bucket   Bucket   `cmd:"" name:"bucket"   aliases:"b"  group:"Bucket Commands"  help:"Manage bucket and objects."`
-	Version  Version  `cmd:"" name:"version"               group:"Generic Commands" help:"Show version information."`
+	Config  ConfigCmd  `cmd:"" name:"config"   aliases:"c"  group:"Generic Commands" help:"Manage config."`
+	Version VersionCmd `cmd:"" name:"version"               group:"Generic Commands" help:"Show version information."`
+	Buckets BucketsCmd `cmd:"" name:"buckets"  aliases:"ls" group:"Bucket Commands"  help:"List all buckets."`
+	Bucket  BucketCmd  `cmd:"" name:"bucket"   aliases:"b"  group:"Bucket Commands"  help:"Manage bucket and objects."`
 
 	// Flags
-	Config    string            `name:"config"    short:"c"                   help:"Path to the config file (default: ~/.config/sss/config.toml)."`
-	Profile   string            `name:"profile"   short:"p" default:"default" help:"Profile to use." `
-	Verbosity uint8             `name:"verbosity" short:"v" default:"1"       help:"Output verbosity (0=disable; 1=default; 8=header; 9=body)."`
-	Endpoint  string            `name:"endpoint"                              help:"S3 endpoint URL."`
-	Region    string            `name:"region"                                help:"S3 region."`
-	PathStyle bool              `name:"path-style"                            help:"Use path style S3 requests."`
-	AccessKey string            `name:"access-key"                            help:"S3 access key."`
-	SecretKey string            `name:"secret-key"                            help:"S3 secret key."`
-	Insecure  bool              `name:"insecure"                              help:"Skip TLS verification."`
-	ReadOnly  bool              `name:"read-only"                             help:"Only allow safe HTTP methods (HEAD, GET, OPTIONS)."`
-	Network   string            `name:"network"             default:"tcp"     help:"Force IPv4/6 with 'tcp4' or 'tcp6'."`
-	Bandwidth string            `name:"bandwidth"                             help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
-	Headers   map[string]string `name:"header"                                help:"Set HTTP headers (format: 'key1=val1;key2=val2')."`
-	Params    map[string]string `name:"param"                                 help:"Set URL parameters (format: 'key1=val1;key2=val2')."`
-	SNI       string            `name:"sni"                                   help:"TLS Server Name Indication."`
+	ConfigPath string            `name:"config"    short:"c"                   help:"Path to the config file (default: ~/.config/sss/config.toml)."`
+	Profile    string            `name:"profile"   short:"p" default:"default" help:"Profile to use." `
+	Verbosity  uint8             `name:"verbosity" short:"v" default:"1"       help:"Output verbosity (0=disable; 1=default; 8=header; 9=body)."`
+	Endpoint   string            `name:"endpoint"                              help:"S3 endpoint URL."`
+	Region     string            `name:"region"                                help:"S3 region."`
+	PathStyle  bool              `name:"path-style"                            help:"Use path style S3 requests."`
+	AccessKey  string            `name:"access-key"                            help:"S3 access key."`
+	SecretKey  string            `name:"secret-key"                            help:"S3 secret key."`
+	Insecure   bool              `name:"insecure"                              help:"Skip TLS verification."`
+	ReadOnly   bool              `name:"read-only"                             help:"Only allow safe HTTP methods (HEAD, GET, OPTIONS)."`
+	Network    string            `name:"network"             default:"tcp"     help:"Force IPv4/6 with 'tcp4' or 'tcp6'."`
+	Bandwidth  string            `name:"bandwidth"                             help:"Limit bandwith per second, e.g. '1 MiB' (always 64 KiB burst)."`
+	Headers    map[string]string `name:"header"                                help:"Set HTTP headers (format: 'key1=val1;key2=val2')."`
+	Params     map[string]string `name:"param"                                 help:"Set URL parameters (format: 'key1=val1;key2=val2')."`
+	SNI        string            `name:"sni"                                   help:"TLS Server Name Indication."`
 }
 
 type ArgPath struct {
@@ -114,6 +115,10 @@ type flagCount struct {
 	Count uint64 `name:"count" default:"1"`
 }
 
+type FlagNoRedact struct {
+	NoRedact bool `name:"no-redact" default:"false"`
+}
+
 func isFlagSet(flags []*kong.Flag, name string) bool {
 	for _, f := range flags {
 		if !f.Set {
@@ -124,6 +129,33 @@ func isFlagSet(flags []*kong.Flag, name string) bool {
 		}
 	}
 	return false
+}
+
+type ConfigCmd struct {
+	ConfigShow ConfigShow `cmd:"" name:"show"     aliases:"s" help:"Get config."`
+	Profiles   Profiles   `cmd:"" name:"profiles" aliases:"p" help:"List availale profiles."`
+}
+
+type ConfigShow struct {
+	FlagNoRedact
+}
+
+func (s ConfigShow) Run(cli CLI, ctrl *controller.Controller, config controller.Config) error {
+	config, err := controller.LoadConfig(cli.ConfigPath)
+	if err != nil {
+		return err
+	}
+
+	if !s.FlagNoRedact.NoRedact {
+		for k, v := range config.Profiles {
+			v.AccessKey = "<REDACTED>"
+			v.SecretKey = "<REDACTED>"
+			config.Profiles[k] = v
+		}
+	}
+
+	enc := toml.NewEncoder(ctrl.OutWriter)
+	return enc.Encode(config)
 }
 
 type Profiles struct{}
@@ -138,22 +170,22 @@ func (s Profiles) Run(cli CLI, ctrl *controller.Controller, config controller.Co
 	return nil
 }
 
-type Version struct {
+type VersionCmd struct {
 	info util.BuildInfo
 }
 
-func (s Version) Run(cli CLI, ctrl *controller.Controller, config controller.Config) error {
+func (s VersionCmd) Run(cli CLI, ctrl *controller.Controller, config controller.Config) error {
 	fmt.Fprintln(ctrl.OutWriter, s.info.String())
 	return nil
 }
 
-type Buckets struct{}
+type BucketsCmd struct{}
 
-func (s Buckets) Run(cli CLI, ctrl *controller.Controller) error {
+func (s BucketsCmd) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketList("")
 }
 
-type Bucket struct {
+type BucketCmd struct {
 	BucketArg BucketArg `arg:"" name:"bucket"`
 }
 
@@ -171,7 +203,6 @@ type BucketArg struct {
 	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands"    name:"cleanup"                    help:"Remove all objects versions and multiparts from the bucket."`
 	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands"    name:"object-lock" aliases:"ol"   help:"Manage bucket object-locking."`
 	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands"    name:"size"                       help:"Calculate bucket size (resource heavy!)"`
-	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart"   aliases:"mp"   help:"Manage multipart uploads."`
 	ObjectList       ObjectList       `cmd:"" group:"Object Commands"    name:"ls"                         help:"List objects."`
 	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands"    name:"cp"                         help:"Server-side copy."`
 	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands"    name:"put"                        help:"Upload object(s)."`
@@ -182,6 +213,7 @@ type BucketArg struct {
 	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands"    name:"versions"                   help:"List object versions"`
 	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands"    name:"presign"                    help:"Create pre-signed URLs."`
 	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands"    name:"acl"                        help:"Manage object ACLs."`
+	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart"   aliases:"mp"   help:"Manage multipart uploads."`
 }
 
 type BucketCleanup struct {

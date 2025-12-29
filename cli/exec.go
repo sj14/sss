@@ -14,7 +14,7 @@ import (
 
 func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.BuildInfo) error {
 	cli := CLI{
-		Version: Version{
+		Version: VersionCmd{
 			info: buildInfo,
 		},
 	}
@@ -29,13 +29,13 @@ func Exec(ctx context.Context, outWriter, errWriter io.Writer, buildInfo util.Bu
 		}),
 	)
 
-	config, err := controller.LoadConfig(cli.Config)
+	config, err := controller.LoadConfig(cli.ConfigPath)
 	if err != nil {
 		return err
 	}
 
 	profile, ok := config.Profiles[cli.Profile]
-	if !ok && (cli.Config != "" || cli.Profile != "default") {
+	if !ok && (cli.ConfigPath != "" || cli.Profile != "default") {
 		fmt.Fprintf(errWriter, "available profiles:\n")
 
 		keys := slices.Collect(maps.Keys(config.Profiles))

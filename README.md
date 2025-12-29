@@ -70,8 +70,9 @@ bandwidth  = "128 MiB"
 Usage: sss <command> [flags]
 
 Generic Commands
-  profiles (p)    List availale profiles.
-  version         Show version information.
+  config (c) show (s)        Get config.
+  config (c) profiles (p)    List availale profiles.
+  version                    Show version information.
 
 Bucket Commands
   buckets (ls)                                List all buckets.
@@ -95,12 +96,6 @@ Bucket Commands
   bucket (b) <bucket> object-lock (ol) put    Put object-lock config.
   bucket (b) <bucket> size                    Calculate bucket size (resource heavy!)
 
-Multipart Commands
-  bucket (b) <bucket> multipart (mp) rm          Delete multipart upload.
-  bucket (b) <bucket> multipart (mp) ls          List multipart uploads.
-  bucket (b) <bucket> multipart (mp) create      Create multipart upload.
-  bucket (b) <bucket> multipart (mp) parts ls    List parts.
-
 Object Commands
   bucket (b) <bucket> ls             List objects.
   bucket (b) <bucket> cp             Server-side copy.
@@ -113,6 +108,12 @@ Object Commands
   bucket (b) <bucket> presign get    Create pre-signed URL for GET request.
   bucket (b) <bucket> presign put    Create pre-signed URL for PUT request.
   bucket (b) <bucket> acl get        Get object ACL.
+
+Multipart Commands
+  bucket (b) <bucket> multipart (mp) rm          Delete multipart upload.
+  bucket (b) <bucket> multipart (mp) ls          List multipart uploads.
+  bucket (b) <bucket> multipart (mp) create      Create multipart upload.
+  bucket (b) <bucket> multipart (mp) parts ls    List parts.
 
 Flags:
   -h, --help                    Show context-sensitive help.

@@ -8,16 +8,26 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-func LoadConfig(configPath string) (Config, error) {
-	var config Config
-
+func DefaultConfigPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return config, err
+		return "", err
 	}
 
+	return filepath.Join(homeDir, ".config", "sss", "config.toml"), nil
+}
+
+func LoadConfig(configPath string) (Config, error) {
+	var (
+		config Config
+		err    error
+	)
+
 	if configPath == "" {
-		configPath = filepath.Join(homeDir, ".config", "sss", "config.toml")
+		configPath, err = DefaultConfigPath()
+		if err != nil {
+			return config, err
+		}
 
 		// prevent failing when the default config does not exist
 		_, err := os.Stat(configPath)
