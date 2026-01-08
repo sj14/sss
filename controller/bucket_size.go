@@ -38,13 +38,13 @@ func (c *Controller) BucketSize(bucket, prefix string) error {
 	fmt.Fprintf(c.OutWriter, "current: %v (%d)", humanize.IBytes(sizeCurrent), countCurrent)
 	fmt.Fprintf(c.OutWriter, " | versions: %v (%d)", humanize.IBytes(sizeVersioned), countVersioned)
 
-	for uploads, err := range c.bucketMultipartUploadsList(bucket, prefix, "") {
+	for uploads, err := range c.multipartUploadsList(bucket, prefix, "") {
 		if err != nil {
 			return err
 		}
 
 		for _, upload := range uploads.Uploads {
-			for part, err := range c.bucketPartsList(bucket, *upload.Key, *upload.UploadId) {
+			for part, err := range c.partsList(bucket, *upload.Key, *upload.UploadId) {
 				if err != nil {
 					log.Println(err)
 					continue

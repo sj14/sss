@@ -12,7 +12,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (c *Controller) BucketMultipartUploadCreate(bucket, key string) error {
+func (c *Controller) MultipartUploadCreate(bucket, key string) error {
 	if key == "" {
 		return fmt.Errorf("empty key")
 	}
@@ -27,15 +27,15 @@ func (c *Controller) BucketMultipartUploadCreate(bucket, key string) error {
 	return err
 }
 
-func (c *Controller) BucketMultipartUploadsList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
-	for upload, err := range c.bucketMultipartUploadsList(bucket, prefix, "/") {
+func (c *Controller) MultipartUploadsList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
+	for upload, err := range c.multipartUploadsList(bucket, prefix, "/") {
 		if err != nil {
 			return err
 		}
 
 		for _, prefix := range upload.CommonPrefixes {
 			if recursive {
-				err := c.BucketMultipartUploadsList(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
+				err := c.MultipartUploadsList(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
 				if err != nil {
 					return err
 				}
@@ -66,7 +66,7 @@ func (c *Controller) BucketMultipartUploadsList(bucket, prefix, originalPrefix s
 	return nil
 }
 
-func (c *Controller) bucketMultipartUploadsList(bucket, prefix, delimiter string) iter.Seq2[*s3.ListMultipartUploadsOutput, error] {
+func (c *Controller) multipartUploadsList(bucket, prefix, delimiter string) iter.Seq2[*s3.ListMultipartUploadsOutput, error] {
 	return func(yield func(*s3.ListMultipartUploadsOutput, error) bool) {
 		paginator := s3.NewListMultipartUploadsPaginator(c.client, &s3.ListMultipartUploadsInput{
 			Bucket:     aws.String(bucket),
@@ -84,7 +84,7 @@ func (c *Controller) bucketMultipartUploadsList(bucket, prefix, delimiter string
 	}
 }
 
-func (c *Controller) BucketMultipartUploadAbort(bucket, key, uploadID string) error {
+func (c *Controller) MultipartUploadAbort(bucket, key, uploadID string) error {
 	if key == "" {
 		return fmt.Errorf("empty key")
 	}
@@ -105,7 +105,7 @@ func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool, c
 	eg, _ := errgroup.WithContext(c.ctx)
 	eg.SetLimit(concurrency)
 
-	for resp, err := range c.bucketMultipartUploadsList(bucket, "", "") {
+	for resp, err := range c.multipartUploadsList(bucket, "", "") {
 		if err != nil {
 			return err
 		}
@@ -120,7 +120,7 @@ func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool, c
 			}
 
 			eg.Go(func() error {
-				return c.BucketMultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
+				return c.MultipartUploadAbort(bucket, *upload.Key, *upload.UploadId)
 			})
 		}
 	}

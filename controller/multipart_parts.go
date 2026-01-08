@@ -12,7 +12,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) BucketPartsList(bucket, key, uploadID string, asJson bool) error {
+func (c *Controller) PartsList(bucket, key, uploadID string, asJson bool) error {
 	if key == "" {
 		return fmt.Errorf("empty key")
 	}
@@ -20,7 +20,7 @@ func (c *Controller) BucketPartsList(bucket, key, uploadID string, asJson bool) 
 		return fmt.Errorf("empty upload ID")
 	}
 
-	for part, err := range c.bucketPartsList(bucket, key, uploadID) {
+	for part, err := range c.partsList(bucket, key, uploadID) {
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func (c *Controller) BucketPartsList(bucket, key, uploadID string, asJson bool) 
 
 }
 
-func (c *Controller) bucketPartsList(bucket, key, uploadID string) iter.Seq2[types.Part, error] {
+func (c *Controller) partsList(bucket, key, uploadID string) iter.Seq2[types.Part, error] {
 	return func(yield func(types.Part, error) bool) {
 		paginator := s3.NewListPartsPaginator(c.client, &s3.ListPartsInput{
 			Bucket:   aws.String(bucket),
