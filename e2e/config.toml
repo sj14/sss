@@ -13,3 +13,11 @@ secret_key = "your_secret_key"
 region = "auto"
 path_style = true
 insecure = true
+
+[profiles.versity]
+endpoint = "http://localhost:7070"
+access_key = "testuser"
+secret_key = "secret"
+region = "us-east-1"
+path_style = true
+insecure = true
