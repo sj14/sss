@@ -683,7 +683,7 @@ type MultipartCreate struct {
 }
 
 func (s MultipartCreate) Run(cli CLI, ctrl *controller.Controller) error {
-	return ctrl.BucketMultipartUploadCreate(
+	return ctrl.MultipartUploadCreate(
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgPrefix.Prefix,
 	)
@@ -696,7 +696,7 @@ type MultipartList struct {
 }
 
 func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
-	return ctrl.BucketMultipartUploadsList(
+	return ctrl.MultipartUploadsList(
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgPrefix.Prefix,
 		s.ArgPrefix.Prefix,
@@ -711,7 +711,7 @@ type MultipartRemove struct {
 }
 
 func (s MultipartRemove) Run(cli CLI, ctrl *controller.Controller) error {
-	return ctrl.BucketMultipartUploadAbort(
+	return ctrl.MultipartUploadAbort(
 		cli.Bucket.BucketArg.BucketName,
 		cli.Bucket.BucketArg.Multiparts.MultipartRemove.ArgObject.Object,
 		cli.Bucket.BucketArg.Multiparts.MultipartRemove.ArgUploadID.UploadID,
@@ -730,7 +730,7 @@ type PartsList struct {
 }
 
 func (s PartsList) Run(cli CLI, ctrl *controller.Controller) error {
-	return ctrl.BucketPartsList(
+	return ctrl.PartsList(
 		cli.Bucket.BucketArg.BucketName,
 		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.Object,
 		cli.Bucket.BucketArg.Multiparts.MultipartParts.PartsList.UploadID,
