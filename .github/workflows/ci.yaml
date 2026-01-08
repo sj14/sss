@@ -10,6 +10,13 @@ jobs:
   build:
     name: Test
     runs-on: ubuntu-latest
+    services:
+      s3:
+        image: localstack/localstack:4
+        env:
+          SERVICES: s3
+        ports:
+          - 4566:4566
     steps:
       - name: Set up Go
         uses: actions/setup-go@v6
@@ -32,18 +39,8 @@ jobs:
         with:
           install-go: false
       - name: Test Short
-        env:
-          SSS_CONFIG: ./config_localstack.toml
         run: |
-          go test -short -race ./...
-      - name: Start LocalStack
-        uses: LocalStack/setup-localstack@v0.2.4
-        with:
-          image-tag: "latest"
-          install-awslocal: "false"
-          configuration: SERVICES=s3
+          go test -short -race -timeout=2m ./...
       - name: Test Full
-        env:
-          SSS_CONFIG: ./config_localstack.toml
         run: |
-          go test -race ./...
+          go test -race -timeout=2m ./...
