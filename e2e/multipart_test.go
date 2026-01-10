@@ -39,7 +39,7 @@ func TestMultipart(t *testing.T) {
 	})
 
 	t.Run("list resursive", func(t *testing.T) {
-		out, err := run(t.Context(), "bucket", bucketName, "multipart", "ls", "-r")
+		out, err := run(t.Context(), "bucket", bucketName, "multipart", "ls", "-d=''")
 		must.NoError(t, err)
 		must.StrContains(t, out, "mydir/something")
 		must.StrContains(t, out, "yolo")

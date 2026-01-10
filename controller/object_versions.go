@@ -12,21 +12,14 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
-	for resp, err := range c.objectVersions(bucket, prefix, "/") {
+func (c *Controller) ObjectVersions(bucket, prefix, originalPrefix, delimiter string, asJson bool) error {
+	for resp, err := range c.objectVersions(bucket, prefix, delimiter) {
 		if err != nil {
 			return err
 		}
 
 		for _, prefix := range resp.CommonPrefixes {
-			if recursive {
-				err := c.ObjectVersions(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
-				if err != nil {
-					return err
-				}
-			} else {
-				fmt.Fprintf(c.OutWriter, "%61s  %s\n", "PREFIX", *prefix.Prefix)
-			}
+			fmt.Fprintf(c.OutWriter, "%61s  %s\n", "PREFIX", *prefix.Prefix)
 		}
 
 		for _, v := range resp.Versions {
