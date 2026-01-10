@@ -39,8 +39,8 @@ func (c *Controller) ObjectGet(dest, prefix, originalPrefix string, cfg ObjectGe
 	}
 
 	// only get single object
-	if !strings.HasSuffix(prefix, "/") {
-		if strings.HasSuffix(dest, "/") {
+	if !strings.HasSuffix(prefix, cfg.Delimiter) {
+		if strings.HasSuffix(dest, cfg.Delimiter) {
 			dest = filepath.Join(dest, filepath.Base(prefix))
 		}
 
@@ -55,6 +55,7 @@ func (c *Controller) ObjectGet(dest, prefix, originalPrefix string, cfg ObjectGe
 	if prefix == "/" {
 		prefix = ""
 		originalPrefix = ""
+		cfg.Delimiter = ""
 	}
 
 	// recursive get
@@ -73,7 +74,9 @@ func (c *Controller) ObjectGet(dest, prefix, originalPrefix string, cfg ObjectGe
 
 		for _, l := range l.Contents {
 			lastDir := filepath.Base(filepath.Dir(originalPrefix))
-			trimmedPrefix := strings.TrimPrefix(*l.Key, originalPrefix)
+			prefixWithoutDelimiter := strings.TrimPrefix(originalPrefix, cfg.Delimiter)
+			trimmedPrefix := strings.TrimPrefix(*l.Key, prefixWithoutDelimiter)
+			// trimmedPrefix := strings.TrimPrefix(*l.Key, lastDir)
 
 			fp := filepath.Join(dest, lastDir, trimmedPrefix)
 

@@ -36,10 +36,17 @@ func TestSubdir(t *testing.T) {
 		must.StrContains(t, out, "yolo/test/util/zero.go")
 	})
 
-	t.Run("download subdir 2", func(t *testing.T) {
+	t.Run("download subdir 2 (dry-run)", func(t *testing.T) {
 		out, err := run(t.Context(), "bucket", bucketName, "get", "test/util/", "test/yolo", "--dry-run")
 		must.NoError(t, err)
 		must.StrContains(t, out, "test/yolo/util/progress/reader.go")
 		must.StrContains(t, out, "test/yolo/util/zero.go")
 	})
+
+	// 	t.Run("download subdir 2 custom delimiter (dry-run)", func(t *testing.T) {
+	// 		out, err := run(t.Context(), "bucket", bucketName, "get", "test/util", "test/yolo", "--dry-run", "-d til")
+	// 		must.NoError(t, err)
+	// 		must.StrContains(t, out, "test/yolo/util/progress/reader.go")
+	// 		must.StrContains(t, out, "test/yolo/util/zero.go")
+	// 	})
 }

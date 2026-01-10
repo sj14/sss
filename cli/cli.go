@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -108,7 +109,14 @@ type flagPath struct {
 }
 
 type flagDelimiter struct {
-	Delimiter string `name:"delimiter" short:"d" default:"/" help:"All values except the forward slash are experimental."`
+	Delimiter string `name:"delimiter" short:"d" default:"/" help:"All values except the forward slash and an empty value are experimental."`
+}
+
+func (f flagDelimiter) Validate() error {
+	if strings.HasPrefix(f.Delimiter, "=") {
+		fmt.Println("WARN: delimiter starts with '='. Check if this is intended.")
+	}
+	return nil
 }
 
 type flagCount struct {
