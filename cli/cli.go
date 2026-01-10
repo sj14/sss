@@ -58,10 +58,6 @@ type ArgPrefix struct {
 	Prefix string `arg:"" name:"prefix" optional:""`
 }
 
-type FlagRecursive struct {
-	Recursive bool `name:"recursive" short:"r"`
-}
-
 type FlagJson struct {
 	AsJson bool `name:"json" short:"j" help:"Output as JSON or JSONL."`
 }
@@ -109,6 +105,10 @@ type flagSize struct {
 
 type flagPath struct {
 	Path string `name:"path" default:"rand/"`
+}
+
+type flagDelimiter struct {
+	Delimiter string `name:"delimiter" short:"d" default:"/" help:"All values except the forward slash are experimental."`
 }
 
 type flagCount struct {
@@ -239,7 +239,7 @@ func (s BucketCleanup) Run(cli CLI, ctrl *controller.Controller) error {
 type ObjectVersions struct {
 	ArgPathOptional
 	FlagJson
-	FlagRecursive
+	flagDelimiter
 }
 
 func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
@@ -247,7 +247,7 @@ func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgPathOptional.Path,
 		s.ArgPathOptional.Path,
-		s.Recursive,
+		s.flagDelimiter.Delimiter,
 		s.FlagJson.AsJson,
 	)
 }
@@ -484,6 +484,7 @@ type ObjectGet struct {
 	flagsSSEC
 	FlagVersionID
 	FlagRange
+	flagDelimiter
 	// FlagForce
 }
 
@@ -494,8 +495,9 @@ func (s ObjectGet) Run(cli CLI, ctrl *controller.Controller) error {
 		s.ArgObject.Object,
 		controller.ObjectGetConfig{
 			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Concurrency: cli.Bucket.BucketArg.ObjectGet.FlagConcurrency.Concurrency,
-			DryRun:      cli.Bucket.BucketArg.ObjectGet.FlagDryRun.DryRun,
+			Delimiter:   s.flagDelimiter.Delimiter,
+			Concurrency: s.FlagConcurrency.Concurrency,
+			DryRun:      s.FlagDryRun.DryRun,
 			SSEC:        util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 			VersionID:   s.FlagVersionID.VersionID,
 			Range:       s.FlagRange.Range,
@@ -515,6 +517,7 @@ type ObjectDelete struct {
 	FlagDryRun
 	FlagForce
 	FlagVersionID
+	flagDelimiter
 }
 
 func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
@@ -522,9 +525,10 @@ func (s ObjectDelete) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.ObjectDelete.Object,
 		controller.ObjectDeleteConfig{
 			Bucket:      cli.Bucket.BucketArg.BucketName,
-			Force:       cli.Bucket.BucketArg.ObjectDelete.FlagForce.Force,
-			Concurrency: cli.Bucket.BucketArg.ObjectDelete.FlagConcurrency.Concurrency,
-			DryRun:      cli.Bucket.BucketArg.ObjectDelete.FlagDryRun.DryRun,
+			Delimiter:   s.flagDelimiter.Delimiter,
+			Force:       s.FlagForce.Force,
+			Concurrency: s.FlagConcurrency.Concurrency,
+			DryRun:      s.FlagDryRun.DryRun,
 			VersionID:   s.FlagVersionID.VersionID,
 			// BypassGovernance: ,
 		})
@@ -647,17 +651,17 @@ func (s BucketRemove) Run(cli CLI, ctrl *controller.Controller) error {
 
 type ObjectList struct {
 	ArgPrefix
-	FlagRecursive
 	FlagJson
+	flagDelimiter
 }
 
 func (s ObjectList) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectList(
 		cli.Bucket.BucketArg.BucketName,
-		cli.Bucket.BucketArg.ObjectList.ArgPrefix.Prefix,
-		cli.Bucket.BucketArg.ObjectList.ArgPrefix.Prefix,
-		cli.Bucket.BucketArg.ObjectList.FlagRecursive.Recursive,
-		cli.Bucket.BucketArg.ObjectList.FlagJson.AsJson,
+		s.ArgPrefix.Prefix,
+		s.ArgPrefix.Prefix,
+		s.flagDelimiter.Delimiter,
+		s.FlagJson.AsJson,
 	)
 }
 
@@ -691,8 +695,8 @@ func (s MultipartCreate) Run(cli CLI, ctrl *controller.Controller) error {
 
 type MultipartList struct {
 	ArgPrefix
-	FlagRecursive
 	FlagJson
+	flagDelimiter
 }
 
 func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
@@ -700,7 +704,7 @@ func (s MultipartList) Run(cli CLI, ctrl *controller.Controller) error {
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgPrefix.Prefix,
 		s.ArgPrefix.Prefix,
-		s.FlagRecursive.Recursive,
+		s.flagDelimiter.Delimiter,
 		s.FlagJson.AsJson,
 	)
 }

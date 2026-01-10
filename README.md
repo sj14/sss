@@ -136,10 +136,6 @@ Flags:
 Run "sss <command> --help" for more information on a command.
 ```
 
-### Delimiter
-
-The forward slash (`/`) is the only supported delimiter.
-
 ### Examples
 
 Instead of using `sss bucket <BUCKET>` you can also use the shorter variant `sss b <BUCKET>`.
@@ -167,8 +163,10 @@ Or use `sss ls` as the shorter alternative.
 
 ##### List recursively
 
+Set an empty delimiter:
+
 ```
-➜ sss bucket <BUCKET> ls -r
+➜ sss bucket <BUCKET> ls -d=''
 2025-11-22 14:19:58  1.0 MiB  test/1MB.bin
 2025-11-22 14:20:00  2.0 MiB  test/2MB.bin
 2025-11-22 11:11:05  100 MiB  100MB.bin

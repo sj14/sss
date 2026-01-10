@@ -18,6 +18,7 @@ import (
 
 type ObjectGetConfig struct {
 	Bucket            string
+	Delimiter         string
 	SSEC              util.SSEC
 	VersionID         string
 	IfMatch           string
@@ -57,7 +58,7 @@ func (c *Controller) ObjectGet(dest, prefix, originalPrefix string, cfg ObjectGe
 	}
 
 	// recursive get
-	for l, err := range c.objectList(cfg.Bucket, prefix) {
+	for l, err := range c.objectList(cfg.Bucket, prefix, cfg.Delimiter) {
 		if err != nil {
 			return err
 		}

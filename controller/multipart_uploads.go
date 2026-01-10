@@ -27,21 +27,14 @@ func (c *Controller) MultipartUploadCreate(bucket, key string) error {
 	return err
 }
 
-func (c *Controller) MultipartUploadsList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
-	for upload, err := range c.multipartUploadsList(bucket, prefix, "/") {
+func (c *Controller) MultipartUploadsList(bucket, prefix, originalPrefix, delimiter string, asJson bool) error {
+	for upload, err := range c.multipartUploadsList(bucket, prefix, delimiter) {
 		if err != nil {
 			return err
 		}
 
 		for _, prefix := range upload.CommonPrefixes {
-			if recursive {
-				err := c.MultipartUploadsList(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
-				if err != nil {
-					return err
-				}
-			} else {
-				fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *prefix.Prefix)
-			}
+			fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *prefix.Prefix)
 		}
 
 		for _, ul := range upload.Uploads {

@@ -12,21 +12,14 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive, asJson bool) error {
-	for l, err := range c.objectList(bucket, prefix) {
+func (c *Controller) ObjectList(bucket, prefix, originalPrefix, delimiter string, asJson bool) error {
+	for l, err := range c.objectList(bucket, prefix, delimiter) {
 		if err != nil {
 			return err
 		}
 
 		for _, prefix := range l.CommonPrefixes {
-			if recursive {
-				err := c.ObjectList(bucket, *prefix.Prefix, originalPrefix, recursive, asJson)
-				if err != nil {
-					return err
-				}
-			} else {
-				fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *prefix.Prefix)
-			}
+			fmt.Fprintf(c.OutWriter, "%28s  %s\n", "PREFIX", *prefix.Prefix)
 		}
 
 		for _, object := range l.Contents {
@@ -49,12 +42,12 @@ func (c *Controller) ObjectList(bucket, prefix, originalPrefix string, recursive
 	return nil
 }
 
-func (c *Controller) objectList(bucket, prefix string) iter.Seq2[*s3.ListObjectsV2Output, error] {
+func (c *Controller) objectList(bucket, prefix, delimiter string) iter.Seq2[*s3.ListObjectsV2Output, error] {
 	return func(yield func(*s3.ListObjectsV2Output, error) bool) {
 		paginator := s3.NewListObjectsV2Paginator(c.client, &s3.ListObjectsV2Input{
 			Bucket:    aws.String(bucket),
 			Prefix:    aws.String(prefix),
-			Delimiter: aws.String("/"),
+			Delimiter: aws.String(delimiter),
 			MaxKeys:   aws.Int32(100),
 		})
 

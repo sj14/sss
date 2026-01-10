@@ -41,7 +41,7 @@ func run(ctx context.Context, args ...string) (string, error) {
 }
 
 func createBucket(t *testing.T) string {
-	bucketName := util.RandomString(16, util.LettersLower)
+	bucketName := "sss-e2e-" + util.RandomString(16, util.LettersLower)
 	t.Attr("bucket", bucketName)
 
 	t.Run("create bucket", func(t *testing.T) {

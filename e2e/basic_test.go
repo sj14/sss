@@ -52,8 +52,15 @@ func TestBasic(t *testing.T) {
 		must.StrContains(t, out, "README.md")
 	})
 
+	t.Run("list after upload with other delimiter", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "ls", "--delimiter=te")
+		must.NoError(t, err)
+		must.StrContains(t, out, "PREFIX  te")
+		must.StrContains(t, out, "README.md")
+	})
+
 	t.Run("list after upload recursive", func(t *testing.T) {
-		out, err := run(t.Context(), "bucket", bucketName, "ls", "-r")
+		out, err := run(t.Context(), "bucket", bucketName, "ls", "--delimiter=''")
 		must.NoError(t, err)
 		must.StrContains(t, out, "test/2")
 		must.StrContains(t, out, "test/3")

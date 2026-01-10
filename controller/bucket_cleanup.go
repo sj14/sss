@@ -33,7 +33,8 @@ func (c *Controller) BucketCleanup(cfg BucketCleanupConfig) error {
 
 			for _, version := range versions.Versions {
 				err := c.ObjectDelete("/", ObjectDeleteConfig{
-					Bucket:           cfg.Bucket,
+					Bucket: cfg.Bucket,
+					// Delimiter:
 					Force:            cfg.Force,
 					Concurrency:      cfg.Concurrency,
 					DryRun:           cfg.DryRun,
