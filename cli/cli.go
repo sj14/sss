@@ -113,6 +113,7 @@ type flagDelimiter struct {
 }
 
 func (f flagDelimiter) Validate() error {
+	// upstream issue: https://github.com/alecthomas/kong/issues/570
 	if strings.HasPrefix(f.Delimiter, "=") {
 		fmt.Println("WARN: delimiter starts with '='. Check if this is intended.")
 	}
