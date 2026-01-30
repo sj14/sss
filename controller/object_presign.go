@@ -28,6 +28,7 @@ func (c *Controller) ObjectPresignGet(objectKey string, cfg ObjectGetConfig, exp
 func (c *Controller) ObjectPresignPut(expiration time.Duration, key string, cfg ObjectPutConfig) error {
 	presigner := s3.NewPresignClient(c.client)
 
+	// TODO: presigned multipart uploads: https://github.com/aws/aws-sdk-go-v2/issues/1469
 	req, err := presigner.PresignPutObject(c.ctx, &s3.PutObjectInput{
 		Bucket: &cfg.Bucket,
 		Key:    &key,
