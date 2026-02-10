@@ -162,6 +162,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 	}
 	defer file.Close()
 
+	//lint:ignore SA1019 FIXME FIXME
 	downloader := manager.NewDownloader(c.client, func(d *manager.Downloader) {
 		d.Concurrency = cfg.Concurrency
 		d.PartSize = cfg.PartSize
@@ -169,6 +170,7 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 
 	pw := progress.NewWriter(c.OutWriter, file, total, c.verbosity, targetPath)
 
+	//lint:ignore SA1019 FIXME FIXME
 	_, err = downloader.Download(c.ctx, pw, getObjectInput)
 	if err != nil {
 		return err

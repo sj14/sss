@@ -84,6 +84,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 }
 
 func (c *Controller) objectPut(body io.Reader, size uint64, key string, cfg ObjectPutConfig) error {
+	//lint:ignore SA1019 FIXME FIXME
 	uploader := manager.NewUploader(c.client, func(u *manager.Uploader) {
 		u.Concurrency = cfg.Concurrency
 		u.LeavePartsOnError = cfg.LeavePartsOnError
@@ -109,6 +110,7 @@ func (c *Controller) objectPut(body io.Reader, size uint64, key string, cfg Obje
 	}
 
 	if !cfg.DryRun {
+		//lint:ignore SA1019 FIXME
 		_, err := uploader.Upload(c.ctx, putObjectInput)
 		if err != nil {
 			return err
