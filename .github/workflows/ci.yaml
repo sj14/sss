@@ -12,11 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     services:
       s3:
-        image: localstack/localstack:4
+        image: versity/versitygw:latest
         env:
           SERVICES: s3
+          ROOT_ACCESS_KEY: testuser
+          ROOT_SECRET_KEY: secret
+          VGW_BACKEND: posix
+          VGW_BACKEND_ARG: /tmp
         ports:
-          - 4566:4566
+          - 7070:7070
     steps:
       - name: Set up Go
         uses: actions/setup-go@v6
