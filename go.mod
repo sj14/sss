@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.9
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.96.0
-	github.com/aws/smithy-go v1.24.0
+	github.com/aws/smithy-go v1.24.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/shoenig/test v1.12.2
 	golang.org/x/sync v0.19.0
