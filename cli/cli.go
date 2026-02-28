@@ -263,6 +263,7 @@ func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
 
 type ObjectACL struct {
 	ObjectACLGet ObjectACLGet `cmd:"" name:"get" help:"Get object ACL."`
+	ObjectACLPut ObjectACLPut `cmd:"" name:"put" help:"Put object access policy."`
 }
 
 type ObjectACLGet struct {
@@ -272,6 +273,21 @@ type ObjectACLGet struct {
 
 func (s ObjectACLGet) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectACLGet(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgObject.Object,
+		s.FlagVersionID.VersionID,
+	)
+}
+
+type ObjectACLPut struct {
+	ArgObject
+	ArgPath
+	FlagVersionID
+}
+
+func (s ObjectACLPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectACLPut(
+		s.ArgPath.Path,
 		cli.Bucket.BucketArg.BucketName,
 		s.ArgObject.Object,
 		s.FlagVersionID.VersionID,
