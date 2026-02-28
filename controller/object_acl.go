@@ -12,6 +12,26 @@ import (
 	"github.com/sj14/sss/util"
 )
 
+func (c *Controller) ObjectACLGet(bucket, key, version string) error {
+	resp, err := c.client.GetObjectAcl(c.ctx, &s3.GetObjectAclInput{
+		Bucket:    aws.String(bucket),
+		Key:       aws.String(key),
+		VersionId: util.NilIfZero(version),
+	})
+	if err != nil {
+		return err
+	}
+
+	b, err := json.MarshalIndent(resp, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(b))
+
+	return nil
+}
+
 func (c *Controller) ObjectACLPut(aclPath, bucket, key, version string) error {
 	lBytes, err := os.ReadFile(aclPath)
 	if err != nil {

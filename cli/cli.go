@@ -205,6 +205,7 @@ type BucketArg struct {
 	BucketHead       BucketHead       `cmd:"" group:"Bucket Commands"    name:"hb"                         help:"Head bucket lists bucket information."`
 	BucketRemove     BucketRemove     `cmd:"" group:"Bucket Commands"    name:"rb"                         help:"Remove/delete bucket."`
 	BucketPolicy     BucketPolicy     `cmd:"" group:"Bucket Commands"    name:"policy"                     help:"Manage bucket policy."`
+	BucketACL        BucketACL        `cmd:"" group:"Bucket Commands"    name:"bucket-acl"                 help:"Manage bucket ACLs."`
 	BucketCors       BucketCors       `cmd:"" group:"Bucket Commands"    name:"cors"                       help:"Manage CORS policy."`
 	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands"    name:"tag"                        help:"Manage bucket tags."`
 	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands"    name:"lifecycle"   aliases:"lc"   help:"Manage lifecycle policy."`
@@ -261,9 +262,33 @@ func (s ObjectVersions) Run(cli CLI, ctrl *controller.Controller) error {
 	)
 }
 
+type BucketACL struct {
+	BucketACLGet BucketACLGet `cmd:"" name:"get" help:"Get bucket ACL."`
+	BucketACLPut BucketACLPut `cmd:"" name:"put" help:"Put bucket ACL."`
+}
+
+type BucketACLGet struct{}
+
+func (s BucketACLGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketACLGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketACLPut struct {
+	ArgPath
+}
+
+func (s BucketACLPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketACLPut(
+		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
 type ObjectACL struct {
 	ObjectACLGet ObjectACLGet `cmd:"" name:"get" help:"Get object ACL."`
-	ObjectACLPut ObjectACLPut `cmd:"" name:"put" help:"Put object access policy."`
+	ObjectACLPut ObjectACLPut `cmd:"" name:"put" help:"Put object ACL."`
 }
 
 type ObjectACLGet struct {

@@ -82,6 +82,8 @@ Bucket Commands
   bucket (b) <bucket> policy get              Get lifecycle policy.
   bucket (b) <bucket> policy put              Put lifecycle policy.
   bucket (b) <bucket> policy rm               Delete lifecycle policy.
+  bucket (b) <bucket> bucket-acl get          Get bucket ACL.
+  bucket (b) <bucket> bucket-acl put          Put bucket ACL.
   bucket (b) <bucket> cors get                Get CORS policy.
   bucket (b) <bucket> cors put                Put CORS policy.
   bucket (b) <bucket> cors rm                 Delete CORS policy.
@@ -108,6 +110,7 @@ Object Commands
   bucket (b) <bucket> presign get    Create pre-signed URL for GET request.
   bucket (b) <bucket> presign put    Create pre-signed URL for PUT request.
   bucket (b) <bucket> acl get        Get object ACL.
+  bucket (b) <bucket> acl put        Put object ACL.
 
 Multipart Commands
   bucket (b) <bucket> multipart (mp) rm          Delete multipart upload.
