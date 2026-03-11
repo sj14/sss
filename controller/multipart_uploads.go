@@ -108,7 +108,7 @@ func (c *Controller) BucketMultipartUploadAbortAll(bucket string, dryRun bool, c
 		for _, upload := range resp.Uploads {
 			fmt.Fprintf(c.OutWriter, "deleting %s (%s)\n", *upload.Key, *upload.UploadId)
 
-			if !dryRun {
+			if dryRun {
 				continue
 			}
 
