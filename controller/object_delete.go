@@ -91,10 +91,7 @@ func (c *Controller) objectDelete(dryRun, bypassGovernanceRetention bool, bucket
 		Bucket:                    aws.String(bucket),
 		Key:                       aws.String(key),
 		BypassGovernanceRetention: util.NilIfZero(bypassGovernanceRetention),
-	}
-
-	if versionID != "" {
-		input.VersionId = &versionID
+		VersionId:                 util.NilIfZero(versionID),
 	}
 
 	_, err := c.client.DeleteObject(c.ctx, input)
