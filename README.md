@@ -99,18 +99,20 @@ Bucket Commands
   bucket (b) <bucket> size                    Calculate bucket size (resource heavy!)
 
 Object Commands
-  bucket (b) <bucket> ls             List objects.
-  bucket (b) <bucket> cp             Server-side copy.
-  bucket (b) <bucket> put            Upload object(s).
-  bucket (b) <bucket> put-rand       Upload random object(s).
-  bucket (b) <bucket> rm             Remove object.
-  bucket (b) <bucket> get            Download object(s). Requires HeadObject permission.
-  bucket (b) <bucket> head           Head Object Liss object information.
-  bucket (b) <bucket> versions       List object versions
-  bucket (b) <bucket> presign get    Create pre-signed URL for GET request.
-  bucket (b) <bucket> presign put    Create pre-signed URL for PUT request.
-  bucket (b) <bucket> acl get        Get object ACL.
-  bucket (b) <bucket> acl put        Put object ACL.
+  bucket (b) <bucket> ls                     List objects.
+  bucket (b) <bucket> cp                     Server-side copy.
+  bucket (b) <bucket> put                    Upload object(s).
+  bucket (b) <bucket> put-rand               Upload random object(s).
+  bucket (b) <bucket> rm                     Remove object.
+  bucket (b) <bucket> get                    Download object(s). Requires HeadObject permission.
+  bucket (b) <bucket> head                   Head Object Liss object information.
+  bucket (b) <bucket> versions               List object versions
+  bucket (b) <bucket> presign get            Create pre-signed URL for GET request.
+  bucket (b) <bucket> presign put            Create pre-signed URL for PUT request.
+  bucket (b) <bucket> acl get                Get object ACL.
+  bucket (b) <bucket> acl put                Put object ACL.
+  bucket (b) <bucket> legal-hold (lh) get    Get object Legal Hold.
+  bucket (b) <bucket> legal-hold (lh) put    Put object Legal Hold.
 
 Multipart Commands
   bucket (b) <bucket> multipart (mp) rm          Delete multipart upload.

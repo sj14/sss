@@ -51,6 +51,10 @@ type ArgObject struct {
 	Object string `arg:"" name:"object"`
 }
 
+type ArgStatus struct {
+	Status string `arg:"" name:"status" help:"on|off"`
+}
+
 type ArgUploadID struct {
 	UploadID string `arg:"" name:"upload-id"`
 }
@@ -223,6 +227,7 @@ type BucketArg struct {
 	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands"    name:"versions"                   help:"List object versions"`
 	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands"    name:"presign"                    help:"Create pre-signed URLs."`
 	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands"    name:"acl"                        help:"Manage object ACLs."`
+	ObjectLegalHold  ObjectLegalHold  `cmd:"" group:"Object Commands"    name:"legal-hold"  aliases:"lh"   help:"Manage object Legal Hold."`
 	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart"   aliases:"mp"   help:"Manage multipart uploads."`
 }
 
@@ -283,6 +288,39 @@ func (s BucketACLPut) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketACLPut(
 		s.ArgPath.Path,
 		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type ObjectLegalHold struct {
+	ObjectLegalHoldGet ObjectLegalHoldGet `cmd:"" name:"get" help:"Get object Legal Hold."`
+	ObjectLegalHoldPut ObjectLegalHoldPut `cmd:"" name:"put" help:"Put object Legal Hold."`
+}
+
+type ObjectLegalHoldGet struct {
+	ArgObject
+	FlagVersionID
+}
+
+func (s ObjectLegalHoldGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectGetLegalHold(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgObject.Object,
+		s.FlagVersionID.VersionID,
+	)
+}
+
+type ObjectLegalHoldPut struct {
+	ArgObject
+	ArgStatus
+	FlagVersionID
+}
+
+func (s ObjectLegalHoldPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectPutLegalHold(
+		cli.Bucket.BucketArg.BucketName,
+		s.ArgObject.Object,
+		s.ArgStatus.Status,
+		s.FlagVersionID.VersionID,
 	)
 }
 
