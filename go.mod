@@ -7,8 +7,8 @@ require (
 	github.com/alecthomas/kong v1.14.0
 	github.com/aws/aws-sdk-go-v2 v1.41.5
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.13
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.10
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.3
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.22.11
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.98.0
 	github.com/aws/smithy-go v1.24.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/shoenig/test v1.12.2
