@@ -16,6 +16,7 @@ type ObjectCopyConfig struct {
 	SSEC      util.SSEC
 }
 
+// TODO: copy whole prefix
 func (c *Controller) ObjectCopy(cfg ObjectCopyConfig) error {
 	if cfg.DstBucket == "" {
 		cfg.DstBucket = cfg.SrcBucket

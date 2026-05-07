@@ -219,6 +219,7 @@ type BucketArg struct {
 	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands"    name:"size"                       help:"Calculate bucket size (resource heavy!)"`
 	ObjectList       ObjectList       `cmd:"" group:"Object Commands"    name:"ls"                         help:"List objects."`
 	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands"    name:"cp"                         help:"Server-side copy."`
+	ObjectMove       ObjectMove       `cmd:"" group:"Object Commands"    name:"mv"                         help:"Shorthand for copying and removing an object in the same bucket."`
 	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands"    name:"put"                        help:"Upload object(s)."`
 	ObjectPutRand    ObjectPutRand    `cmd:"" group:"Object Commands"    name:"put-rand"                   help:"Upload random object(s)."`
 	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands"    name:"rm"                         help:"Remove object."`
@@ -702,9 +703,25 @@ type ObjectCopy struct {
 func (s ObjectCopy) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.ObjectCopy(controller.ObjectCopyConfig{
 		SrcBucket: cli.Bucket.BucketArg.BucketName,
-		SrcKey:    cli.Bucket.BucketArg.ObjectCopy.SrcObject,
-		DstBucket: cli.Bucket.BucketArg.ObjectCopy.DstBucket,
-		DstKey:    cli.Bucket.BucketArg.ObjectCopy.DstObject,
+		SrcKey:    s.SrcObject,
+		DstBucket: s.DstBucket,
+		DstKey:    s.DstObject,
+		SSEC:      util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
+	})
+}
+
+type ObjectMove struct {
+	SrcObject string `arg:"" name:"src-object"`
+	DstObject string `arg:"" name:"dst-object"`
+	flagsSSEC
+}
+
+func (s ObjectMove) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.ObjectMove(controller.ObjectCopyConfig{
+		SrcBucket: cli.Bucket.BucketArg.BucketName,
+		SrcKey:    s.SrcObject,
+		DstBucket: cli.Bucket.BucketArg.BucketName,
+		DstKey:    s.DstObject,
 		SSEC:      util.NewSSEC(s.flagsSSEC.Algo, s.flagsSSEC.Key),
 	})
 }

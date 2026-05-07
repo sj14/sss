@@ -101,6 +101,7 @@ Bucket Commands
 Object Commands
   bucket (b) <bucket> ls                     List objects.
   bucket (b) <bucket> cp                     Server-side copy.
+  bucket (b) <bucket> mv                     Shorthand for copying and removing an object in the same bucket.
   bucket (b) <bucket> put                    Upload object(s).
   bucket (b) <bucket> put-rand               Upload random object(s).
   bucket (b) <bucket> rm                     Remove object.
