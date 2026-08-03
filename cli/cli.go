@@ -484,9 +484,10 @@ func (s BucketCorsGet) Run(cli CLI, ctrl *controller.Controller) error {
 }
 
 type BucketPolicy struct {
-	BucketPolicyGet    BucketPolicyGet    `cmd:"" name:"get" help:"Get lifecycle policy."`
-	BucketPolicyPut    BucketPolicyPut    `cmd:"" name:"put" help:"Put lifecycle policy."`
-	BucketPolicyRemove BucketPolicyRemove `cmd:"" name:"rm"  help:"Delete lifecycle policy."`
+	BucketPolicyGet       BucketPolicyGet       `cmd:"" name:"get" help:"Get bucket policy."`
+	BucketPolicyGetStatus BucketPolicyStatusGet `cmd:"" name:"status" help:"Get bucket policy status."`
+	BucketPolicyPut       BucketPolicyPut       `cmd:"" name:"put" help:"Put bucket policy."`
+	BucketPolicyRemove    BucketPolicyRemove    `cmd:"" name:"rm"  help:"Delete bucket policy."`
 }
 
 type BucketPolicyPut struct {
@@ -504,6 +505,14 @@ type BucketPolicyGet struct{}
 
 func (s BucketPolicyGet) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketPolicyGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPolicyStatusGet struct{}
+
+func (s BucketPolicyStatusGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPolicyStatusGet(
 		cli.Bucket.BucketArg.BucketName,
 	)
 }
