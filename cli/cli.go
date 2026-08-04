@@ -205,31 +205,32 @@ type BucketCmd struct {
 type BucketArg struct {
 	BucketName string `arg:"" name:"bucket"`
 
-	BucketCreate     BucketCreate     `cmd:"" group:"Bucket Commands"    name:"mb"                         help:"Make/create bucket."`
-	BucketHead       BucketHead       `cmd:"" group:"Bucket Commands"    name:"hb"                         help:"Head bucket lists bucket information."`
-	BucketRemove     BucketRemove     `cmd:"" group:"Bucket Commands"    name:"rb"                         help:"Remove/delete bucket."`
-	BucketPolicy     BucketPolicy     `cmd:"" group:"Bucket Commands"    name:"policy"                     help:"Manage bucket policy."`
-	BucketACL        BucketACL        `cmd:"" group:"Bucket Commands"    name:"bucket-acl"                 help:"Manage bucket ACLs."`
-	BucketCors       BucketCors       `cmd:"" group:"Bucket Commands"    name:"cors"                       help:"Manage CORS policy."`
-	BucketTag        BucketTag        `cmd:"" group:"Bucket Commands"    name:"tag"                        help:"Manage bucket tags."`
-	BucketLifecycle  BucketLifecycle  `cmd:"" group:"Bucket Commands"    name:"lifecycle"   aliases:"lc"   help:"Manage lifecycle policy."`
-	BucketVersioning BucketVersioning `cmd:"" group:"Bucket Commands"    name:"versioning"                 help:"Manage bucket versioning."`
-	BucketCleanup    BucketCleanup    `cmd:"" group:"Bucket Commands"    name:"cleanup"                    help:"Remove all objects versions and multiparts from the bucket."`
-	ObjectLock       ObjectLock       `cmd:"" group:"Bucket Commands"    name:"object-lock" aliases:"ol"   help:"Manage bucket object-locking."`
-	BucketSize       BucketSize       `cmd:"" group:"Bucket Commands"    name:"size"                       help:"Calculate bucket size (resource heavy!)"`
-	ObjectList       ObjectList       `cmd:"" group:"Object Commands"    name:"ls"                         help:"List objects."`
-	ObjectCopy       ObjectCopy       `cmd:"" group:"Object Commands"    name:"cp"                         help:"Server-side copy."`
-	ObjectMove       ObjectMove       `cmd:"" group:"Object Commands"    name:"mv"                         help:"Shorthand for copying and removing an object in the same bucket."`
-	ObjectPut        ObjectPut        `cmd:"" group:"Object Commands"    name:"put"                        help:"Upload object(s)."`
-	ObjectPutRand    ObjectPutRand    `cmd:"" group:"Object Commands"    name:"put-rand"                   help:"Upload random object(s)."`
-	ObjectDelete     ObjectDelete     `cmd:"" group:"Object Commands"    name:"rm"                         help:"Remove object."`
-	ObjectGet        ObjectGet        `cmd:"" group:"Object Commands"    name:"get"                        help:"Download object(s). Requires HeadObject permission."`
-	ObcectHead       ObjectHead       `cmd:"" group:"Object Commands"    name:"head"                       help:"Head Object Liss object information."`
-	ObjectVersions   ObjectVersions   `cmd:"" group:"Object Commands"    name:"versions"                   help:"List object versions"`
-	ObjectPresign    ObjectPresign    `cmd:"" group:"Object Commands"    name:"presign"                    help:"Create pre-signed URLs."`
-	ObjectACL        ObjectACL        `cmd:"" group:"Object Commands"    name:"acl"                        help:"Manage object ACLs."`
-	ObjectLegalHold  ObjectLegalHold  `cmd:"" group:"Object Commands"    name:"legal-hold"  aliases:"lh"   help:"Manage object Legal Hold."`
-	Multiparts       Multipart        `cmd:"" group:"Multipart Commands" name:"multipart"   aliases:"mp"   help:"Manage multipart uploads."`
+	BucketCreate            BucketCreate            `cmd:"" group:"Bucket Commands"    name:"mb"                         help:"Make/create bucket."`
+	BucketHead              BucketHead              `cmd:"" group:"Bucket Commands"    name:"hb"                         help:"Head bucket lists bucket information."`
+	BucketRemove            BucketRemove            `cmd:"" group:"Bucket Commands"    name:"rb"                         help:"Remove/delete bucket."`
+	BucketPolicy            BucketPolicy            `cmd:"" group:"Bucket Commands"    name:"policy"                     help:"Manage bucket policy."`
+	BucketACL               BucketACL               `cmd:"" group:"Bucket Commands"    name:"bucket-acl"                 help:"Manage bucket ACLs."`
+	BucketPublicAccessBlock BucketPublicAccessBlock `cmd:"" group:"Bucket Commands"    name:"pab"                        help:"Manage bucket Public Access Block."`
+	BucketCors              BucketCors              `cmd:"" group:"Bucket Commands"    name:"cors"                       help:"Manage CORS policy."`
+	BucketTag               BucketTag               `cmd:"" group:"Bucket Commands"    name:"tag"                        help:"Manage bucket tags."`
+	BucketLifecycle         BucketLifecycle         `cmd:"" group:"Bucket Commands"    name:"lifecycle"   aliases:"lc"   help:"Manage lifecycle policy."`
+	BucketVersioning        BucketVersioning        `cmd:"" group:"Bucket Commands"    name:"versioning"                 help:"Manage bucket versioning."`
+	BucketCleanup           BucketCleanup           `cmd:"" group:"Bucket Commands"    name:"cleanup"                    help:"Remove all objects versions and multiparts from the bucket."`
+	ObjectLock              ObjectLock              `cmd:"" group:"Bucket Commands"    name:"object-lock" aliases:"ol"   help:"Manage bucket object-locking."`
+	BucketSize              BucketSize              `cmd:"" group:"Bucket Commands"    name:"size"                       help:"Calculate bucket size (resource heavy!)"`
+	ObjectList              ObjectList              `cmd:"" group:"Object Commands"    name:"ls"                         help:"List objects."`
+	ObjectCopy              ObjectCopy              `cmd:"" group:"Object Commands"    name:"cp"                         help:"Server-side copy."`
+	ObjectMove              ObjectMove              `cmd:"" group:"Object Commands"    name:"mv"                         help:"Shorthand for copying and removing an object in the same bucket."`
+	ObjectPut               ObjectPut               `cmd:"" group:"Object Commands"    name:"put"                        help:"Upload object(s)."`
+	ObjectPutRand           ObjectPutRand           `cmd:"" group:"Object Commands"    name:"put-rand"                   help:"Upload random object(s)."`
+	ObjectDelete            ObjectDelete            `cmd:"" group:"Object Commands"    name:"rm"                         help:"Remove object."`
+	ObjectGet               ObjectGet               `cmd:"" group:"Object Commands"    name:"get"                        help:"Download object(s). Requires HeadObject permission."`
+	ObcectHead              ObjectHead              `cmd:"" group:"Object Commands"    name:"head"                       help:"Head Object Liss object information."`
+	ObjectVersions          ObjectVersions          `cmd:"" group:"Object Commands"    name:"versions"                   help:"List object versions"`
+	ObjectPresign           ObjectPresign           `cmd:"" group:"Object Commands"    name:"presign"                    help:"Create pre-signed URLs."`
+	ObjectACL               ObjectACL               `cmd:"" group:"Object Commands"    name:"acl"                        help:"Manage object ACLs."`
+	ObjectLegalHold         ObjectLegalHold         `cmd:"" group:"Object Commands"    name:"legal-hold"  aliases:"lh"   help:"Manage object Legal Hold."`
+	Multiparts              Multipart               `cmd:"" group:"Multipart Commands" name:"multipart"   aliases:"mp"   help:"Manage multipart uploads."`
 }
 
 type BucketCleanup struct {
@@ -288,6 +289,39 @@ type BucketACLPut struct {
 func (s BucketACLPut) Run(cli CLI, ctrl *controller.Controller) error {
 	return ctrl.BucketACLPut(
 		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPublicAccessBlock struct {
+	BucketPublicAccessBlockGet    BucketPublicAccessBlockGet    `cmd:"" name:"get" help:"Get Public Access Block config."`
+	BucketPublicAccessBlockPut    BucketPublicAccessBlockPut    `cmd:"" name:"put" help:"Put Public Access Block config."`
+	BucketPublicAccessBlockDelete BucketPublicAccessBlockDelete `cmd:"" name:"delete" help:"Delete Public Access Block config."`
+}
+
+type BucketPublicAccessBlockGet struct{}
+
+func (s BucketPublicAccessBlockGet) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPublicAccessBlockGet(
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPublicAccessBlockPut struct {
+	ArgPath
+}
+
+func (s BucketPublicAccessBlockPut) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPublicAccessBlockPut(
+		s.ArgPath.Path,
+		cli.Bucket.BucketArg.BucketName,
+	)
+}
+
+type BucketPublicAccessBlockDelete struct{}
+
+func (s BucketPublicAccessBlockDelete) Run(cli CLI, ctrl *controller.Controller) error {
+	return ctrl.BucketPublicAccessBlockDelete(
 		cli.Bucket.BucketArg.BucketName,
 	)
 }
