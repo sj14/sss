@@ -79,11 +79,15 @@ Bucket Commands
   bucket (b) <bucket> mb                      Make/create bucket.
   bucket (b) <bucket> hb                      Head bucket lists bucket information.
   bucket (b) <bucket> rb                      Remove/delete bucket.
-  bucket (b) <bucket> policy get              Get lifecycle policy.
-  bucket (b) <bucket> policy put              Put lifecycle policy.
-  bucket (b) <bucket> policy rm               Delete lifecycle policy.
+  bucket (b) <bucket> policy get              Get bucket policy.
+  bucket (b) <bucket> policy status           Get bucket policy status.
+  bucket (b) <bucket> policy put              Put bucket policy.
+  bucket (b) <bucket> policy rm               Delete bucket policy.
   bucket (b) <bucket> bucket-acl get          Get bucket ACL.
   bucket (b) <bucket> bucket-acl put          Put bucket ACL.
+  bucket (b) <bucket> pab get                 Get Public Access Block config.
+  bucket (b) <bucket> pab put                 Put Public Access Block config.
+  bucket (b) <bucket> pab delete              Delete Public Access Block config.
   bucket (b) <bucket> cors get                Get CORS policy.
   bucket (b) <bucket> cors put                Put CORS policy.
   bucket (b) <bucket> cors rm                 Delete CORS policy.
