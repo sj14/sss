@@ -2,6 +2,7 @@ package controller
 
 import (
 	"io"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -47,6 +48,11 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 		if err != nil {
 			return err
 		}
+		defer func() {
+			if err := f.Close(); err != nil {
+				log.Printf("failed closing file: %w", err)
+			}
+		}()
 
 		return c.objectPut(f, uint64(info.Size()), dest, cfg)
 	}
@@ -63,6 +69,11 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 		if err != nil {
 			return err
 		}
+		defer func() {
+			if err := f.Close(); err != nil {
+				log.Printf("failed closing file: %w", err)
+			}
+		}()
 
 		// Switch to forward slash even when uploading from Windows.
 		p = filepath.ToSlash(p)
