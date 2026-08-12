@@ -97,7 +97,7 @@ type flagsSSEC struct {
 }
 
 type flagExpiresIn struct {
-	FlagExpiresIn time.Duration `name:"epxires-in"`
+	FlagExpiresIn time.Duration `name:"expires-in"`
 }
 
 type flagExpires struct {
