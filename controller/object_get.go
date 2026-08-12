@@ -119,8 +119,10 @@ func (c *Controller) objectGet(targetPath, objectKey string, cfg ObjectGetConfig
 
 	// Range requests are like "bytes=100-200".
 	// It's easy to miss the "bytes=" part, add it when the flag value starts with a digit.
-	if cfg.Range != "" && unicode.IsDigit(rune(cfg.Range[0])) {
-		cfg.Range = fmt.Sprintf("bytes=%v", cfg.Range)
+	if cfg.Range != "" {
+		if unicode.IsDigit(rune(cfg.Range[0])) {
+			cfg.Range = fmt.Sprintf("bytes=%v", cfg.Range)
+		}
 		getObjectInput.Range = &cfg.Range
 	}
 
