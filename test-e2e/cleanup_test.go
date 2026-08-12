@@ -58,3 +58,73 @@ func TestCleanupMultipart(t *testing.T) {
 		must.StrNotContains(t, out, "something")
 	})
 }
+
+func TestCleanupObjectVersions(t *testing.T) {
+	t.Parallel()
+
+	if testing.Short() {
+		t.Skip("skipping e2e tests")
+	}
+
+	bucketName := createBucket(t)
+
+	t.Run("enable versioning", func(t *testing.T) {
+		_, err := run(t.Context(), "bucket", bucketName, "versioning", "put", "../samples/bucket-versioning.json")
+		must.NoError(t, err)
+	})
+
+	// Two distinct keys, each with two versions, so a fix that mixes up
+	// which key a version belongs to gets caught (wrong key/version-id
+	// pairs get rejected by the backend).
+	t.Run("upload object versions in root", func(t *testing.T) {
+		_, err := run(t.Context(), "bucket", bucketName, "put", "../README.md", "something")
+		must.NoError(t, err)
+		_, err = run(t.Context(), "bucket", bucketName, "put", "../README.md", "something")
+		must.NoError(t, err)
+	})
+
+	t.Run("upload object versions in subdir/prefix", func(t *testing.T) {
+		_, err := run(t.Context(), "bucket", bucketName, "put", "../README.md", "directory/something")
+		must.NoError(t, err)
+		_, err = run(t.Context(), "bucket", bucketName, "put", "../README.md", "directory/something")
+		must.NoError(t, err)
+	})
+
+	t.Run("list versions", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "versions", "--delimiter=''")
+		must.NoError(t, err)
+		must.StrContains(t, out, "something")
+		must.StrContains(t, out, "directory/something")
+	})
+
+	t.Run("cleanup dry-run", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "cleanup", "--force", "--all-object-versions", "--dry-run")
+		must.NoError(t, err)
+		must.StrContains(t, out, "something")
+	})
+
+	t.Run("list versions after dry-run", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "versions", "--delimiter=''")
+		must.NoError(t, err)
+		must.StrContains(t, out, "something")
+		must.StrContains(t, out, "directory/something")
+	})
+
+	t.Run("cleanup", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "cleanup", "--force", "--all-object-versions")
+		must.NoError(t, err)
+		must.StrContains(t, out, "something")
+	})
+
+	t.Run("list versions after cleanup", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "versions", "--delimiter=''")
+		must.NoError(t, err)
+		must.StrNotContains(t, out, "something")
+	})
+
+	t.Run("list objects after cleanup", func(t *testing.T) {
+		out, err := run(t.Context(), "bucket", bucketName, "ls", "--delimiter=''")
+		must.NoError(t, err)
+		must.StrNotContains(t, out, "something")
+	})
+}
