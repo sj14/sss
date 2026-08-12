@@ -50,7 +50,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 		}
 		defer func() {
 			if err := f.Close(); err != nil {
-				log.Printf("failed closing file: %w", err)
+				log.Printf("failed closing file: %v", err)
 			}
 		}()
 
@@ -71,7 +71,7 @@ func (c *Controller) ObjectPut(filePath, dest string, cfg ObjectPutConfig) error
 		}
 		defer func() {
 			if err := f.Close(); err != nil {
-				log.Printf("failed closing file: %w", err)
+				log.Printf("failed closing file: %v", err)
 			}
 		}()
 
