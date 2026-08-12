@@ -19,6 +19,7 @@ jobs:
           ROOT_SECRET_KEY: secret
           VGW_BACKEND: posix
           VGW_BACKEND_ARG: /tmp
+          VGW_VERSIONING_DIR: /var/tmp
         ports:
           - 7070:7070
     steps:
