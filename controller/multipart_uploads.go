@@ -21,10 +21,13 @@ func (c *Controller) MultipartUploadCreate(bucket, key string) error {
 		Bucket: &bucket,
 		Key:    &key,
 	})
+	if err != nil {
+		return err
+	}
 
 	fmt.Fprintf(c.OutWriter, "%s\n", *resp.UploadId)
 
-	return err
+	return nil
 }
 
 func (c *Controller) MultipartUploadsList(bucket, prefix, originalPrefix, delimiter string, asJson bool) error {
